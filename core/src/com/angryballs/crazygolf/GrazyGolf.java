@@ -17,10 +17,10 @@ public class GrazyGolf extends ApplicationAdapter {
 
 	@Override
 	public void render() {
-		ScreenUtils.clear(1, 0, 0, 1);
+		ScreenUtils.clear(1, 1, 1, 1);
 		batch.begin();
 		//changed 0 to 10
-		batch.draw(img, 10, 10);
+		batch.draw(img, 60, 60);
 		batch.end();
 	}
 
