@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Properties;
-import java.util.Scanner;
-import java.util.Vector;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
