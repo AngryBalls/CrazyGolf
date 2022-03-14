@@ -12,28 +12,28 @@ public class BallLocationUpdateLoop {
     public double heightAccelleration;
     
     public BallLocationUpdateLoop(){
-        Xcoordinate = 0.0;
-        Ycoordinate = 0.0;
-        heightCoordinate = 0.0;
+        Xcoordinate = Ball.Xlocation;
+        Ycoordinate = Ball.Ylocation;
+        heightCoordinate = Ball.Zlocation;
         Xaccelleration = 0.0;
         Yaccelleration = 0.0;
         heightAccelleration = 0.0;
     }
     public BallLocationUpdateLoop(double x, double y){
-        Xcoordinate = x;
-        Ycoordinate = y;
-        heightCoordinate = 0;
-        Xaccelleration = 0.0;
-        Yaccelleration = 0.0;
+        Xcoordinate = Ball.Xlocation;
+        Ycoordinate = Ball.Ylocation;
+        heightCoordinate = Ball.Zlocation;
+        Xaccelleration = x;
+        Yaccelleration = y;
         heightAccelleration = 0.0;
     }
     public BallLocationUpdateLoop(double x, double y, double height){
-        Xcoordinate = x;
-        Ycoordinate = y;
-        heightCoordinate = height;
-        Xaccelleration = 0.0;
-        Yaccelleration = 0.0;
-        heightAccelleration = 0.0;
+        Xcoordinate = Ball.Xlocation;
+        Ycoordinate = Ball.Ylocation;
+        heightCoordinate = Ball.Zlocation;
+        Xaccelleration = x;
+        Yaccelleration = y;
+        heightAccelleration = height;
     }
 
     public void main(String[] args){
@@ -54,6 +54,9 @@ public class BallLocationUpdateLoop {
             Xcoordinate += Xvelocity * 0.01;
             Yvelocity += Yvelocity * 0.01;
             heightCoordinate += heightVelocity * 0.01;
+            Ball.Xlocation = Xcoordinate;
+            Ball.Ylocation = Ycoordinate;
+            Ball.Zlocation = heightCoordinate;
         }
     }
 }
