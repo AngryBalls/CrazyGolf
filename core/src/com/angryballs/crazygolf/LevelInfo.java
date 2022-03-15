@@ -12,6 +12,8 @@ import javax.script.ScriptEngineManager;
 import com.badlogic.gdx.math.Vector2;
 
 public class LevelInfo {
+    public static final LevelInfo exampleInput;
+
     public final Vector2 startPosition;
 
     public final Vector2 endPosition;
@@ -75,5 +77,15 @@ public class LevelInfo {
         } catch (Exception e) {
             throw new IOException("Malformed input file");
         }
+    }
+
+    static {
+        LevelInfo tmp = null;
+        try {
+            tmp = new LevelInfo(new File("example_inputfile.txt"));
+        } catch (Exception e) {
+            System.err.println("example file is either malformed or nonexistent");
+        }
+        exampleInput = tmp;
     }
 }
