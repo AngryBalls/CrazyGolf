@@ -79,7 +79,16 @@ public class StateVector {
         } else
             return 0;
     }
-    //Method to check if the ball inside the hole's radius
+
+    /**Method to check if the ball inside the hole's radius
+     *
+     * @param x current X coordinate
+     * @param centerX the target X coordinate
+     * @param y current Y coordinate
+     * @param centerY the target Y coordinate
+     * @param r the radius around the hole
+     * @return Is the ball inside the target's radius?
+     */
     public boolean isInCircle(double x, double centerX, double y, double centerY, double r) {
         return Math.pow((x - centerX), 2) + Math.pow((y - centerY), 2) <= r * r;
     }
@@ -87,13 +96,27 @@ public class StateVector {
     public double getHeight(double x, double y) {
         return LevelInfo.exampleInput.heightProfile(new Vector2((float) x, (float) y));
     }
-    //Method to calculate the partial derivative of Height function with respect to X or Y
+
+    /**Method to calculate the partial derivative of Height function with respect to X or Y
+     *
+     * @param v1 current X coordinate
+     * @param v2 current Y coordinate
+     * @param isX defines if the derivation is w.r.t. X or Y
+     * @return dh/dx or dh/dy
+     */
     public double derivative(double v1, double v2, boolean isX) {
         if (isX)
             return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
         return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
-    //Method to calculate the acceleration for a specific state vector in X or Y axis
+
+    /**Method to calculate the acceleration for a specific state vector in X or Y axis
+     *
+     * @param derResult the derivative of Height w.r.t. X or Y
+     * @param isX defines if we compute acceleration for x or Y
+     * @param u friction coefficient
+     * @return acceleration w.r.t. X or Y
+     */
     public double acceleration(double derResult, boolean isX, double u) {
         if (isX)
             return -g * derResult - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
