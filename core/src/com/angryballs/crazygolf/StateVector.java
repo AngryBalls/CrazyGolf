@@ -7,7 +7,7 @@ public class StateVector {
     private double y; // y coordinate    private double previousX;
     private double vx; // speed in x
     private double vy; // speed in y
-    private static final double h = 0.1; // a single time step of length h
+    private static final double h = 0.1;  // a single time step of length h
     private static final double g = 9.81;
     private static final double uk = LevelInfo.exampleInput.grassKineticFrictionCoeff;
     private static final double us = LevelInfo.exampleInput.grassStaticFrictionCoeff;
@@ -31,9 +31,11 @@ public class StateVector {
         this.y = LevelInfo.exampleInput.startPosition.y;
     }
 
-    /**
+    /** Method to update the state vector
      * @return the reason why the ball should stop or not
-     * 0: don't stop    1: the ball is rest     2: the ball is in the water (or tree)
+     * 0: no stop
+     * 1: the ball has no speed and acceleration
+     * 2: the ball is in the water (or tree)
      * 3: the ball is in the hole
      */
     public int iteration() {
@@ -42,7 +44,7 @@ public class StateVector {
         double aX = 0;
         double aY = 0;
         boolean sandFlag = false;
-        // TODO: check the position. If it is in the sand pits, change u to calculate acceleration
+
         if ( (x <= sandBoundsX.y && x >= sandBoundsX.x) && (y <= sandBoundsY.y && y >= sandBoundsY.x) ) {
             aX = acceleration(dh_dx, true, this.usk);
             aY = acceleration(dh_dy, false, this.usk);
@@ -77,7 +79,7 @@ public class StateVector {
         } else
             return 0;
     }
-
+    //Method to check if the ball inside the hole's radius
     public boolean isInCircle(double x, double centerX, double y, double centerY, double r) {
         return Math.pow((x - centerX), 2) + Math.pow((y - centerY), 2) <= r * r;
     }
@@ -85,19 +87,17 @@ public class StateVector {
     public double getHeight(double x, double y) {
         return LevelInfo.exampleInput.heightProfile(new Vector2((float) x, (float) y));
     }
-
+    //Method to calculate the partial derivative of Height function with respect to X or Y
     public double derivative(double v1, double v2, boolean isX) {
         if (isX)
             return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
-        else
-            return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
+        return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
-
+    //Method to calculate the acceleration for a specific state vector in X or Y axis
     public double acceleration(double derResult, boolean isX, double u) {
         if (isX)
             return -g * derResult - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
-        else
-            return -g * derResult - u * g * (vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+        return -g * derResult - u * g * (vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
     }
 
     public double getX() {
@@ -114,15 +114,5 @@ public class StateVector {
 
     public double getVy() {
         return vy;
-    }
-
-    public static void main(String[] args) {
-        StateVector sv = new StateVector(1, 0);
-        int code = sv.iteration();
-        while (code == 0) {
-            System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
-            code = sv.iteration();
-        }
-
     }
 }
