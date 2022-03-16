@@ -9,12 +9,13 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class TerrainModel {
     private static final int dimension = 256;
-    private static final int divisions = 128;
+    private static final int divisions = 64;
     private static final float divSize = dimension / (float) divisions;
 
     public final ModelInstance modelInstance;
@@ -56,12 +57,20 @@ public class TerrainModel {
 
         for (int x = 0; x < divisions - 1; ++x) {
             for (int y = 0; y < divisions - 1; ++y) {
-                bPartBuilder.rect(
+                VertexInfo v00 = new VertexInfo().set(
                         new Vector3(x * divSize - halfRes, heightMap[x][y], y * -divSize + halfRes),
+                        null, null, new Vector2(0, 0));
+                VertexInfo v10 = new VertexInfo().set(
                         new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y], y * -divSize + halfRes),
+                        null, null, new Vector2(1, 0));
+                VertexInfo v11 = new VertexInfo().set(
                         new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y + 1], (y + 1) * -divSize + halfRes),
+                        null, null, new Vector2(1, 1));
+                VertexInfo v01 = new VertexInfo().set(
                         new Vector3(x * divSize - halfRes, heightMap[x][y + 1], (y + 1) * -divSize + halfRes),
-                        new Vector3(0, 1, 0));
+                        null, null, new Vector2(0, 1));
+
+                bPartBuilder.rect(v00, v10, v11, v01);
             }
         }
         return (modelbuilder.end());
