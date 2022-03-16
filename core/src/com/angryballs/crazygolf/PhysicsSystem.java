@@ -6,7 +6,7 @@ public class PhysicsSystem {
 
     // Current State
     public float x; // x coordinate
-    public float y; // y coordinate private double previousX;
+    public float y; // y coordinate
     public float vx; // speed in x
     public float vy; // speed in y
 
@@ -110,7 +110,7 @@ public class PhysicsSystem {
             return 3;
 
         // Check if the ball is in the final position (will not move)
-        if (vx <= 0.1 && vy <= 0.1) { // 0.09
+        if (Math.abs(vx) <= 0.1 && Math.abs(vy) <= 0.1) { // 0.09
             if (dh.x == 0 && dh.y == 0) {
                 ballMoving = false;
                 return 1;
@@ -150,8 +150,7 @@ public class PhysicsSystem {
      *
      * @param v1  current X coordinate
      * @param v2  current Y coordinate
-     * @param isX defines if the derivation is w.r.t. X or Y
-     * @return dh/dx or dh/dy
+     * @return dh/dx and dh/dy
      */
     public Vector2 derivative(float v1, float v2) {
         return new Vector2((getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh,
@@ -159,13 +158,9 @@ public class PhysicsSystem {
     }
 
     /**
-     * Method to calculate the acceleration for a specific state vector in X or Y
-     * axis
-     *
-     * @param derResult the derivative of Height w.r.t. X or Y
-     * @param isX       defines if we compute acceleration for x or Y
-     * @param u         friction coefficient
-     * @return acceleration w.r.t. X or Y
+     * Method to calculate the acceleration for a specific state vector in X or Y axis
+     * @param u friction coefficient
+     * @return  acceleration w.r.t. X and Y
      */
     public Vector2 acceleration(Vector2 dh, double u) {
         return new Vector2((float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
@@ -190,10 +185,12 @@ public class PhysicsSystem {
 
     public static void main(String[] args) {
         PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
+        sv.performMove(new Vector2(1,0));
         int code = sv.iteration();
         while (code == 0) {
             System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
             code = sv.iteration();
         }
+        System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
     }
 }
