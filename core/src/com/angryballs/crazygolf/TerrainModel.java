@@ -26,7 +26,7 @@ public class TerrainModel {
         this.levelInfo = levelInfo;
 
         var mat = new Material();
-        mat.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("funnyface.jpg")));
+        mat.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.jpg")));
         modelInstance = new ModelInstance(
                 createPlaneModel(10, 10, mat, 0, 0, 1, 1));
     }
@@ -61,7 +61,7 @@ public class TerrainModel {
                         new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y], y * -divSize + halfRes),
                         new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y + 1], (y + 1) * -divSize + halfRes),
                         new Vector3(x * divSize - halfRes, heightMap[x][y + 1], (y + 1) * -divSize + halfRes),
-                        new Vector3(0, 0, 0));
+                        new Vector3(0, 1, 0));
             }
         }
         return (modelbuilder.end());
