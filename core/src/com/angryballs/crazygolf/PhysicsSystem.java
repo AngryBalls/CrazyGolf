@@ -168,8 +168,9 @@ public class PhysicsSystem {
      * @return acceleration w.r.t. X or Y
      */
     public Vector2 acceleration(Vector2 dh, double u) {
-        return new Vector2((float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
-                (float) (-g * dh.y - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
+        return new Vector2(
+                (float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
+                (float) (-g * dh.y - u * g * (vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
     }
 
     public double getX() {
@@ -189,8 +190,9 @@ public class PhysicsSystem {
     }
 
     public static void main(String[] args) {
+        System.out.println(dh);
         PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
-        sv.performMove(new Vector2(0, 1));
+        sv.performMove(new Vector2(1, 0));
         int code = sv.iteration();
         while (code == 0) {
             System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
