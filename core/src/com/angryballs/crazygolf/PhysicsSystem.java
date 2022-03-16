@@ -58,6 +58,18 @@ public class PhysicsSystem {
         y = levelInfo.startPosition.y;
     }
 
+    private boolean ballMoving = false;
+
+    private void performMove(Vector2 velocity) {
+        if (velocity.epsilonEquals(Vector2.Zero)) {
+            System.out.println("Didn't actually hit the ball.");
+            return;
+        }
+        vx = velocity.x;
+        vy = velocity.y;
+        ballMoving = true;
+    }
+
     /**
      * Method to update the state vector
      *
@@ -68,6 +80,10 @@ public class PhysicsSystem {
      *         3: the ball is in the hole
      */
     public int iteration() {
+        if (!ballMoving) {
+            System.out.println("Iteration is called on stationary ball, returning early.");
+            return 1;
+        }
         Vector2 dh = derivative(x, y);
         Vector2 a;
         boolean sandFlag = false;
@@ -95,13 +111,16 @@ public class PhysicsSystem {
 
         // Check if the ball is in the final position (will not move)
         if (vx <= 0.1 && vy <= 0.1) { // 0.09
-            if (dh.x == 0 && dh.y == 0)
+            if (dh.x == 0 && dh.y == 0) {
+                ballMoving = false;
                 return 1;
-            else if (!sandFlag && us > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2)))
+            } else if (!sandFlag && us > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2))) {
+                ballMoving = false;
                 return 1;
-            else if (sandFlag && uss > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2)))
+            } else if (sandFlag && uss > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2))) {
+                ballMoving = false;
                 return 1;
-            else
+            } else
                 return 0;
         } else
             return 0;
@@ -167,5 +186,14 @@ public class PhysicsSystem {
 
     public double getVy() {
         return vy;
+    }
+
+    public static void main(String[] args) {
+        PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
+        int code = sv.iteration();
+        while (code == 0) {
+            System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
+            code = sv.iteration();
+        }
     }
 }
