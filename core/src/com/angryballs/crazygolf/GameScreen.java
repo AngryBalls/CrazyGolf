@@ -163,22 +163,22 @@ public class GameScreen implements  Screen{
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            int x = (int) ball.x - 5;
+            int x = (int) ball.x - 10;
             int y = (int) ball.y;
             ball_Update(x,y);
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             int x = (int) ball.x;
-            int y = (int) ball.y + 5;
+            int y = (int) ball.y + 10;
             ball_Update(x,y);
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             int x = (int) ball.x;
-            int y = (int) ball.y - 5;
+            int y = (int) ball.y - 10;
             ball_Update(x,y);
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            int x = (int) ball.x + 5;
+            int x = (int) ball.x + 10;
             int y = (int) ball.y;
             ball_Update(x,y);
         }
@@ -190,7 +190,7 @@ public class GameScreen implements  Screen{
         int x = (int) ball.x;
         if (y < 0) {
             System.out.println("render lower chunk");
-            this.YChanged--;
+            this.YChanged++;
             int UX = (int) this.ball.x;
             int UY = (int) this.ball.y + (this.screenHeight * this.resolution);
             ball_Update(UX,UY);
@@ -198,7 +198,7 @@ public class GameScreen implements  Screen{
         }
         else if(y > (this.screenHeight * this.resolution)- this.ball.height) {
             System.out.println("render upper chunk");
-            this.YChanged++;
+            this.YChanged--;
             int UX = (int) this.ball.x;
             int UY = (int) this.ball.y - (this.screenHeight * this.resolution);
             ball_Update(UX,UY);

@@ -3,13 +3,7 @@ package com.angryballs.crazygolf;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.sun.org.apache.xpath.internal.operations.Or;
-
-import java.awt.*;
 
 public class MenuScreen implements Screen {
 
