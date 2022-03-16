@@ -13,7 +13,7 @@ public class PhysicsSystem {
     // Physics properties
     private static final float h = 0.1f; // a single time step of length h
     private static final float g = 9.81f;
-    private static final float dh = 0.000000001f; // derivative step
+    private static final float dh = Float.MIN_VALUE; // derivative step
 
     private float uk;
     private float us;
@@ -102,8 +102,10 @@ public class PhysicsSystem {
         this.vy += h * a.y;
 
         // TODO: add the range of trees
-        if (getHeight(this.x, this.y) < 0)
+        if (getHeight(this.x, this.y) < 0) {
+            System.out.println("The ball is under water : height " + getHeight(this.x, this.y) + ":");
             return 2;
+        }
 
         // (x-targetX)^2 + (y-targetY)^2 <= radius^2
         if (isInCircle(this.x, this.xt, this.y, this.yt, this.r))
@@ -154,7 +156,7 @@ public class PhysicsSystem {
      */
     public Vector2 derivative(float v1, float v2) {
         return new Vector2((getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh,
-                (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh);
+                (getHeight(v1, v2 + dh) - getHeight(v1, v2))/ dh);
     }
 
     /**
@@ -165,8 +167,8 @@ public class PhysicsSystem {
      * @return acceleration w.r.t. X AND Y
      */
     public Vector2 acceleration(Vector2 dh, double u) {
-        return new Vector2((float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
-                (float) (-g * dh.y - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
+        return new Vector2((float) (-g * dh.x - u * g * Math.abs(vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
+                (float) (-g * dh.y - u * g * Math.abs(vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
     }
 
     public double getX() {
@@ -187,11 +189,14 @@ public class PhysicsSystem {
 
     public static void main(String[] args) {
         PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
-        sv.performMove(new Vector2(1,0));
+        sv.performMove(new Vector2(5,0));
         int code = sv.iteration();
+        System.out.println(code);
         while (code == 0) {
+            System.out.println(sv.getHeight(sv.x, sv.y));
             System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
             code = sv.iteration();
         }
+        System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
     }
 }

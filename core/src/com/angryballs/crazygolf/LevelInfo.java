@@ -12,7 +12,7 @@ import javax.script.ScriptEngineManager;
 import com.badlogic.gdx.math.Vector2;
 
 public class LevelInfo {
-    public static final LevelInfo exampleInput;
+    public static LevelInfo exampleInput;
 
     public final Vector2 startPosition;
 
@@ -43,8 +43,8 @@ public class LevelInfo {
         return 0;
     }
 
-    private static ScriptEngineManager mgr = new ScriptEngineManager();
-    private static ScriptEngine engine = mgr.getEngineByName("JavaScript");
+    private static ScriptEngineManager mgr = new ScriptEngineManager(null);
+    private static ScriptEngine engine = mgr.getEngineByName("nashorn");
 
     public LevelInfo(File file) throws FileNotFoundException, IOException {
         Properties props = new Properties();
@@ -81,8 +81,10 @@ public class LevelInfo {
 
     static {
         LevelInfo tmp = null;
+        System.out.println("TMP is null");
         try {
             tmp = new LevelInfo(new File("example_inputfile.txt"));
+            System.out.println("Now tmo is not null");
         } catch (Exception e) {
             System.err.println("example file is either malformed or nonexistent");
         }

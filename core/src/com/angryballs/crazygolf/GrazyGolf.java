@@ -1,7 +1,9 @@
 package com.angryballs.crazygolf;
 
+import java.awt.datatransfer.FlavorEvent;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -35,6 +37,9 @@ public class GrazyGolf extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void create() {
+		if(LevelInfo.exampleInput==null){
+			System.out.println("Example input is null");
+		}
 		terMod = new TerrainModel(LevelInfo.exampleInput);
 		modelBatch = new ModelBatch();
 		batch = new SpriteBatch();
