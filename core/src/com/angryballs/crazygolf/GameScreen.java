@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameScreen implements  Screen{
 
@@ -24,6 +25,8 @@ public class GameScreen implements  Screen{
     Rectangle ball;
     OrthographicCamera camera;
     Pixmap map;
+    int XChanged;
+    int YChanged;
 
     public GameScreen(final GrazyGolf game, int Xstart, int Ystart, int screenWidth, int screenHeight, int resolution) {
         this.game = game;
@@ -43,11 +46,15 @@ public class GameScreen implements  Screen{
 //        ball.y = Ystart * resolution;
         // set the amount of shades of green that will appear on the screen
         this.differentColors =100;
+        this.XChanged = 0;
+        this.YChanged = 0;
         this.map = new Pixmap(screenWidth * this.resolution, screenHeight * this.resolution, Pixmap.Format.RGBA8888);
         Create_Background();
     }
 
     public void Create_Background() {
+        map.setColor(Color.CLEAR);
+        map.fill();
         int biggerCount = 0;
         int smallerCount = 0;
         int equalCount = 0;
@@ -55,15 +62,14 @@ public class GameScreen implements  Screen{
         double max = find_max();
         double step = Determine_Step(max, this.differentColors);
         int half = (int) differentColors/2;
-        System.out.println("half = " + half);
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
                 for (int k = 0; k < this.resolution; k++) {
                     for (int l = 0; l < this.resolution; l++){
                         double tx = k;
                         double ty = l;
-                        double x = i + (tx/this.resolution);
-                        double y = j + (ty/this.resolution);
+                        double x = (i + (tx/this.resolution)) + (XChanged * (screenWidth));
+                        double y = (j + (ty/this.resolution) + (YChanged * screenHeight));
                         int XPixel = (this.resolution * i) + k;
                         int YPixel = (this.resolution * j) + l;
                         double d = Calculate(x,y);
@@ -100,10 +106,10 @@ public class GameScreen implements  Screen{
             }
         }
 
-        System.out.println("equal: " + equalCount);
-        System.out.println("smaller: " + smallerCount);
-        System.out.println("bigger: " + biggerCount);
-        System.out.println("water: " + waterCount);
+//        System.out.println("equal: " + equalCount);
+//        System.out.println("smaller: " + smallerCount);
+//        System.out.println("bigger: " + biggerCount);
+//        System.out.println("water: " + waterCount);
         backgroundImage = new Texture(map);
 
     }
@@ -150,15 +156,72 @@ public class GameScreen implements  Screen{
         game.batch.begin();
         Sprite sprite = new Sprite(water);
         sprite.setSize(this.screenWidth * this.resolution, this.screenHeight*this.resolution);
+        ScreenUtils.clear(0,0,0,1);
         game.batch.draw(sprite.getTexture(), 0,0, sprite.getWidth(), sprite.getHeight());
         game.batch.draw(backgroundImage, 0, 0);
         game.batch.draw(golfBall, ball.x,ball.y, ball.width * this.resolution, ball.height * this.resolution);
         game.batch.end();
 
-        if (ball.x < this.screenWidth - (this.ball.width/2) && ball.y < this.screenHeight - (this.ball.height/2)) {
-            ball_Update(0,0);
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            int x = (int) ball.x - 5;
+            int y = (int) ball.y;
+            ball_Update(x,y);
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            int x = (int) ball.x;
+            int y = (int) ball.y + 5;
+            ball_Update(x,y);
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            int x = (int) ball.x;
+            int y = (int) ball.y - 5;
+            ball_Update(x,y);
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            int x = (int) ball.x + 5;
+            int y = (int) ball.y;
+            ball_Update(x,y);
+        }
+
+        check_out_of_bounds();
+    }
+    public void check_out_of_bounds() {
+        int y = (int) ball.y;
+        int x = (int) ball.x;
+        if (y < 0) {
+            System.out.println("render lower chunk");
+            this.YChanged--;
+            int UX = (int) this.ball.x;
+            int UY = (int) this.ball.y + (this.screenHeight * this.resolution);
+            ball_Update(UX,UY);
+            Create_Background();
+        }
+        else if(y > (this.screenHeight * this.resolution)- this.ball.height) {
+            System.out.println("render upper chunk");
+            this.YChanged++;
+            int UX = (int) this.ball.x;
+            int UY = (int) this.ball.y - (this.screenHeight * this.resolution);
+            ball_Update(UX,UY);
+            Create_Background();
+        }
+        else if (x < 0) {
+            System.out.println("render left chunk");
+            this.XChanged--;
+            int UX = (int) this.ball.x + (this.screenWidth * this.resolution);
+            int UY = (int) this.ball.y;
+            ball_Update(UX,UY);
+            Create_Background();
+        }
+        else if (x > (this.screenWidth * this.resolution) - this.ball.width) {
+            System.out.println("render right chunk");
+            this.XChanged++;
+            int UX = (int) this.ball.x - (this.screenWidth * this.resolution);
+            int UY = (int) this.ball.y;
+            ball_Update(UX,UY);
+            Create_Background();
         }
     }
+
 
 
     @Override

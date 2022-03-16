@@ -14,7 +14,7 @@ public class GrazyGolf extends Game {
 	public BitmapFont font;
 	final int SCREENWIDTH = 32;
 	final int SCREENHEIGHT = 32;
-	final int RESOLUTION = 100;
+	final int RESOLUTION = 50;
 
 	@Override
 	public void create() {
