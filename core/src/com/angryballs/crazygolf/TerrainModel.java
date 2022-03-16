@@ -28,10 +28,10 @@ public class TerrainModel {
         var mat = new Material();
         mat.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.jpg")));
         modelInstance = new ModelInstance(
-                createPlaneModel(10, 10, mat, 0, 0, 1, 1));
+                createTerrainModel(mat, 0, 0, 1, 1));
     }
 
-    private Model createPlaneModel(final float width, final float height, final Material material,
+    private Model createTerrainModel(final Material material,
             final float u1, final float v1, final float u2, final float v2) {
 
         float halfRes = dimension / 2;
