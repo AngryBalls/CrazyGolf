@@ -10,11 +10,12 @@ public class GrazyGolf extends Game {
 	SpriteBatch batch;
 	final int SCREENWIDTH = 32;
 	final int SCREENHEIGHT = 32;
+	final int RESOLUTION = 100;
 
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		this.setScreen(new GameScreen(this, 50, 50, SCREENWIDTH, SCREENHEIGHT));
+		this.setScreen(new GameScreen(this, 50, 50, SCREENWIDTH, SCREENHEIGHT, RESOLUTION));
 	}
 	@Override
 	public void render() {
