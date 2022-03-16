@@ -5,9 +5,13 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+import java.awt.*;
 
 public class GrazyGolf extends Game {
 	SpriteBatch batch;
+	public BitmapFont font;
 	final int SCREENWIDTH = 32;
 	final int SCREENHEIGHT = 32;
 	final int RESOLUTION = 100;
@@ -15,7 +19,8 @@ public class GrazyGolf extends Game {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		this.setScreen(new GameScreen(this, 50, 50, SCREENWIDTH, SCREENHEIGHT, RESOLUTION));
+		font = new BitmapFont();
+		this.setScreen(new MenuScreen(this, 50, 50, SCREENWIDTH, SCREENHEIGHT, RESOLUTION));
 	}
 	@Override
 	public void render() {
@@ -25,5 +30,6 @@ public class GrazyGolf extends Game {
 	@Override
 	public void dispose() {
 		batch.dispose();
+		font.dispose();
 	}
 }

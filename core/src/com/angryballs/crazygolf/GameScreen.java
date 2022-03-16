@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Color;
@@ -19,6 +20,7 @@ public class GameScreen implements  Screen{
     int resolution;
     Texture golfBall;
     Texture backgroundImage;
+    Texture water;
     Rectangle ball;
     OrthographicCamera camera;
     Pixmap map;
@@ -32,6 +34,7 @@ public class GameScreen implements  Screen{
         camera.setToOrtho(false, screenWidth * this.resolution, screenHeight * this.resolution);
         ball = new Rectangle();
         golfBall = new Texture(Gdx.files.internal("ball.png"));
+        water = new Texture(Gdx.files.internal("water.jpg"));
         ball.width = screenWidth/10;
         ball.height = screenHeight/10;
         ball.x = screenWidth/2 * resolution;
@@ -39,7 +42,7 @@ public class GameScreen implements  Screen{
 //        ball.x = Xstart * resolution;
 //        ball.y = Ystart * resolution;
         // set the amount of shades of green that will appear on the screen
-        this.differentColors =50;
+        this.differentColors =100;
         this.map = new Pixmap(screenWidth * this.resolution, screenHeight * this.resolution, Pixmap.Format.RGBA8888);
         Create_Background();
     }
@@ -49,9 +52,6 @@ public class GameScreen implements  Screen{
         int smallerCount = 0;
         int equalCount = 0;
         int waterCount = 0;
-        map.setColor(Color.BLUE);
-        map.fill();
-        Color watercolor = new Color(0,0,1,1);
         double max = find_max();
         double step = Determine_Step(max, this.differentColors);
         int half = (int) differentColors/2;
@@ -148,6 +148,9 @@ public class GameScreen implements  Screen{
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
+        Sprite sprite = new Sprite(water);
+        sprite.setSize(this.screenWidth * this.resolution, this.screenHeight*this.resolution);
+        game.batch.draw(sprite.getTexture(), 0,0, sprite.getWidth(), sprite.getHeight());
         game.batch.draw(backgroundImage, 0, 0);
         game.batch.draw(golfBall, ball.x,ball.y, ball.width * this.resolution, ball.height * this.resolution);
         game.batch.end();
