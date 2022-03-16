@@ -42,7 +42,7 @@ public class GrazyGolf extends ApplicationAdapter implements InputProcessor {
 
 		cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(0, 20, 0);
-		cam.near = 0;
+		cam.near = 1;
 		cam.far = 300f;
 		cam.update();
 
@@ -62,6 +62,7 @@ public class GrazyGolf extends ApplicationAdapter implements InputProcessor {
 	public void render() {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
 		camControls.update();
 
