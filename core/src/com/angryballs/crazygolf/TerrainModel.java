@@ -59,16 +59,16 @@ public class TerrainModel {
             for (int y = 0; y < divisions - 1; ++y) {
                 VertexInfo v00 = new VertexInfo().set(
                         new Vector3(x * divSize - halfRes, heightMap[x][y], y * -divSize + halfRes),
-                        null, null, new Vector2(0, 0));
+                        null, null, new Vector2(0, 1));
                 VertexInfo v10 = new VertexInfo().set(
                         new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y], y * -divSize + halfRes),
-                        null, null, new Vector2(1, 0));
+                        null, null, new Vector2(1, 1));
                 VertexInfo v11 = new VertexInfo().set(
                         new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y + 1], (y + 1) * -divSize + halfRes),
-                        null, null, new Vector2(1, 1));
+                        null, null, new Vector2(1, 0));
                 VertexInfo v01 = new VertexInfo().set(
                         new Vector3(x * divSize - halfRes, heightMap[x][y + 1], (y + 1) * -divSize + halfRes),
-                        null, null, new Vector2(0, 1));
+                        null, null, new Vector2(0, 0));
 
                 bPartBuilder.rect(v00, v10, v11, v01);
             }
