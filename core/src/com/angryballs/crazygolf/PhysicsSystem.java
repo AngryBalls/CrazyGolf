@@ -190,6 +190,7 @@ public class PhysicsSystem {
 
     public static void main(String[] args) {
         PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
+        sv.performMove(new Vector2(0, 1));
         int code = sv.iteration();
         while (code == 0) {
             System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
