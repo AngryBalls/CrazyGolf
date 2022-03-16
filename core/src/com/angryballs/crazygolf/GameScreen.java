@@ -38,8 +38,8 @@ public class GameScreen implements  Screen{
         ball = new Rectangle();
         golfBall = new Texture(Gdx.files.internal("ball.png"));
         water = new Texture(Gdx.files.internal("water.jpg"));
-        ball.width = screenWidth/10;
-        ball.height = screenHeight/10;
+        ball.width = screenWidth/15;
+        ball.height = screenHeight/15;
         ball.x = screenWidth/2 * resolution;
         ball.y = screenHeight/2 * resolution;
 //        ball.x = Xstart * resolution;
@@ -188,7 +188,7 @@ public class GameScreen implements  Screen{
     public void check_out_of_bounds() {
         int y = (int) ball.y;
         int x = (int) ball.x;
-        if (y < 0) {
+        if (y < (-this.ball.height * this.resolution)) {
             System.out.println("render lower chunk");
             this.YChanged++;
             int UX = (int) this.ball.x;
@@ -204,7 +204,7 @@ public class GameScreen implements  Screen{
             ball_Update(UX,UY);
             Create_Background();
         }
-        else if (x < 0) {
+        else if (x < (-this.ball.width * this.resolution)) {
             System.out.println("render left chunk");
             this.XChanged--;
             int UX = (int) this.ball.x + (this.screenWidth * this.resolution);
@@ -230,17 +230,14 @@ public class GameScreen implements  Screen{
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
@@ -248,5 +245,6 @@ public class GameScreen implements  Screen{
         golfBall.dispose();
         map.dispose();
         backgroundImage.dispose();
+        water.dispose();
     }
 }
