@@ -1,22 +1,20 @@
 package com.angryballs.crazygolf;
 
+import java.awt.*;
 import java.util.Random;
 
 import javax.swing.text.StyledEditorKit.BoldAction;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
@@ -32,7 +30,11 @@ public class GameScreen3D extends ScreenAdapter {
 
     private LevelInfo levelInfo;
 
+    private State state = State.RUN;
+
     public GameScreen3D(LevelInfo levelInfo) {
+
+
         this.levelInfo = levelInfo;
         physicsSystem = new PhysicsSystem(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
@@ -53,23 +55,60 @@ public class GameScreen3D extends ScreenAdapter {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0f, -1f, -0f));
+
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+        switch (state) {
+            case PAUSE:
 
-        physicsSystem.iteration();
-        camControls.update(delta);
-        updateBallPos();
+                Gdx.input.setCursorCatched(false);
+                Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
-        modelBatch.begin(cam);
-        modelBatch.render(terrainModel, environment);
-        modelBatch.render(ballModel, environment);
-        modelBatch.end();
+
+                modelBatch.begin(cam);
+                modelBatch.render(terrainModel, environment);
+                modelBatch.render(ballModel, environment);
+                modelBatch.end();
+
+
+
+                break;
+            case RUN:
+                Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+
+                physicsSystem.iteration();
+                camControls.update(delta);
+                updateBallPos();
+
+                modelBatch.begin(cam);
+                modelBatch.render(terrainModel, environment);
+                modelBatch.render(ballModel, environment);
+                modelBatch.end();
+                break;
+            case RESUME:
+                Gdx.input.setCursorCatched(true);
+                this.state = State.RUN;
+                break;
+            case STOPPED:
+
+                break;
+            default:
+                break;
+        }
+
+
+
     }
+
+
+
+
 
     @Override
     public void show() {
@@ -100,6 +139,15 @@ public class GameScreen3D extends ScreenAdapter {
         @Override
         public boolean keyDown(int keycode) {
             camControls.keyDown(keycode);
+
+            if (keycode == 44) {
+                if (state == State.RUN) {
+                    state = State.PAUSE;
+                }
+                else if (state == State.PAUSE) {
+                    state = State.RESUME;
+                }
+            }
             return true;
         }
 

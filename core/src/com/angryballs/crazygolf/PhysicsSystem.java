@@ -81,7 +81,7 @@ public class PhysicsSystem {
      */
     public int iteration() {
         if (!ballMoving) {
-            System.out.println("Iteration is called on stationary ball, returning early.");
+            //System.out.println("Iteration is called on stationary ball, returning early.");
             return 1;
         }
         Vector2 dh = derivative(x, y);
