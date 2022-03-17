@@ -6,6 +6,11 @@ import java.util.Random;
 import javax.swing.text.StyledEditorKit.BoldAction;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
+import java.util.Random;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -23,6 +28,8 @@ public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
     private final TerrainModel terrainModel;
     private final BallModel ballModel;
+    private final FlagpoleModel poleModel;
+    private final Skybox skybox;
     private PerspectiveCamera cam;
 
     private final Environment environment;
@@ -51,17 +58,19 @@ public class GameScreen3D extends ScreenAdapter {
     private static final int EXIT_BUTTON_Y = 35;
     private static final int PLAY_BUTTON_Y = 110;
 
-    public GameScreen3D(LevelInfo levelInfo,final GrazyGolf game) {
+    public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         this.game = game;
         this.levelInfo = levelInfo;
         physicsSystem = new PhysicsSystem(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
+        poleModel = new FlagpoleModel();
+        skybox = new Skybox();
 
         cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 20, 0);
         cam.near = 1;
-        cam.far = 300f;
+        cam.far = 5000f;
         cam.update();
 
         camControls = new FirstPersonCameraController2(cam);
@@ -69,6 +78,13 @@ public class GameScreen3D extends ScreenAdapter {
         camControls.setVelocity(50);
 
         ballModel.transform.setTranslation(new Vector3(0, 50, 100));
+
+        var pPos = levelInfo.endPosition;
+        poleModel.transform
+                .setTranslation(
+                        new Vector3(pPos.x, levelInfo.heightProfile(pPos.x, pPos.y).floatValue() + 10, -pPos.y));
+
+        skybox.transform.rotateRad(new Vector3(1, 0, 0), 3.14f);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -82,105 +98,73 @@ public class GameScreen3D extends ScreenAdapter {
         playButtonInactive = new Texture("play_button_inactive.png");
         exitButtonActive = new Texture("exit_button_active.png");
         exitButtonInactive = new Texture("exit_button_inactive.png");
-
-
     }
 
     @Override
     public void render(float delta) {
-        switch (state) {
-            case PAUSE:
 
-                Gdx.input.setCursorCatched(false);
-                Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
+        modelBatch.begin(cam);
+        modelBatch.render(skybox);
+        modelBatch.render(terrainModel, environment);
+        modelBatch.render(ballModel, environment);
+        modelBatch.render(poleModel, environment);
+        modelBatch.end();
 
-                modelBatch.begin(cam);
-                modelBatch.render(terrainModel, environment);
-                modelBatch.render(ballModel, environment);
-                modelBatch.end();
+        boolean queueExit = false;
+        spriteBatch.begin();
 
-                spriteBatch.begin();
-                int x = GrazyGolf.MENU_SCREEN_WIDTH/2 - EXIT_BUTTON_WIDTH/2;
+        if (state == State.PAUSE) {
+            int x = GrazyGolf.MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
 
-                boolean queueExit = false;
-                if(Gdx.input.getX() < x + EXIT_BUTTON_WIDTH && Gdx.input.getX() > x && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > EXIT_BUTTON_Y){
-                    spriteBatch.draw(exitButtonActive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
-                    if(Gdx.input.isTouched()){
-                        queueExit = true;
-                    }
-                }
-                else{
-                    spriteBatch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
-                }
+            if (Gdx.input.getX() < x + EXIT_BUTTON_WIDTH
+                    && Gdx.input.getX() > x
+                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT
+                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > EXIT_BUTTON_Y) {
 
-                if(Gdx.input.getX() < x + PLAY_BUTTON_WIDTH && Gdx.input.getX() > x && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y){
-                    spriteBatch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
-                    if (Gdx.input.isTouched()) {
-                        state = State.RESUME;
-                    }
-                }
-                else{
-                    spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
-                }
-                font.draw(spriteBatch, "# of shots", 10, Gdx.graphics.getHeight() - 10);
-                font.draw(spriteBatch, "X position = " + (float) Math.round(physicsSystem.x*100)/100 , 10, Gdx.graphics.getHeight() - 30);
-                Vector2 vec2 = new Vector2(physicsSystem.x, physicsSystem.y);
-                float f2 = LevelInfo.exampleInput.heightProfile(vec2);
-                font.draw(spriteBatch, "Y position = " + (float) Math.round(f2*100)/100, 10, Gdx.graphics.getHeight() - 50);
-                font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y*100)/100, 10, Gdx.graphics.getHeight() - 70);
+                spriteBatch.draw(exitButtonActive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+                if (Gdx.input.isTouched())
+                    queueExit = true;
+            } else {
+                spriteBatch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+            }
 
-                spriteBatch.end();
-                if(queueExit)
-                    game.Switch_Menu();
+            if (Gdx.input.getX() < x + PLAY_BUTTON_WIDTH
+                    && Gdx.input.getX() > x
+                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT
+                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y) {
+                spriteBatch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
 
-                break;
-            case RUN:
-                Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-                Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+                if (Gdx.input.isTouched())
+                    state = State.RESUME;
 
-                physicsSystem.iteration();
-                camControls.update(delta);
-                updateBallPos();
-
-                modelBatch.begin(cam);
-                modelBatch.render(terrainModel, environment);
-                modelBatch.render(ballModel, environment);
-                modelBatch.end();
-
-                spriteBatch.begin();
-                font.draw(spriteBatch, "# of shots", 10, Gdx.graphics.getHeight() - 10);
-                font.draw(spriteBatch, "X position = " + (float) Math.round(physicsSystem.x*100)/100 , 10, Gdx.graphics.getHeight() - 30);
-                Vector2 vec = new Vector2(physicsSystem.x, physicsSystem.y);
-                float f = LevelInfo.exampleInput.heightProfile(vec);
-                font.draw(spriteBatch, "Y position = " + (float) Math.round(f*100)/100, 10, Gdx.graphics.getHeight() - 50);
-                font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y*100)/100, 10, Gdx.graphics.getHeight() - 70);
-                spriteBatch.end();
-
-
-
-                break;
-            case RESUME:
-                Gdx.input.setCursorCatched(true);
-                this.state = State.RUN;
-                break;
-            case STOPPED:
-
-                break;
-            default:
-                break;
+            } else {
+                spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
+            }
+        } else if (state == State.RUN) {
+            physicsSystem.iteration();
+            camControls.update(delta);
+            updateBallPos();
         }
 
+        font.draw(spriteBatch, "# of shots", 10, Gdx.graphics.getHeight() - 10);
+        font.draw(spriteBatch, "X position = " + (float) Math.round(physicsSystem.x * 100) / 100, 10,
+                Gdx.graphics.getHeight() - 30);
+        Vector2 vec = new Vector2((float) physicsSystem.x, (float) physicsSystem.y);
+        float f = levelInfo.heightProfile(vec.x, vec.y).floatValue();
+        font.draw(spriteBatch, "Y position = " + (float) Math.round(f * 100) / 100, 10,
+                Gdx.graphics.getHeight() - 50);
+        font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y * 100) / 100, 10,
+                Gdx.graphics.getHeight() - 70);
 
+        spriteBatch.end();
 
+        if (queueExit)
+            game.Switch_Menu();
     }
-
-
-
-
 
     @Override
     public void show() {
@@ -220,9 +204,10 @@ public class GameScreen3D extends ScreenAdapter {
             if (keycode == 44) {
                 if (state == State.RUN) {
                     state = State.PAUSE;
-                }
-                else if (state == State.PAUSE) {
+                    Gdx.input.setCursorCatched(true);
+                } else if (state == State.PAUSE) {
                     state = State.RESUME;
+                    Gdx.input.setCursorCatched(false);
                 }
             }
             return true;
@@ -243,11 +228,17 @@ public class GameScreen3D extends ScreenAdapter {
 
     private void updateBallPos() {
         float x, y, z;
-        x = physicsSystem.x;
-        z = physicsSystem.y;
+        x = (float) physicsSystem.x;
+        z = (float) physicsSystem.y;
 
-        y = levelInfo.heightProfile(new Vector2(x, z));
+        y = levelInfo.heightProfile(x, z).floatValue();
 
-        ballModel.transform.setTranslation(new Vector3(x - 128, y, -z + 128));
+        ballModel.transform.setTranslation(new Vector3(x, y, -z));
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        cam.viewportWidth = width;
+        cam.viewportHeight = height;
     }
 }
