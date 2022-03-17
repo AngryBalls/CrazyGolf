@@ -30,17 +30,17 @@ public class LevelInfo {
 
     private final String heightProfile;
 
-    public float heightProfile(Vector2 coord) {
-        engine.put("x", coord.x);
-        engine.put("y", coord.y);
+    public Double heightProfile(double x, double y) {
+        engine.put("x", x);
+        engine.put("y", y);
 
         try {
-            return ((Double) engine.eval(heightProfile)).floatValue();
+            return ((Double) engine.eval(heightProfile));
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        return 0;
+        return 0.0;
     }
 
     private static ScriptEngineManager mgr = new ScriptEngineManager();
