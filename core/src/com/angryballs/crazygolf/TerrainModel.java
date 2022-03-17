@@ -25,7 +25,7 @@ public class TerrainModel extends ModelInstance {
         private static Model createTerrainModel(LevelInfo levelInfo) {
 
                 var grassMaterial = new Material();
-                grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.jpg")));
+                grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.png")));
 
                 float halfRes = dimension / 2;
 

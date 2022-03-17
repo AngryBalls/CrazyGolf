@@ -18,6 +18,7 @@ public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
     private final TerrainModel terrainModel;
     private final BallModel ballModel;
+    private final Skybox skybox;
     private PerspectiveCamera cam;
 
     private final Environment environment;
@@ -33,11 +34,12 @@ public class GameScreen3D extends ScreenAdapter {
         physicsSystem = new PhysicsSystem(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
+        skybox = new Skybox();
 
         cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 20, 0);
         cam.near = 1;
-        cam.far = 300f;
+        cam.far = 5000f;
         cam.update();
 
         camControls = new FirstPersonCameraController2(cam);
@@ -45,6 +47,8 @@ public class GameScreen3D extends ScreenAdapter {
         camControls.setVelocity(50);
 
         ballModel.transform.setTranslation(new Vector3(0, 50, 100));
+
+        skybox.transform.rotateRad(new Vector3(1, 0, 0), 3.14f);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -62,6 +66,7 @@ public class GameScreen3D extends ScreenAdapter {
         updateBallPos();
 
         modelBatch.begin(cam);
+        modelBatch.render(skybox);
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
         modelBatch.end();
