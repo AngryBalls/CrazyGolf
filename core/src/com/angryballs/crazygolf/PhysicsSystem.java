@@ -11,7 +11,7 @@ public class PhysicsSystem {
     public float vy; // speed in y
 
     // Physics properties
-    private static final float h = 0.1f; // a single time step of length h
+    private static final float h = 0.001f; // a single time step of length h
     private static final float g = 9.81f;
     private static final float dh = 0.000000001f; // derivative step
 
@@ -148,8 +148,8 @@ public class PhysicsSystem {
      * Method to calculate the partial derivative of Height function with respect to
      * X or Y
      *
-     * @param v1  current X coordinate
-     * @param v2  current Y coordinate
+     * @param v1 current X coordinate
+     * @param v2 current Y coordinate
      * @return dh/dx AND dh/dy
      */
     public Vector2 derivative(float v1, float v2) {
@@ -161,7 +161,7 @@ public class PhysicsSystem {
      * Method to calculate the acceleration for a specific state vector in X or Y
      * axis
      *
-     * @param u         friction coefficient
+     * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
     public Vector2 acceleration(Vector2 dh, double u) {
@@ -187,7 +187,7 @@ public class PhysicsSystem {
 
     public static void main(String[] args) {
         PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
-        sv.performMove(new Vector2(1,0));
+        sv.performMove(new Vector2(1, 0));
         int code = sv.iteration();
         while (code == 0) {
             System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
