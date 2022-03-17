@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -16,14 +17,20 @@ public class MenuScreen extends ScreenAdapter {
     private static final int EXIT_BUTTON_Y = 70;
     private static final int PLAY_BUTTON_Y = 220;
 
-    GrazyGolf game;
-    OrthographicCamera camera;
-    Texture exitButtonActive;
-    Texture exitButtonInactive;
-    Texture playButtonActive;
-    Texture playButtonInactive;
+    private static final int LOGO_WIDTH = 300;
+    private static final int LOGO_HEIGHT = 150;
+    private static final int LOGO_Y = 530;
 
-    SpriteBatch spriteBatch;
+    private GrazyGolf game;
+    private Texture exitButtonActive;
+    private Texture exitButtonInactive;
+    private Texture playButtonActive;
+    private Texture playButtonInactive;
+    private Texture logo;
+
+    private BitmapFont font;
+
+    private SpriteBatch spriteBatch;
 
     public MenuScreen(GrazyGolf game) {
         this.game = game;
@@ -31,6 +38,9 @@ public class MenuScreen extends ScreenAdapter {
         playButtonInactive = new Texture("play_button_inactive.png");
         exitButtonActive = new Texture("exit_button_active.png");
         exitButtonInactive = new Texture("exit_button_inactive.png");
+        logo = new Texture("logo.png");
+
+        font = new BitmapFont();
 
         spriteBatch = new SpriteBatch();
     }
@@ -44,6 +54,11 @@ public class MenuScreen extends ScreenAdapter {
         boolean queueStart = false;
 
         int x = GrazyGolf.MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
+
+        int x_L = GrazyGolf.MENU_SCREEN_WIDTH / 2 - LOGO_WIDTH / 2;
+        font.draw(spriteBatch, "Welcome to GG!!! ", 100, 490);
+        spriteBatch.draw(logo, x_L, LOGO_Y, LOGO_WIDTH, LOGO_HEIGHT);
+
         /*
          * Changes the color of the buttons when the mouse is on top of the buttons and
          * makes the buttons work
