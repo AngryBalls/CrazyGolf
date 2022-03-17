@@ -124,6 +124,6 @@ public class GameScreen3D extends ScreenAdapter {
 
         y = levelInfo.heightProfile(x, z).floatValue();
 
-        ballModel.transform.setTranslation(new Vector3(x - 128, y, -z + 128));
+        ballModel.transform.setTranslation(new Vector3(x, y, -z));
     }
 }
