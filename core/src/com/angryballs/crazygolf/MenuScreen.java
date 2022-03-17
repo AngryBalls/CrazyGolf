@@ -41,6 +41,8 @@ public class MenuScreen extends ScreenAdapter {
 
         spriteBatch.begin();
 
+        boolean queueStart = false;
+
         int x = GrazyGolf.MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
         /*
          * Changes the color of the buttons when the mouse is on top of the buttons and
@@ -61,14 +63,15 @@ public class MenuScreen extends ScreenAdapter {
                 && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT
                 && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y) {
             spriteBatch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
-            if (Gdx.input.isTouched()) {
-                game.Start_Game();
-            }
+            queueStart = Gdx.input.isTouched();
         } else {
             spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
         }
 
         spriteBatch.end();
+
+        if (queueStart)
+            game.Start_Game();
     }
 
     @Override
