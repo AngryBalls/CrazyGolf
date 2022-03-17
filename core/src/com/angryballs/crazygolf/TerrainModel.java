@@ -13,27 +13,19 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-public class TerrainModel {
+public class TerrainModel extends ModelInstance {
     private static final int dimension = 256;
     private static final int divisions = 64;
     private static final float divSize = dimension / (float) divisions;
 
-    public final ModelInstance modelInstance;
-
-    private final LevelInfo levelInfo;
-
     public TerrainModel(LevelInfo levelInfo) {
-
-        this.levelInfo = levelInfo;
-
-        var mat = new Material();
-        mat.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.jpg")));
-        modelInstance = new ModelInstance(
-                createTerrainModel(mat, 0, 0, 1, 1));
+        super(createTerrainModel(levelInfo));
     }
 
-    private Model createTerrainModel(final Material material,
-            final float u1, final float v1, final float u2, final float v2) {
+    private static Model createTerrainModel(LevelInfo levelInfo) {
+
+        var material = new Material();
+        material.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.jpg")));
 
         float halfRes = dimension / 2;
 
@@ -55,7 +47,7 @@ public class TerrainModel {
                 material);
         // NOTE ON TEXTURE REGION, MAY FILL OTHER REGIONS, USE GET region.getU() and so
         // on
-        bPartBuilder.setUVRange(u1, v1, u2, v2);
+        bPartBuilder.setUVRange(0, 0, 1, 1);
 
         for (int x = 0; x < divisions - 1; ++x) {
             for (int y = 0; y < divisions - 1; ++y) {

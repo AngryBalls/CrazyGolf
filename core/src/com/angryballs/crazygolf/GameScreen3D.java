@@ -13,10 +13,12 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
+import com.badlogic.gdx.math.Vector3;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
     private final TerrainModel terrainModel;
+    private final BallModel ballModel;
     private PerspectiveCamera cam;
 
     private final Environment environment;
@@ -25,6 +27,7 @@ public class GameScreen3D extends ScreenAdapter {
 
     public GameScreen3D(LevelInfo levelInfo) {
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
+        ballModel = new BallModel();
 
         cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 20, 0);
@@ -35,6 +38,8 @@ public class GameScreen3D extends ScreenAdapter {
         camControls = new FirstPersonCameraController2(cam);
         camControls.setDegreesPerPixel(0.5f);
         camControls.setVelocity(50);
+
+        ballModel.transform.setTranslation(new Vector3(0, 50, 100));
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -50,7 +55,8 @@ public class GameScreen3D extends ScreenAdapter {
         camControls.update(delta);
 
         modelBatch.begin(cam);
-        modelBatch.render(terrainModel.modelInstance, environment);
+        modelBatch.render(terrainModel, environment);
+        modelBatch.render(ballModel, environment);
         modelBatch.end();
     }
 
