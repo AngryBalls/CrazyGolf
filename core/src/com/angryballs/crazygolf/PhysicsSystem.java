@@ -100,8 +100,8 @@ public class PhysicsSystem {
         this.x += h * vx;
         this.y += h * vy;
 
-        this.vx = Math.min(vx + h * a.x, 5);
-        this.vx = Math.min(vy + h * a.y, 5);
+        this.vx = Math.max(-5, Math.min(vx + h * a.x, 5));
+        this.vy = Math.max(-5, Math.min(vy + h * a.y, 5));
 
         // TODO: add the range of trees
         if (getHeight(this.x, this.y) < 0) {
