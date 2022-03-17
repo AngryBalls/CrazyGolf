@@ -1,31 +1,35 @@
 package com.angryballs.crazygolf;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
-public class GrazyGolf extends ApplicationAdapter {
+import java.awt.*;
+
+public class GrazyGolf extends Game {
 	SpriteBatch batch;
-	Texture img;
+	public BitmapFont font;
+	final int SCREENWIDTH = 32;
+	final int SCREENHEIGHT = 32;
+	final int RESOLUTION = 100;
 
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		font = new BitmapFont();
+		this.setScreen(new MenuScreen(this, 50, 50, SCREENWIDTH, SCREENHEIGHT, RESOLUTION));
 	}
-
 	@Override
 	public void render() {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		super.render();
 	}
 
 	@Override
 	public void dispose() {
 		batch.dispose();
-		img.dispose();
+		font.dispose();
 	}
 }
