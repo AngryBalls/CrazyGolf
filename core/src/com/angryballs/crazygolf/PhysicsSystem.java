@@ -166,7 +166,7 @@ public class PhysicsSystem {
      */
     public Vector2 acceleration(Vector2 dh, double u) {
         return new Vector2((float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
-                (float) (-g * dh.y - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
+                (float) (-g * dh.y - u * g * (vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
     }
 
     public double getX() {
