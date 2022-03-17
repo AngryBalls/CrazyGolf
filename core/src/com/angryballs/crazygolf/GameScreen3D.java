@@ -190,8 +190,9 @@ public class GameScreen3D extends ScreenAdapter {
         Random rng = new Random();
 
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            physicsSystem.performMove(new Vector2(rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1),
-                    rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1)));
+            if (state == State.RUN)
+                physicsSystem.performMove(new Vector2(rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1),
+                        rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1)));
             return true;
         }
 
@@ -213,6 +214,7 @@ public class GameScreen3D extends ScreenAdapter {
 
         @Override
         public boolean keyUp(int keycode) {
+
             camControls.keyUp(keycode);
             return true;
         }
