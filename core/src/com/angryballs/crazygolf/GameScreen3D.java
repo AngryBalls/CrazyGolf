@@ -8,13 +8,16 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.badlogic.gdx.graphics.Texture;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
@@ -31,10 +34,25 @@ public class GameScreen3D extends ScreenAdapter {
     private LevelInfo levelInfo;
 
     private State state = State.RUN;
+    final SpriteBatch spriteBatch;
+    final BitmapFont font;
 
-    public GameScreen3D(LevelInfo levelInfo) {
+    private final Texture exitButtonActive;
+    private final Texture exitButtonInactive;
+    private final Texture playButtonActive;
+    private final Texture playButtonInactive;
 
+    final private GrazyGolf game;
 
+    private static final int EXIT_BUTTON_WIDTH = 125;
+    private static final int EXIT_BUTTON_HEIGHT = 50;
+    private static final int PLAY_BUTTON_WIDTH = 140;
+    private static final int PLAY_BUTTON_HEIGHT = 50;
+    private static final int EXIT_BUTTON_Y = 35;
+    private static final int PLAY_BUTTON_Y = 110;
+
+    public GameScreen3D(LevelInfo levelInfo,final GrazyGolf game) {
+        this.game = game;
         this.levelInfo = levelInfo;
         physicsSystem = new PhysicsSystem(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
@@ -56,6 +74,16 @@ public class GameScreen3D extends ScreenAdapter {
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0f, -1f, -0f));
 
+        spriteBatch = new SpriteBatch();
+
+        font = new BitmapFont();
+
+        playButtonActive = new Texture("play_button_active.png");
+        playButtonInactive = new Texture("play_button_inactive.png");
+        exitButtonActive = new Texture("exit_button_active.png");
+        exitButtonInactive = new Texture("exit_button_inactive.png");
+
+
     }
 
     @Override
@@ -74,7 +102,39 @@ public class GameScreen3D extends ScreenAdapter {
                 modelBatch.render(ballModel, environment);
                 modelBatch.end();
 
+                spriteBatch.begin();
+                int x = GrazyGolf.MENU_SCREEN_WIDTH/2 - EXIT_BUTTON_WIDTH/2;
 
+                boolean queueExit = false;
+                if(Gdx.input.getX() < x + EXIT_BUTTON_WIDTH && Gdx.input.getX() > x && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > EXIT_BUTTON_Y){
+                    spriteBatch.draw(exitButtonActive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+                    if(Gdx.input.isTouched()){
+                        queueExit = true;
+                    }
+                }
+                else{
+                    spriteBatch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+                }
+
+                if(Gdx.input.getX() < x + PLAY_BUTTON_WIDTH && Gdx.input.getX() > x && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y){
+                    spriteBatch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
+                    if (Gdx.input.isTouched()) {
+                        state = State.RESUME;
+                    }
+                }
+                else{
+                    spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
+                }
+                font.draw(spriteBatch, "# of shots", 10, Gdx.graphics.getHeight() - 10);
+                font.draw(spriteBatch, "X position = " + (float) Math.round(physicsSystem.x*100)/100 , 10, Gdx.graphics.getHeight() - 30);
+                Vector2 vec2 = new Vector2(physicsSystem.x, physicsSystem.y);
+                float f2 = LevelInfo.exampleInput.heightProfile(vec2);
+                font.draw(spriteBatch, "Y position = " + (float) Math.round(f2*100)/100, 10, Gdx.graphics.getHeight() - 50);
+                font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y*100)/100, 10, Gdx.graphics.getHeight() - 70);
+
+                spriteBatch.end();
+                if(queueExit)
+                    game.Switch_Menu();
 
                 break;
             case RUN:
@@ -90,6 +150,18 @@ public class GameScreen3D extends ScreenAdapter {
                 modelBatch.render(terrainModel, environment);
                 modelBatch.render(ballModel, environment);
                 modelBatch.end();
+
+                spriteBatch.begin();
+                font.draw(spriteBatch, "# of shots", 10, Gdx.graphics.getHeight() - 10);
+                font.draw(spriteBatch, "X position = " + (float) Math.round(physicsSystem.x*100)/100 , 10, Gdx.graphics.getHeight() - 30);
+                Vector2 vec = new Vector2(physicsSystem.x, physicsSystem.y);
+                float f = LevelInfo.exampleInput.heightProfile(vec);
+                font.draw(spriteBatch, "Y position = " + (float) Math.round(f*100)/100, 10, Gdx.graphics.getHeight() - 50);
+                font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y*100)/100, 10, Gdx.graphics.getHeight() - 70);
+                spriteBatch.end();
+
+
+
                 break;
             case RESUME:
                 Gdx.input.setCursorCatched(true);
@@ -125,6 +197,11 @@ public class GameScreen3D extends ScreenAdapter {
     @Override
     public void dispose() {
         modelBatch.dispose();
+        spriteBatch.dispose();
+        exitButtonActive.dispose();
+        exitButtonInactive.dispose();
+        playButtonActive.dispose();
+        playButtonInactive.dispose();
     }
 
     private class GameScreenInputAdapter extends InputAdapter {

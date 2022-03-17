@@ -60,8 +60,7 @@ public class MenuScreen implements Screen {
         if(Gdx.input.getX() < x + PLAY_BUTTON_WIDTH && Gdx.input.getX() > x && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y){
             game.batch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
             if (Gdx.input.isTouched()) {
-                game.setScreen(new GameScreen3D(LevelInfo.exampleInput));
-                dispose();
+               game.Start_Game();
             }
         }
         else{
@@ -95,5 +94,6 @@ public class MenuScreen implements Screen {
 
     @Override
     public void dispose() {
+
     }
 }
