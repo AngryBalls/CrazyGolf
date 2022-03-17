@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class TerrainModel extends ModelInstance {
-    private static final int dimension = 512;
+    private static final int dimension = 256;
     private static final int divisions = 128;
     private static final float divSize = dimension / (float) divisions;
 
@@ -35,7 +35,8 @@ public class TerrainModel extends ModelInstance {
                 boolean OOB = x == 0 || x == divisions - 1 || y == 0 || y == divisions - 1;
 
                 heightMap[x][y] = OOB ? -50
-                        : levelInfo.heightProfile(x * divSize - halfRes, y * divSize - halfRes).floatValue();
+                        : levelInfo.heightProfile(x * divSize - halfRes, y * divSize - halfRes)
+                                .floatValue();
             }
         }
 
@@ -107,30 +108,66 @@ public class TerrainModel extends ModelInstance {
 
         VertexInfo vs00 = new VertexInfo().set(
                 new Vector3(levelInfo.sandPitBounds[0].x,
-                        levelInfo.heightProfile(levelInfo.sandPitBounds[0].x, levelInfo.sandPitBounds[0].y)
+                        levelInfo.heightProfile(levelInfo.sandPitBounds[0].x,
+                                levelInfo.sandPitBounds[0].y)
                                 .floatValue() + 0.1f,
                         -levelInfo.sandPitBounds[0].y),
                 null, null, new Vector2(0, 1));
         VertexInfo vs10 = new VertexInfo().set(
                 new Vector3(levelInfo.sandPitBounds[1].x,
-                        levelInfo.heightProfile(levelInfo.sandPitBounds[1].x, levelInfo.sandPitBounds[0].y)
+                        levelInfo.heightProfile(levelInfo.sandPitBounds[1].x,
+                                levelInfo.sandPitBounds[0].y)
                                 .floatValue() + 0.1f,
                         -levelInfo.sandPitBounds[0].y),
                 null, null, new Vector2(1, 1));
         VertexInfo vs11 = new VertexInfo().set(
                 new Vector3(levelInfo.sandPitBounds[1].x,
-                        levelInfo.heightProfile(levelInfo.sandPitBounds[1].x, levelInfo.sandPitBounds[1].y)
+                        levelInfo.heightProfile(levelInfo.sandPitBounds[1].x,
+                                levelInfo.sandPitBounds[1].y)
                                 .floatValue() + 0.1f,
                         -levelInfo.sandPitBounds[1].y),
                 null, null, new Vector2(1, 0));
         VertexInfo vs01 = new VertexInfo().set(
                 new Vector3(levelInfo.sandPitBounds[0].x,
-                        levelInfo.heightProfile(levelInfo.sandPitBounds[0].x, levelInfo.sandPitBounds[0].y)
+                        levelInfo.heightProfile(levelInfo.sandPitBounds[0].x,
+                                levelInfo.sandPitBounds[0].y)
                                 .floatValue() + 0.1f,
                         -levelInfo.sandPitBounds[1].y),
                 null, null, new Vector2(0, 0));
 
         bPartBuilder.rect(vs00, vs10, vs11, vs01);
+
+        var holeMaterial = new Material();
+        var hTex = new Texture("hole.png");
+        holeMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, hTex));
+
+        bPartBuilder = modelbuilder.part("hrect",
+                GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates,
+                holeMaterial);
+
+        var hPosX = levelInfo.endPosition.x;
+        var hPosY = levelInfo.endPosition.y;
+        var r = levelInfo.holeRadius * 10;
+
+        VertexInfo vh00 = new VertexInfo().set(
+                new Vector3(hPosX - r, heightAt(hPosX - r, hPosY - r, levelInfo) + 0.1f, -(hPosY - r)),
+                null, null, new Vector2(0, 1));
+        VertexInfo vh10 = new VertexInfo().set(
+                new Vector3(hPosX + r, heightAt(hPosX + r, hPosY - r, levelInfo) + 0.1f, -(hPosY - r)),
+                null, null, new Vector2(1, 1));
+        VertexInfo vh11 = new VertexInfo().set(
+                new Vector3(hPosX + r, heightAt(hPosX + r, hPosY + r, levelInfo) + 0.1f, -(hPosY + r)),
+                null, null, new Vector2(1, 0));
+        VertexInfo vh01 = new VertexInfo().set(
+                new Vector3(hPosX - r, heightAt(hPosX - r, hPosY + r, levelInfo) + 0.1f, -(hPosY + r)),
+                null, null, new Vector2(0, 0));
+
+        bPartBuilder.rect(vh00, vh10, vh11, vh01);
+
         return (modelbuilder.end());
+    }
+
+    private static float heightAt(float x, float y, LevelInfo levelInfo) {
+        return levelInfo.heightProfile(x, y).floatValue();
     }
 }
