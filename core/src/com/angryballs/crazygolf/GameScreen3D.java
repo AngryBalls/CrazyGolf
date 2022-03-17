@@ -148,7 +148,8 @@ public class GameScreen3D extends ScreenAdapter {
             updateBallPos();
         }
 
-        font.draw(spriteBatch, "# of shots", 10, Gdx.graphics.getHeight() - 10);
+        font.draw(spriteBatch, Integer.toString(getRemainingSwings()) + " shot(s) remaining", 10,
+                Gdx.graphics.getHeight() - 10);
         font.draw(spriteBatch, "X position = " + (float) Math.round(physicsSystem.x * 100) / 100, 10,
                 Gdx.graphics.getHeight() - 30);
         Vector2 vec = new Vector2((float) physicsSystem.x, (float) physicsSystem.y);
@@ -191,8 +192,7 @@ public class GameScreen3D extends ScreenAdapter {
 
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             if (state == State.RUN)
-                physicsSystem.performMove(new Vector2(rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1),
-                        rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1)));
+                performSwing();
             return true;
         }
 
@@ -242,4 +242,18 @@ public class GameScreen3D extends ScreenAdapter {
         cam.viewportWidth = width;
         cam.viewportHeight = height;
     }
+
+    private int initialVelocitiesInd = 0;
+
+    private int getRemainingSwings() {
+        return VelocityReader.initialVelocities.size() - initialVelocitiesInd;
+    }
+
+    private void performSwing() {
+        if (getRemainingSwings() <= 0)
+            return;
+
+        physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+    }
+
 }
