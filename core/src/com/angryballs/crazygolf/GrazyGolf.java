@@ -1,26 +1,22 @@
 package com.angryballs.crazygolf;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-
-import java.awt.*;
 
 public class GrazyGolf extends Game {
 	SpriteBatch batch;
-	public BitmapFont font;
-	final int SCREENWIDTH = 32;
-	final int SCREENHEIGHT = 32;
-	final int RESOLUTION = 100;
+	public static final int MENU_SCREEN_WIDTH = 480;
+	public static final int MENU_SCREEN_HEIGHT = 720;
+	public static final int SCREEN_WIDTH = 32;
+	public static final int SCREEN_HEIGHT = 32;
+	BitmapFont font;
 
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		this.setScreen(new MenuScreen(this));
 		font = new BitmapFont();
-		this.setScreen(new MenuScreen(this, 50, 50, SCREENWIDTH, SCREENHEIGHT, RESOLUTION));
 	}
 	@Override
 	public void render() {
@@ -30,6 +26,5 @@ public class GrazyGolf extends Game {
 	@Override
 	public void dispose() {
 		batch.dispose();
-		font.dispose();
 	}
 }
