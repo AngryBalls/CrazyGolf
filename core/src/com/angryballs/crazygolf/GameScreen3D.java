@@ -33,6 +33,8 @@ public class GameScreen3D extends ScreenAdapter {
 
     private LevelInfo levelInfo;
 
+    private InputAdapter inputAdapter;
+
     private State state = State.RUN;
     final SpriteBatch spriteBatch;
     final BitmapFont font;
@@ -59,6 +61,8 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
+
+        inputAdapter = new GameScreenInputAdapter();
 
         cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 20, 0);
@@ -131,9 +135,10 @@ public class GameScreen3D extends ScreenAdapter {
                     && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y) {
                 spriteBatch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
 
-                if (Gdx.input.isTouched())
-                    state = State.RESUME;
-
+                if (Gdx.input.isTouched()) {
+                    Gdx.input.setCursorCatched(true);
+                    state = State.RUN;
+                }
             } else {
                 spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
             }
@@ -161,7 +166,7 @@ public class GameScreen3D extends ScreenAdapter {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new GameScreenInputAdapter());
+        Gdx.input.setInputProcessor(inputAdapter);
         Gdx.input.setCursorCatched(true);
     }
 
@@ -197,10 +202,10 @@ public class GameScreen3D extends ScreenAdapter {
             if (keycode == 44) {
                 if (state == State.RUN) {
                     state = State.PAUSE;
-                    Gdx.input.setCursorCatched(true);
-                } else if (state == State.PAUSE) {
-                    state = State.RESUME;
                     Gdx.input.setCursorCatched(false);
+                } else if (state == State.PAUSE) {
+                    state = State.RUN;
+                    Gdx.input.setCursorCatched(true);
                 }
             }
             return true;
@@ -214,7 +219,8 @@ public class GameScreen3D extends ScreenAdapter {
 
         @Override
         public boolean mouseMoved(int screenX, int screenY) {
-            camControls.touchDragged(screenX, screenY, 0);
+            if (state == State.RUN)
+                camControls.touchDragged(screenX, screenY, 0);
             return true;
         }
     }
