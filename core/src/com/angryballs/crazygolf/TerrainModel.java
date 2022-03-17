@@ -35,7 +35,8 @@ public class TerrainModel extends ModelInstance {
             for (int y = 0; y < divisions; ++y) {
                 boolean OOB = x == 0 || x == divisions - 1 || y == 0 || y == divisions - 1;
 
-                heightMap[x][y] = OOB ? -50 : levelInfo.heightProfile(new Vector2(x * divSize, y * divSize)) * 10;
+                heightMap[x][y] = OOB ? -50
+                        : levelInfo.heightProfile(x * divSize, y * divSize).floatValue();
             }
         }
 

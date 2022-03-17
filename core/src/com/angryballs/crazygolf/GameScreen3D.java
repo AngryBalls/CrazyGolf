@@ -1,10 +1,9 @@
 package com.angryballs.crazygolf;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -12,7 +11,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class GameScreen3D extends ScreenAdapter {
@@ -25,7 +24,13 @@ public class GameScreen3D extends ScreenAdapter {
 
     private FirstPersonCameraController2 camControls;
 
+    private PhysicsSystem physicsSystem;
+
+    private LevelInfo levelInfo;
+
     public GameScreen3D(LevelInfo levelInfo) {
+        this.levelInfo = levelInfo;
+        physicsSystem = new PhysicsSystem(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
 
@@ -52,7 +57,9 @@ public class GameScreen3D extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
+        physicsSystem.iteration();
         camControls.update(delta);
+        updateBallPos();
 
         modelBatch.begin(cam);
         modelBatch.render(terrainModel, environment);
@@ -78,6 +85,14 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
+        Random rng = new Random();
+
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            physicsSystem.performMove(new Vector2(rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1),
+                    rng.nextInt(100) * (rng.nextBoolean() ? -1 : 1)));
+            return true;
+        }
+
         @Override
         public boolean keyDown(int keycode) {
             camControls.keyDown(keycode);
@@ -95,5 +110,15 @@ public class GameScreen3D extends ScreenAdapter {
             camControls.touchDragged(screenX, screenY, 0);
             return true;
         }
+    }
+
+    private void updateBallPos() {
+        float x, y, z;
+        x = (float) physicsSystem.x;
+        z = (float) physicsSystem.y;
+
+        y = levelInfo.heightProfile(x, z).floatValue();
+
+        ballModel.transform.setTranslation(new Vector3(x - 128, y, -z + 128));
     }
 }
