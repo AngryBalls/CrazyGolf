@@ -18,6 +18,7 @@ public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
     private final TerrainModel terrainModel;
     private final BallModel ballModel;
+    private final FlagpoleModel poleModel;
     private final Skybox skybox;
     private PerspectiveCamera cam;
 
@@ -34,6 +35,7 @@ public class GameScreen3D extends ScreenAdapter {
         physicsSystem = new PhysicsSystem(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
+        poleModel = new FlagpoleModel();
         skybox = new Skybox();
 
         cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -47,6 +49,11 @@ public class GameScreen3D extends ScreenAdapter {
         camControls.setVelocity(50);
 
         ballModel.transform.setTranslation(new Vector3(0, 50, 100));
+
+        var pPos = levelInfo.endPosition;
+        poleModel.transform
+                .setTranslation(
+                        new Vector3(pPos.x, levelInfo.heightProfile(pPos.x, pPos.y).floatValue() + 10, -pPos.y));
 
         skybox.transform.rotateRad(new Vector3(1, 0, 0), 3.14f);
 
@@ -69,6 +76,7 @@ public class GameScreen3D extends ScreenAdapter {
         modelBatch.render(skybox);
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
+        modelBatch.render(poleModel, environment);
         modelBatch.end();
     }
 
@@ -125,5 +133,11 @@ public class GameScreen3D extends ScreenAdapter {
         y = levelInfo.heightProfile(x, z).floatValue();
 
         ballModel.transform.setTranslation(new Vector3(x, y, -z));
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        cam.viewportWidth = width;
+        cam.viewportHeight = height;
     }
 }
