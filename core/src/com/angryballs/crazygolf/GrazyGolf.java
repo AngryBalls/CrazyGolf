@@ -60,7 +60,7 @@ public class GrazyGolf extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void render() {
-		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth()*2, Gdx.graphics.getHeight()*2);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
@@ -98,6 +98,9 @@ public class GrazyGolf extends ApplicationAdapter implements InputProcessor {
 			case 29:
 			case 32:
 				camControls.keyUp(keycode);
+				break;
+			case 46:
+				Gdx.app.exit();
 				break;
 		}
 		return false;
