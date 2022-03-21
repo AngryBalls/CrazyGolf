@@ -143,7 +143,8 @@ public class GameScreen3D extends ScreenAdapter {
                 spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
             }
         } else if (state == State.RUN) {
-            physicsSystem.iteration();
+            for (int i = 0; i < 50; ++i)
+                physicsSystem.iteration();
             camControls.update(delta);
             updateBallPos();
         }
