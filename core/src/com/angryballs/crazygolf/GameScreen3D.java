@@ -240,7 +240,7 @@ public class GameScreen3D extends ScreenAdapter {
 
         y = levelInfo.heightProfile(x, z).floatValue();
 
-        ballModel.transform.setTranslation(new Vector3(x, y, -z));
+        ballModel.transform.setTranslation(new Vector3(x, y + (BallModel.ballDiameter / 2), -z));
     }
 
     @Override
