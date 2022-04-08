@@ -26,14 +26,14 @@ public class FlagpoleModel extends ModelInstance {
         var rodBuilder = modelBuilder.part("Rod", GL20.GL_TRIANGLES,
                 Usage.Position | Usage.Normal | Usage.TextureCoordinates, rodMat);
 
-        CylinderShapeBuilder.build(rodBuilder, 1f, 20, 1f, 20);
+        CylinderShapeBuilder.build(rodBuilder, 0.019f, 2.1f, 0.019f, 20);
 
         var flagBuilder = modelBuilder.part("Flag", GL20.GL_TRIANGLES,
                 Usage.Position | Usage.Normal | Usage.TextureCoordinates,
                 new Material(ColorAttribute.createDiffuse(1, 0, 0.39f, 1f)));
 
-        flagBuilder.triangle(new Vector3(0, 10, 0), new Vector3(0, 7.5f, 0), new Vector3(5, 10, 0));
-        flagBuilder.triangle(new Vector3(5, 10, 0), new Vector3(0, 7.5f, 0), new Vector3(0, 10, 0));
+        flagBuilder.triangle(new Vector3(0, 1.05f, 0), new Vector3(0, 0.7875f, 0), new Vector3(1.05f / 2, 1.05f, 0));
+        flagBuilder.triangle(new Vector3(1.05f / 2, 1.05f, 0), new Vector3(0, 0.7875f, 0), new Vector3(0, 1.05f, 0));
 
         return modelBuilder.end();
     }

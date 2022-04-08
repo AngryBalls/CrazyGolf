@@ -18,7 +18,7 @@ public class BallModel extends ModelInstance {
         // mat.set(TextureAttribute.createDiffuse(new Texture("ball_Normal.png")));
         mat.set(TextureAttribute.createNormal(new Texture("ball_Normal.png")));
 
-        return new ModelBuilder().createSphere(2, 2, 2, 50, 50, mat,
+        return new ModelBuilder().createSphere(0.04267f, 0.04267f, 0.04267f, 50, 50, mat,
                 Usage.Position | Usage.Normal | Usage.TextureCoordinates);
     }
 }
