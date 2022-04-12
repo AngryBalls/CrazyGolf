@@ -64,28 +64,28 @@ public class GameScreen3D extends ScreenAdapter {
 
         inputAdapter = new GameScreenInputAdapter();
 
-        cam = new PerspectiveCamera(90, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0, 20, 0);
-        cam.near = 1;
-        cam.far = 5000f;
+        cam = new PerspectiveCamera(60, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam.position.set(0, 3, 0);
+        cam.near = 1f;
+        cam.far = 128f;
         cam.update();
 
-        camControls = new FirstPersonCameraController2(cam);
+        camControls = new FirstPersonCameraController2(cam, levelInfo);
         camControls.setDegreesPerPixel(0.5f);
-        camControls.setVelocity(50);
+        camControls.setVelocity(5);
 
         ballModel.transform.setTranslation(new Vector3(0, 50, 100));
 
         var pPos = levelInfo.endPosition;
         poleModel.transform
                 .setTranslation(
-                        new Vector3(pPos.x, levelInfo.heightProfile(pPos.x, pPos.y).floatValue() + 10, -pPos.y));
+                        new Vector3(pPos.x, levelInfo.heightProfile(pPos.x, pPos.y).floatValue() + 1.05f, -pPos.y));
 
         skybox.transform.rotateRad(new Vector3(1, 0, 0), 3.14f);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0f, -1f, -0f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0, -1f, -0f));
 
         spriteBatch = new SpriteBatch();
 
@@ -146,6 +146,9 @@ public class GameScreen3D extends ScreenAdapter {
             for (int i = 0; i < 50; ++i)
                 physicsSystem.iteration();
             camControls.update(delta);
+            skybox.transform.setTranslation(cam.position.add(new Vector3(0, 20, 0)));
+            skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
+            poleModel.transform.rotate(new Vector3(0, 1, 0), 0.25f);
             updateBallPos();
         }
 
@@ -189,8 +192,6 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
-        Random rng = new Random();
-
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             if (state == State.RUN)
                 performSwing();
@@ -235,7 +236,7 @@ public class GameScreen3D extends ScreenAdapter {
 
         y = levelInfo.heightProfile(x, z).floatValue();
 
-        ballModel.transform.setTranslation(new Vector3(x, y, -z));
+        ballModel.transform.setTranslation(new Vector3(x, y + (BallModel.ballDiameter / 2), -z));
     }
 
     @Override
