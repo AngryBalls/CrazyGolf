@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class MenuOverlay extends Stage {
-
     private static final int EXIT_BUTTON_WIDTH = 250;
     private static final int EXIT_BUTTON_HEIGHT = 100;
     private static final int PLAY_BUTTON_WIDTH = 280;

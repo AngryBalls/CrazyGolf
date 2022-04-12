@@ -17,7 +17,6 @@ public class GrazyGolf extends Game {
 		if (oldScreen != null) {
 			oldScreen.dispose();
 		}
-
 	}
 
 	public void Start_Game() {

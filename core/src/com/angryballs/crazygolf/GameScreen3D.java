@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
@@ -85,7 +84,6 @@ public class GameScreen3D extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -134,7 +132,6 @@ public class GameScreen3D extends ScreenAdapter {
 
     @Override
     public void hide() {
-        // Gdx.input.setInputProcessor(null);
         Gdx.input.setCursorCatched(false);
     }
 
