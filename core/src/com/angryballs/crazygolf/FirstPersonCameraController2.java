@@ -37,8 +37,6 @@ public class FirstPersonCameraController2 extends InputAdapter {
     private int STRAFE_RIGHT = Keys.D;
     private int FORWARD = Keys.W;
     private int BACKWARD = Keys.S;
-    private int UP = Keys.Q;
-    private int DOWN = Keys.E;
     private float velocity = 5;
     private float degreesPerPixel = 0.5f;
     private final Vector3 tmp = new Vector3();

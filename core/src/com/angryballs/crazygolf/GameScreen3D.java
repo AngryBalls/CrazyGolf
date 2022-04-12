@@ -12,10 +12,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -194,8 +192,6 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
-        Random rng = new Random();
-
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             if (state == State.RUN)
                 performSwing();
