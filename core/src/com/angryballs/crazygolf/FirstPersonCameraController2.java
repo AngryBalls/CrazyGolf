@@ -45,7 +45,7 @@ public class FirstPersonCameraController2 extends InputAdapter {
     private final Vector3 tmp2 = new Vector3();
     private final Vector3 tmp3 = new Vector3();
 
-    private static float playerHeight = 1.5f;
+    private static float playerHeight = 1.7f;
 
     private final LevelInfo levelInfo;
 
