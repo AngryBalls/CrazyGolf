@@ -47,9 +47,12 @@ public class FirstPersonCameraController2 extends InputAdapter {
 
     private final LevelInfo levelInfo;
 
-    public FirstPersonCameraController2(Camera camera, LevelInfo levelInfo) {
+    private final boolean noclip;
+
+    public FirstPersonCameraController2(Camera camera, LevelInfo levelInfo, boolean noclip) {
         this.camera = camera;
         this.levelInfo = levelInfo;
+        this.noclip = noclip;
     }
 
     @Override
@@ -118,8 +121,12 @@ public class FirstPersonCameraController2 extends InputAdapter {
             tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * velocity);
             camera.position.add(tmp);
         }
-        var camPos = camera.position;
-        camPos.y = levelInfo.heightProfile(camPos.x, -camPos.z).floatValue() + playerHeight;
-        camera.update(true);
+
+        if (!noclip) {
+            var camPos = camera.position;
+            camPos.y = levelInfo.heightProfile(camPos.x, -camPos.z).floatValue() + playerHeight;
+        }
+
+        camera.update(false);
     }
 }

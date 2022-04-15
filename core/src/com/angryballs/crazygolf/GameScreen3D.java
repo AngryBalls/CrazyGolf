@@ -70,7 +70,7 @@ public class GameScreen3D extends ScreenAdapter {
         cam.far = 128f;
         cam.update();
 
-        camControls = new FirstPersonCameraController2(cam, levelInfo);
+        camControls = new FirstPersonCameraController2(cam, levelInfo, false);
         camControls.setDegreesPerPixel(0.5f);
         camControls.setVelocity(5);
 
@@ -146,7 +146,7 @@ public class GameScreen3D extends ScreenAdapter {
             for (int i = 0; i < 50; ++i)
                 physicsSystem.iteration();
             camControls.update(delta);
-            skybox.transform.setTranslation(cam.position.add(new Vector3(0, 20, 0)));
+            skybox.transform.setTranslation(new Vector3(cam.position).add(new Vector3(0, 20, 0)));
             skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
             poleModel.transform.rotate(new Vector3(0, 1, 0), 0.25f);
             updateBallPos();
