@@ -221,6 +221,9 @@ public class PhysicsSystem {
         this.vx = vx;
         this.vy = vy;
     }
+    public void printStateVector(){
+        System.out.println("X: "+this.x+", Y:"+this.y+", Vx: "+vx+", Vy: "+vy);
+    }
 
     public static void main(String[] args) {
         PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
