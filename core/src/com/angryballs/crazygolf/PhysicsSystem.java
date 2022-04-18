@@ -36,7 +36,7 @@ public class PhysicsSystem {
         applyPhysicsProperties();
         reset();
     }
-    PhysicsSystem(){
+    public PhysicsSystem(){
         this.x = 0;
         this.y = 0;
         this.vx = 0;
@@ -211,6 +211,9 @@ public class PhysicsSystem {
     public double getVy() {
         return vy;
     }
+
+    public double getXt(){return xt;}
+    public double getYt(){return yt;}
 
     public void setStateVector(double x,double y,double vx,double vy){
         this.x = x;
