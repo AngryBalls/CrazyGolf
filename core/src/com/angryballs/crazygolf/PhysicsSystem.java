@@ -36,6 +36,24 @@ public class PhysicsSystem {
         applyPhysicsProperties();
         reset();
     }
+    PhysicsSystem(){
+        this.x = 0;
+        this.y = 0;
+        this.vx = 0;
+        this.vy = 0;
+
+        this.uk = 0.1f;
+        this.us = 0.2f;
+
+        this.usk = 0.25f;
+        this.uss = 0.3f;
+
+        this.xt = 4;
+        this.yt = 1;
+
+        sandBoundsX = new Vector2(-1,1);
+        sandBoundsY = new Vector2(1,2);
+    }
 
     private void applyPhysicsProperties() {
         uk = LevelInfo.exampleInput.grassKineticFrictionCoeff;
@@ -146,9 +164,11 @@ public class PhysicsSystem {
         return Math.pow((x - centerX), 2) + Math.pow((y - centerY), 2) <= r * r;
     }
 
-    public double getHeight(double x, double y) {
-        return levelInfo.heightProfile(x, y);
-    }
+//    public double getHeight(double x, double y) {
+//        return levelInfo.heightProfile(x, y);
+//    }
+
+    public double getHeight(double x, double y){return 5;}
 
     /**
      * Method to calculate the partial derivative of Height function with respect to
@@ -190,6 +210,13 @@ public class PhysicsSystem {
 
     public double getVy() {
         return vy;
+    }
+
+    public void setStateVector(double x,double y,double vx,double vy){
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
     }
 
     public static void main(String[] args) {
