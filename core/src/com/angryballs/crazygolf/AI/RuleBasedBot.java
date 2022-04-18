@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 public class RuleBasedBot {
     public final PhysicsSystem ps = new PhysicsSystem();
 
-    private final double EPSILON = 1;
+    private final double EPSILON = 0.01;
 
     //Target
     private double xt;
@@ -36,23 +36,29 @@ public class RuleBasedBot {
 
     public void shoot(){
         distance = estDist(ps.x, ps.y);
+
+        double xs = ps.x;
+        double ys = ps.y;
+
 //        System.out.println("Distance: "+distance);
 //        System.out.println("Start");
         float vx;
         float vy;
 
 
-        for(int fvx = -4; fvx < 5; fvx++){
-            for(int fvy = -4; fvy < 5; fvy++){
+        for(int fvx = -400; fvx < 500; fvx++){
+            for(int fvy = -400; fvy < 500; fvy++){
 
-                vx = (fvx*1.0f);        //Reduce speed time step by dividing
-                vy = (fvy*1.0f);
+                if(fvx == 0 || fvy == 0)
+                    continue;
 
-                ps.setStateVector(xb,yb,0,0);
+                vx = (fvx*1.0f/100);        //Reduce speed time step by dividing
+                vy = (fvy*1.0f/100);
+
+                ps.setStateVector(xs,ys,0,0);
                 ps.performMove(new Vector2(vx,vy));
                 while(ps.iteration()==0){
                     ps.iteration();
-                    //ps.printStateVector();
                 }
                 //System.out.println("Stopped cuz:" + ps.iteration());
                 //System.out.println("X: "+ps.x +", Y: "+ ps.y);
@@ -68,17 +74,25 @@ public class RuleBasedBot {
 //                    System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
 //                    System.out.println("New dist: "+locDist);
                 }
-
             }
         }
-        System.out.println("Distance = "+distance);
-        System.out.println("Best x: "+xb+", Best Y: "+yb);
-        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
+
+        ps.setStateVector(xb,yb,0,0);
+        System.out.println("Distance:           "+distance);
+        System.out.println("The speed found:    ( "+vxb+" , "+vyb+" )");
+        ps.printStateVector();
+
+//        System.out.println("Distance = "+distance);
+//        System.out.println("Best x: "+xb+", Best Y: "+yb);
+//        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
     }
     public void run(){
-        System.out.println("Target: ( "+xt+" , "+yt+" )");
+        System.out.println("Target:             ( "+xt+" , "+yt+" )");
+        int i = 0;
         while(distance>EPSILON){
             shoot();
+            i++;
+            System.out.println("ShotNr: "+i);
         }
     }
 
