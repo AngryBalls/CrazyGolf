@@ -1,6 +1,17 @@
 Shoot from (0,0) with plain map
+Target: ( 4.0 , 1.0 )
 
 Step size = 1.0 for both velocities
 Distance = 1.031510123342343
 Best x: 4.831456839198402, Best Y: 1.6104855928749988
 Best Vx: 3.0, Best Vy: 1.0
+
+Step size = 0.1 for both velocities
+Distance = 0.11853780652303936
+Best x: 4.114998563982005, Best Y: 1.0287496409955013
+Best Vx: 2.799999952316284, Best Vy: 0.699999988079071
+
+Step size = 0.01 for vx, 0.1 for vy
+Distance = 0.014995056076730993
+Best x: 4.001630119995216, Best Y: 1.0149061871565301
+Best Vx: 2.759999990463257, Best Vy: 0.699999988079071
