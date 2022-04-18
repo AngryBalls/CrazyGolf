@@ -48,7 +48,7 @@ public class RuleBasedBot {
                 vx = (fvx*1.0f);        //Reduce speed time step by dividing
                 vy = (fvy*1.0f);
 
-                ps.setStateVector(0,0,0,0);
+                ps.setStateVector(xb,yb,0,0);
                 ps.performMove(new Vector2(vx,vy));
                 while(ps.iteration()==0){
                     ps.iteration();
@@ -84,6 +84,6 @@ public class RuleBasedBot {
 
     public static void main(String[] args) {
         RuleBasedBot rbb= new RuleBasedBot(40,10);
-        rbb.shoot();
+        rbb.run();
     }
 }
