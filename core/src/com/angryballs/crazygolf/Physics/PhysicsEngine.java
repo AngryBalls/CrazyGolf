@@ -165,10 +165,32 @@ public abstract class PhysicsEngine {
      * @param v2 current Y coordinate
      * @return dh/dx AND dh/dy
      */
+
     public final Vector2 derivative(double v1, double v2) {
         return new Vector2(
                 (float) ((getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh),
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
+    }
+
+    public final double derivativeX(double v1, double v2) {
+        return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
+
+    }
+
+    public final double derivativeY(double v1, double v2) {
+        return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
+    }
+
+    public final double accelerationX(double offset, double dx, double u) {
+        double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
+
+        return -g * dx - u * g * (vx) / sqrt;
+    }
+
+    public final double accelerationY(double offset, double dy, double u) {
+        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
+
+        return -g * dy - u * g * (vy) / sqrt;
     }
 
     /**
@@ -178,12 +200,11 @@ public abstract class PhysicsEngine {
      * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
-    public final Vector2 acceleration(double offset, Vector2 dh, double u) {
-        double sqrt1 = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
-        double sqrt2 = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
+    public final Vector2 acceleration(Vector2 dh, double u) {
+        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
 
-        var x = -g * dh.x - u * g * (vx) / sqrt1;
-        var y = -g * dh.y - u * g * (vy) / sqrt2;
+        var x = -g * dh.x - u * g * (vx) / sqrt;
+        var y = -g * dh.y - u * g * (vy) / sqrt;
 
         return new Vector2((float) x, (float) y);
     }
