@@ -3,6 +3,7 @@ package com.angryballs.crazygolf;
 import java.util.Random;
 
 import com.angryballs.crazygolf.Physics.EulersPhysicsEngine;
+import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
 import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
@@ -58,7 +59,7 @@ public class GameScreen3D extends ScreenAdapter {
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         this.game = game;
         this.levelInfo = levelInfo;
-        physicsSystem = new EulersPhysicsEngine(levelInfo);
+        physicsSystem = new GRK2PhysicsEngine(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();

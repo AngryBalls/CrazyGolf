@@ -137,7 +137,7 @@ public abstract class PhysicsEngine {
             return 0;
     }
 
-    public abstract void performCalculations(Vector2 derivative);
+    protected abstract void performCalculations(Vector2 derivative);
 
     /**
      * Method to check if the ball inside the hole's radius
@@ -178,9 +178,14 @@ public abstract class PhysicsEngine {
      * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
-    public final Vector2 acceleration(Vector2 dh, double u) {
-        return new Vector2((float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
-                (float) (-g * dh.y - u * g * (vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
+    public final Vector2 acceleration(double offset, Vector2 dh, double u) {
+        double sqrt1 = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
+        double sqrt2 = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
+
+        var x = -g * dh.x - u * g * (vx) / sqrt1;
+        var y = -g * dh.y - u * g * (vy) / sqrt2;
+
+        return new Vector2((float) x, (float) y);
     }
 
     public final double getX() {
