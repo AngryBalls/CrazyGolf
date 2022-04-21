@@ -35,6 +35,8 @@ public abstract class PhysicsEngine {
 
     protected final LevelInfo levelInfo;
 
+    protected boolean sandFlag = false;
+
     public PhysicsEngine(LevelInfo info) {
         levelInfo = info;
 
@@ -96,18 +98,15 @@ public abstract class PhysicsEngine {
             // early.");
             return 1;
         }
-        Vector2 dh = derivative(x, y);
-        Vector2 a = new Vector2();
-        boolean sandFlag = false;
 
-        if ((x >= sandBoundsX.x && x <= sandBoundsY.x)
-                && (y >= sandBoundsX.y && y <= sandBoundsY.y)) {
+        sandFlag = false;
+
+        if ((x >= sandBoundsX.x && x <= sandBoundsY.x) && (y >= sandBoundsX.y && y <= sandBoundsY.y))
             sandFlag = true;
-        } else {
-            a = acceleration(dh, uk);
-        }
 
-        performCalculations(a);
+        var derivative = derivative(x, y);
+
+        performCalculations(derivative);
 
         // TODO: add the range of trees
         if (getHeight(this.x, this.y) < 0) {
@@ -123,13 +122,13 @@ public abstract class PhysicsEngine {
 
         // Check if the ball is in the final position (will not move)
         if (Math.abs(vx) <= 0.1 && Math.abs(vy) <= 0.1) { // 0.09
-            if (Math.abs(dh.x) < Float.MIN_VALUE && Math.abs(dh.y) < Float.MIN_VALUE) {
+            if (Math.abs(derivative.x) < Float.MIN_VALUE && Math.abs(derivative.y) < Float.MIN_VALUE) {
                 ballMoving = false;
                 return 1;
-            } else if (!sandFlag && us > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2))) {
+            } else if (!sandFlag && us > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
                 ballMoving = false;
                 return 1;
-            } else if (sandFlag && uss > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2))) {
+            } else if (sandFlag && uss > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
                 ballMoving = false;
                 return 1;
             } else
@@ -138,7 +137,7 @@ public abstract class PhysicsEngine {
             return 0;
     }
 
-    public abstract void performCalculations(Vector2 a);
+    public abstract void performCalculations(Vector2 derivative);
 
     /**
      * Method to check if the ball inside the hole's radius
