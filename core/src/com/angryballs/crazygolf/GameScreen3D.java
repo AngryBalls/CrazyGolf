@@ -2,6 +2,8 @@ package com.angryballs.crazygolf;
 
 import java.util.Random;
 
+import com.angryballs.crazygolf.Physics.EulersPhysicsEngine;
+import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
@@ -29,7 +31,7 @@ public class GameScreen3D extends ScreenAdapter {
 
     private FirstPersonCameraController2 camControls;
 
-    private PhysicsSystem physicsSystem;
+    private PhysicsEngine physicsSystem;
 
     private LevelInfo levelInfo;
 
@@ -56,7 +58,7 @@ public class GameScreen3D extends ScreenAdapter {
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         this.game = game;
         this.levelInfo = levelInfo;
-        physicsSystem = new PhysicsSystem(levelInfo);
+        physicsSystem = new EulersPhysicsEngine(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
@@ -144,7 +146,7 @@ public class GameScreen3D extends ScreenAdapter {
             }
         } else if (state == State.RUN) {
             for (int i = 0; i < 50; ++i)
-                physicsSystem.iteration();
+                physicsSystem.iterate();
             camControls.update(delta);
             skybox.transform.setTranslation(new Vector3(cam.position).add(new Vector3(0, 20, 0)));
             skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
