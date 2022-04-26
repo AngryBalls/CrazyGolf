@@ -53,11 +53,11 @@ public class RuleBasedBot {
      */
     public double gatDist(double x, double y){return Math.sqrt((x-xt)*(x-xt)+(y-yt)*(y-yt));}
 
-    public void shoot(){
-        distance = estDist(ps.x, ps.y);
+    public Vector2 shoot(double x, double y){
+        distance = estDist(x, y);
 
-        double xs = ps.x;
-        double ys = ps.y;
+        double xs = x;
+        double ys = y;
 
 //        System.out.println("Distance: "+distance);
 //        System.out.println("Start");
@@ -96,26 +96,25 @@ public class RuleBasedBot {
             }
         }
 
-        ps.setStateVector(xb,yb,0,0);
 //        System.out.println("Distance:           "+distance);
 //        System.out.println("The speed found:    ( "+vxb+" , "+vyb+" )");
-        ps.printStateVector();
-
 //        System.out.println("Distance = "+distance);
 //        System.out.println("Best x: "+xb+", Best Y: "+yb);
 //        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
+
+        return new Vector2((float)vxb,(float)vyb);
     }
 
-    public void swing(){
+    public Vector2 swing(double x, double y){
         distance = estDist(ps.x, ps.y);
 
 //        System.out.println("Distance: "+distance);
 //        System.out.println("Start");
 
-        Vector2 startCoords = new Vector2((float)ps.x, (float)ps.y);
+        Vector2 startCoords = new Vector2((float)x, (float)y);
 
         //take target coords as direction + approximate values
-        Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(xt,5),-5),(float)Math.max(Math.min(yt,5),-5));
+        Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(xt-x,5),-5),(float)Math.max(Math.min(yt-y,5),-5));
 //        System.out.println("Target speed: "+targetSpeed);
 
         float speedStep = 0.1f;
@@ -161,20 +160,37 @@ public class RuleBasedBot {
 //        System.out.println("Distance = "+Math.sqrt(distance));
 //        System.out.println("Best x: "+xb+", Best Y: "+yb);
 //        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
+        return new Vector2((float) vxb, (float) vyb);
     }
 
     public void run(){
         long start = System.currentTimeMillis();
         System.out.println("Target:             ( "+xt+" , "+yt+" )");
+        Vector2 coords = new Vector2((float) ps.x, (float) ps.y);
+        Vector2 speeds = new Vector2();
         int i = 0;
+
         while(Math.sqrt(distance)>EPSILON){
-            shoot();
-            //swing();
+
+            //speeds = shoot(coords.x, coords.y);
+            speeds = swing(coords.x, coords.y);
+
+            ps.setStateVector(coords.x, coords.y, 0, 0);
+            System.out.println("The state vector: "+coords+" "+speeds);
+            ps.performMove(speeds);
+            while(ps.iteration()==0){
+                ps.iteration();
+            }
+            coords.x = (float) ps.x;
+            coords.y = (float) ps.y;
             i++;
             System.out.println("ShotNr: "+i);
         }
+
+        System.out.println("The state vector: "+coords+" "+speeds);
         long end = System.currentTimeMillis();
         System.out.println("Ran in : "+(end-start)*0.01+" s");
+
     }
 
     public static void main(String[] args) {
