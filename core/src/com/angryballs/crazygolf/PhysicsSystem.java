@@ -164,11 +164,11 @@ public class PhysicsSystem {
         return Math.pow((x - centerX), 2) + Math.pow((y - centerY), 2) <= r * r;
     }
 
-    public double getHeight(double x, double y) {
-        return levelInfo.heightProfile(x, y);
-    }
+//    public double getHeight(double x, double y) {
+//        return levelInfo.heightProfile(x, y);
+//    }
 
-//    public double getHeight(double x, double y){return 5;}
+    public double getHeight(double x, double y){return 5;}
 
     /**
      * Method to calculate the partial derivative of Height function with respect to

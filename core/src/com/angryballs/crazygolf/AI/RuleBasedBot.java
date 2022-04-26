@@ -35,7 +35,23 @@ public class RuleBasedBot {
 
     public double distance = Double.MAX_VALUE;
 
-    public double estDist(double x, double y){return Math.sqrt(Math.pow(x-xt,2)+Math.pow(y-yt,2));}
+
+    /**
+     * Estimates the distance between point ( x,y ) and target point
+     * ! does NOT calculate the actual distance
+     * @param x     x coordinate of the point ( x,y )
+     * @param y     y coordinate of the point ( x,y )
+     * @return      estimated distance
+     */
+    public double estDist(double x, double y){return (x-xt)*(x-xt)+(y-yt)*(y-yt);}
+
+    /**
+     * Calculates the distance between point ( x,y ) and target point
+     * @param x     x coordinate of the point ( x,y )
+     * @param y     y coordinate of the point ( x,y )
+     * @return      estimated distance
+     */
+    public double gatDist(double x, double y){return Math.sqrt((x-xt)*(x-xt)+(y-yt)*(y-yt));}
 
     public void shoot(){
         distance = estDist(ps.x, ps.y);
@@ -49,14 +65,14 @@ public class RuleBasedBot {
         float vy;
 
 
-        for(int fvx =  -4; fvx < 5; fvx++){
-            for(int fvy = -4; fvy < 5; fvy++){
+        for(int fvx =  -50; fvx < 50; fvx++){
+            for(int fvy = -50; fvy < 50; fvy++){
 
                 if(fvx == 0 || fvy == 0)
                     continue;
 
-                vx = (fvx*1.0f);        //Reduce speed time step by dividing
-                vy = (fvy*1.0f);
+                vx = (fvx*1.0f/10);        //Reduce speed time step by dividing
+                vy = (fvy*1.0f/10);
 
                 ps.setStateVector(xs,ys,0,0);
                 ps.performMove(new Vector2(vx,vy));
@@ -89,13 +105,71 @@ public class RuleBasedBot {
 //        System.out.println("Best x: "+xb+", Best Y: "+yb);
 //        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
     }
+
+    public void swing(){
+        distance = estDist(ps.x, ps.y);
+
+//        System.out.println("Distance: "+distance);
+//        System.out.println("Start");
+
+        Vector2 startCoords = new Vector2((float)ps.x, (float)ps.y);
+
+        //take target coords as direction + approximate values
+        Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(xt,5),-5),(float)Math.max(Math.min(yt,5),-5));
+//        System.out.println("Target speed: "+targetSpeed);
+
+        float speedStep = 0.1f;
+        float speedDistribution = 3.0f/2;   // defines how far we can go from target speed
+
+        Vector2 speedLowerPos = new Vector2(Math.max(targetSpeed.x-speedDistribution,-5), Math.max(targetSpeed.y - speedDistribution,-5));
+        Vector2 speedUpperPos = new Vector2(Math.min(targetSpeed.x+speedDistribution,5), Math.min(targetSpeed.y + speedDistribution,5));
+
+        Vector2 curSpeed = new Vector2(speedLowerPos.x,speedLowerPos.y);
+
+        while(curSpeed.x<speedUpperPos.x){
+            while (curSpeed.y<speedUpperPos.y) {
+
+                if (curSpeed.x == 0 || curSpeed.y == 0)
+                    continue;
+
+                //System.out.println("curSpeed:"+curSpeed);
+
+                ps.setStateVector(startCoords.x, startCoords.y, 0, 0);
+                ps.performMove(new Vector2(curSpeed.x, curSpeed.y));
+                while (ps.iteration() == 0) {
+                    ps.iteration();
+                }
+
+                double locDist = estDist(ps.x, ps.y);
+                //System.out.println(locDist);
+                if (locDist < distance) {
+                    distance = locDist;
+                    xb = ps.x;
+                    yb = ps.y;
+                    vxb = curSpeed.x;
+                    vyb = curSpeed.y;
+//                    System.out.println("Updated");
+//                    System.out.println("Best Vx: " + vxb + ", Best Vy: " + vyb);
+//                    System.out.println("New dist: " + locDist);
+                }
+
+                curSpeed.y += speedStep;
+            }
+            curSpeed.x += speedStep;
+            curSpeed.y = speedLowerPos.y;
+        }
+//        System.out.println("Distance = "+Math.sqrt(distance));
+//        System.out.println("Best x: "+xb+", Best Y: "+yb);
+//        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
+    }
+
     public void run(){
-        System.out.println("Height: "+ps.getHeight(0,0));
         long start = System.currentTimeMillis();
         System.out.println("Target:             ( "+xt+" , "+yt+" )");
         int i = 0;
-        while(distance>EPSILON){
+        while(Math.sqrt(distance)>EPSILON){
             shoot();
+            //swing();
             i++;
             System.out.println("ShotNr: "+i);
         }
