@@ -1,12 +1,12 @@
 package com.angryballs.crazygolf.AI;
 
+import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.PhysicsSystem;
 import com.badlogic.gdx.math.Vector2;
 
 public class RuleBasedBot {
-    public final PhysicsSystem ps = new PhysicsSystem();
-
-    private final double EPSILON = 0.01;
+    public final PhysicsSystem ps;
+    private final double EPSILON;
 
     //Target
     private double xt;
@@ -20,14 +20,17 @@ public class RuleBasedBot {
     private double vxb;
     private double vyb;
 
-    public RuleBasedBot(){
-        xt = ps.getXt();
-        yt = ps.getYt();
-    }
-
     public RuleBasedBot(double xt, double yt){
+        this.ps = new PhysicsSystem();
+        this.EPSILON=0.1;
         this.xt = xt;
         this.yt = yt;
+    }
+    public RuleBasedBot(LevelInfo info){
+        this.ps = new PhysicsSystem(info);
+        this.EPSILON = ps.getRadius();
+        this.xt = ps.getXt();
+        this.yt = ps.getYt();
     }
 
     public double distance = Double.MAX_VALUE;
@@ -46,22 +49,22 @@ public class RuleBasedBot {
         float vy;
 
 
-        for(int fvx = -400; fvx < 500; fvx++){
-            for(int fvy = -400; fvy < 500; fvy++){
+        for(int fvx =  -4; fvx < 5; fvx++){
+            for(int fvy = -4; fvy < 5; fvy++){
 
                 if(fvx == 0 || fvy == 0)
                     continue;
 
-                vx = (fvx*1.0f/100);        //Reduce speed time step by dividing
-                vy = (fvy*1.0f/100);
+                vx = (fvx*1.0f);        //Reduce speed time step by dividing
+                vy = (fvy*1.0f);
 
                 ps.setStateVector(xs,ys,0,0);
                 ps.performMove(new Vector2(vx,vy));
                 while(ps.iteration()==0){
                     ps.iteration();
                 }
-                //System.out.println("Stopped cuz:" + ps.iteration());
-                //System.out.println("X: "+ps.x +", Y: "+ ps.y);
+//                System.out.println("Stopped cuz:" + ps.iteration());
+//                System.out.println("X: "+ps.x +", Y: "+ ps.y);
 
                 double locDist = estDist(ps.x, ps.y);
                 if(locDist<distance) {
@@ -78,8 +81,8 @@ public class RuleBasedBot {
         }
 
         ps.setStateVector(xb,yb,0,0);
-        System.out.println("Distance:           "+distance);
-        System.out.println("The speed found:    ( "+vxb+" , "+vyb+" )");
+//        System.out.println("Distance:           "+distance);
+//        System.out.println("The speed found:    ( "+vxb+" , "+vyb+" )");
         ps.printStateVector();
 
 //        System.out.println("Distance = "+distance);
@@ -87,6 +90,8 @@ public class RuleBasedBot {
 //        System.out.println("Best Vx: "+vxb+", Best Vy: "+vyb);
     }
     public void run(){
+        System.out.println("Height: "+ps.getHeight(0,0));
+        long start = System.currentTimeMillis();
         System.out.println("Target:             ( "+xt+" , "+yt+" )");
         int i = 0;
         while(distance>EPSILON){
@@ -94,10 +99,13 @@ public class RuleBasedBot {
             i++;
             System.out.println("ShotNr: "+i);
         }
+        long end = System.currentTimeMillis();
+        System.out.println("Ran in : "+(end-start)*0.01+" s");
     }
 
     public static void main(String[] args) {
-        RuleBasedBot rbb= new RuleBasedBot(40,10);
+        RuleBasedBot rbb= new RuleBasedBot(LevelInfo.exampleInput);
+        System.out.println(rbb.EPSILON);
         rbb.run();
     }
 }
