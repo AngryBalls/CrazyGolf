@@ -64,7 +64,7 @@ public class LevelInfo {
         }
 
         try {
-            return ((Double) expression.eval());
+            return ((Double) expression.eval(bindings));
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -134,11 +134,11 @@ public class LevelInfo {
         double avgB = 0;
         double avgNative = 0;
         {
-            var result = lvlInfo.heightProfileOld(0, 0);
+            var result = lvlInfo.heightProfileOld(0, 1);
             System.out.println(result);
         }
         {
-            var result = lvlInfo.heightProfile(0, 0);
+            var result = lvlInfo.heightProfile(0, 1);
             System.out.println(result);
         }
         {
