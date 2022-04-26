@@ -35,8 +35,6 @@ public abstract class PhysicsEngine {
 
     protected final LevelInfo levelInfo;
 
-    protected boolean sandFlag = false;
-
     public PhysicsEngine(LevelInfo info) {
         levelInfo = info;
 
@@ -99,11 +97,6 @@ public abstract class PhysicsEngine {
             return 1;
         }
 
-        sandFlag = false;
-
-        if ((x >= sandBoundsX.x && x <= sandBoundsY.x) && (y >= sandBoundsX.y && y <= sandBoundsY.y))
-            sandFlag = true;
-
         var derivative = derivative(x, y);
 
         performCalculations(derivative);
@@ -125,10 +118,10 @@ public abstract class PhysicsEngine {
             if (Math.abs(derivative.x) < Float.MIN_VALUE && Math.abs(derivative.y) < Float.MIN_VALUE) {
                 ballMoving = false;
                 return 1;
-            } else if (!sandFlag && us > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
+            } else if (!isInSand() && us > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
                 ballMoving = false;
                 return 1;
-            } else if (sandFlag && uss > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
+            } else if (isInSand() && uss > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
                 ballMoving = false;
                 return 1;
             } else
@@ -157,6 +150,10 @@ public abstract class PhysicsEngine {
         return levelInfo.heightProfile(x, y);
     }
 
+    protected final boolean isInSand() {
+        return (x >= sandBoundsX.x && x <= sandBoundsY.x) && (y >= sandBoundsX.y && y <= sandBoundsY.y);
+    }
+
     /**
      * Method to calculate the partial derivative of Height function with respect to
      * X or Y
@@ -181,13 +178,17 @@ public abstract class PhysicsEngine {
         return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
 
-    public final double accelerationX(double offset, double dx, double u) {
+    public final double accelerationX(double offset, double dx) {
+        var u = isInSand() ? usk : uk;
+
         double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
 
         return -g * dx - u * g * (vx) / sqrt;
     }
 
-    public final double accelerationY(double offset, double dy, double u) {
+    public final double accelerationY(double offset, double dy) {
+        var u = isInSand() ? usk : uk;
+
         double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
 
         return -g * dy - u * g * (vy) / sqrt;
@@ -200,7 +201,8 @@ public abstract class PhysicsEngine {
      * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
-    public final Vector2 acceleration(Vector2 dh, double u) {
+    public final Vector2 acceleration(Vector2 dh) {
+        var u = isInSand() ? usk : uk;
         double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
 
         var x = -g * dh.x - u * g * (vx) / sqrt;

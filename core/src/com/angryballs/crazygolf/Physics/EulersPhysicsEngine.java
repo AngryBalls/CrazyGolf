@@ -13,7 +13,7 @@ public class EulersPhysicsEngine extends PhysicsEngine {
 
     @Override
     protected void performCalculations(Vector2 derivative) {
-        var a = acceleration(derivative, sandFlag ? usk : uk);
+        var a = acceleration(derivative);
 
         this.x += h * vx;
         this.y += h * vy;

@@ -29,7 +29,7 @@ public class GRK2PhysicsEngine extends PhysicsEngine {
     private Vector2 grk2ForPos() {
         Vector2 derivative = derivative(x + alpha * h * vx, y + alpha * h * vy);
 
-        Vector2 acceleration = acceleration(derivative, uk);
+        Vector2 acceleration = acceleration(derivative);
 
         double x = (1 - 1 / (2 * alpha)) * vx + 1 / (2 * alpha) * (vx + acceleration.x * alpha * h);
         double y = (1 - 1 / (2 * alpha)) * vy + 1 / (2 * alpha) * (vy + acceleration.y * alpha * h); // vy + acce *
@@ -39,11 +39,11 @@ public class GRK2PhysicsEngine extends PhysicsEngine {
     }
 
     private Vector2 grk2ForVel(Vector2 derivative) {
-        var w = acceleration(derivative, uk);
+        var w = acceleration(derivative);
 
         // This needs cleaning
-        var accelerationX = accelerationX(alpha * h * w.x, derivative.x, uk);
-        var accelerationY = accelerationY(alpha * h * w.y, derivative.y, uk);
+        var accelerationX = accelerationX(alpha * h * w.x, derivative.x);
+        var accelerationY = accelerationY(alpha * h * w.y, derivative.y);
 
         double x = (1 - 1 / (2 * alpha)) * w.x + 1 / (2 * alpha) * accelerationX;
         double y = (1 - 1 / (2 * alpha)) * w.y + 1 / (2 * alpha) * accelerationY;
