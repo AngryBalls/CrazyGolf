@@ -113,12 +113,14 @@ public class RuleBasedBot {
 
         Vector2 startCoords = new Vector2((float)x, (float)y);
 
+
+
         //take target coords as direction + approximate values
         Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(xt-x,5),-5),(float)Math.max(Math.min(yt-y,5),-5));
-//        System.out.println("Target speed: "+targetSpeed);
+        //System.out.println("Target speed: "+targetSpeed);
 
         float speedStep = 0.1f;
-        float speedDistribution = 3.0f/2;   // defines how far we can go from target speed
+        float speedDistribution = 0.05f/2;   // defines how far we can go from target speed
 
         Vector2 speedLowerPos = new Vector2(Math.max(targetSpeed.x-speedDistribution,-5), Math.max(targetSpeed.y - speedDistribution,-5));
         Vector2 speedUpperPos = new Vector2(Math.min(targetSpeed.x+speedDistribution,5), Math.min(targetSpeed.y + speedDistribution,5));
@@ -170,13 +172,13 @@ public class RuleBasedBot {
         Vector2 speeds = new Vector2();
         int i = 0;
 
-        while(Math.sqrt(distance)>EPSILON){
+        while(Math.abs(Math.sqrt(distance))>EPSILON){
 
             //speeds = shoot(coords.x, coords.y);
             speeds = swing(coords.x, coords.y);
 
             ps.setStateVector(coords.x, coords.y, 0, 0);
-            System.out.println("The state vector: "+coords+" "+speeds);
+            //System.out.println("The state vector: "+coords+" "+speeds);
             ps.performMove(speeds);
             while(ps.iteration()==0){
                 ps.iteration();
@@ -184,7 +186,7 @@ public class RuleBasedBot {
             coords.x = (float) ps.x;
             coords.y = (float) ps.y;
             i++;
-            System.out.println("ShotNr: "+i);
+            //System.out.println("ShotNr: "+i);
         }
 
         System.out.println("The state vector: "+coords+" "+speeds);

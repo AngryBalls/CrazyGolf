@@ -65,3 +65,49 @@ ShotNr: 4
 
 Run in 4m 52s
 
+4 tests, speed step size 0.1, hole radius 0.1:
+
+1.  Height map without file, 2 for loops, (0,0) -> (40,-10)
+    The state vector: (0.0,0.0) (4.9,-4.9)
+    ShotNr: 1
+    Warning: Nashorn engine is planned to be removed from a future JDK release
+    The state vector: (17.301678,-17.301678) (4.9,3.3)
+    ShotNr: 2
+    The state vector: (32.052017,-7.367775) (4.5,-1.5)
+    ShotNr: 3
+    The state vector: (39.903618,-9.984975) (4.5,-1.5)
+    Ran in : 30.21 s
+
+2.  Height map without file, straight line,  (0,0) -> (40,-10)
+    The state vector: (0.0,0.0) (4.9999986,-4.9)
+    ShotNr: 1
+    The state vector: (17.836107,-17.479391) (4.9999986,3.5)
+    ShotNr: 2
+    The state vector: (33.386135,-6.5943675) (4.699999,-2.4056349)
+    ShotNr: 3
+    The state vector: (39.92376,-9.940567) (4.699999,-2.4056349)
+    Ran in : 3.22 s
+
+3. Height map with file, 2 for loops,  (0,0) -> (40,-10)
+    5 min - no result
+4. Height map with file, straight line,  (0,0) -> (40,-10)
+    ( ! ) I increased h by 10 times, decreased the distribution from 1.5 to 0.5
+
+    The state vector: (0.0,0.0) (4.9999995,-4.9)
+    ShotNr: 1
+    The state vector: (17.85877,-17.501596) (4.9999995,4.5)
+    ShotNr: 2
+    The state vector: (35.019157,-2.0572472) (4.9999995,4.5)
+    ShotNr: 3
+    The state vector: (52.179543,13.387102) (-4.5000005,-5.0)
+    ShotNr: 4
+    The state vector: (36.73519,-3.7732873) (-4.5000005,-5.0)
+    ShotNr: 5
+    The state vector: (21.290838,-20.933676) (4.9999995,4.5)
+    ShotNr: 6
+    The state vector: (38.451225,-5.4893265) (1.4487748,-4.200001)
+    ShotNr: 7
+    The state vector: (39.982616,-9.92883) (1.4487748,-4.200001)
+    Ran in : 118.75 s
+
+    Same shit but without file reading gives : 0.52 s
