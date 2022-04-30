@@ -1,11 +1,11 @@
-x0 = 0
-y0 = 0
-xt = 40
-yt = -10
+x0 = -1
+y0 = -1
+xt = 1
+yt = 1
 r = 0.1
 muk = 0.1
 mus = 0.2
-heightProfile = 5.0
+heightProfile = Math.exp(-x*x-y*y)
 sandPitX = -1<x<1
 sandPitY = 1<y<2
 muks = 0.25

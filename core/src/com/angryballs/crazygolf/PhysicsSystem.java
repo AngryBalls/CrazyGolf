@@ -168,7 +168,7 @@ public class PhysicsSystem {
         return levelInfo.heightProfile(x, y);
     }
 
-//    public double getHeight(double x, double y){return 5;}
+//    public double getHeight(double x, double y){return 0.5*Math.sin(x)+0.5*Math.cos(y)+0.5;}
 
     /**
      * Method to calculate the partial derivative of Height function with respect to

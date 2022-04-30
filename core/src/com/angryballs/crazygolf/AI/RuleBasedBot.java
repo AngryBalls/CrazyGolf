@@ -38,7 +38,7 @@ public class RuleBasedBot {
 
     /**
      * Estimates the distance between point ( x,y ) and target point
-     * ! does NOT calculate the actual distance
+     * ! does NOT calculate the actual distance between 2 points
      * @param x     x coordinate of the point ( x,y )
      * @param y     y coordinate of the point ( x,y )
      * @return      estimated distance
@@ -51,8 +51,14 @@ public class RuleBasedBot {
      * @param y     y coordinate of the point ( x,y )
      * @return      estimated distance
      */
-    public double gatDist(double x, double y){return Math.sqrt((x-xt)*(x-xt)+(y-yt)*(y-yt));}
+    public double getDist(double x, double y){return Math.sqrt((x-xt)*(x-xt)+(y-yt)*(y-yt));}
 
+    /**
+     * Estimates and selects the best shot among the neighbourhood of the starting point
+     * @param x     staring X coordinate
+     * @param y     starting Y coordinate
+     * @return      vector( vx, vy )
+     */
     public Vector2 shoot(double x, double y){
         distance = estDist(x, y);
 
@@ -105,6 +111,12 @@ public class RuleBasedBot {
         return new Vector2((float)vxb,(float)vyb);
     }
 
+    /**
+     * Performs shoot directly towards the hole
+     * @param x     starting X coordinate
+     * @param y     starting Y coordinate
+     * @return      vector( vx, vy )
+     */
     public Vector2 swing(double x, double y){
         distance = estDist(ps.x, ps.y);
 
@@ -117,10 +129,10 @@ public class RuleBasedBot {
 
         //take target coords as direction + approximate values
         Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(xt-x,5),-5),(float)Math.max(Math.min(yt-y,5),-5));
-        //System.out.println("Target speed: "+targetSpeed);
+//        System.out.println("Target speed: "+targetSpeed);
 
-        float speedStep = 0.1f;
-        float speedDistribution = 0.05f/2;   // defines how far we can go from target speed
+        float speedStep = 0.5f;
+        float speedDistribution = 3.0f/2;   // defines how far we can go from target speed
 
         Vector2 speedLowerPos = new Vector2(Math.max(targetSpeed.x-speedDistribution,-5), Math.max(targetSpeed.y - speedDistribution,-5));
         Vector2 speedUpperPos = new Vector2(Math.min(targetSpeed.x+speedDistribution,5), Math.min(targetSpeed.y + speedDistribution,5));
@@ -133,7 +145,7 @@ public class RuleBasedBot {
                 if (curSpeed.x == 0 || curSpeed.y == 0)
                     continue;
 
-                //System.out.println("curSpeed:"+curSpeed);
+//                System.out.println("curSpeed:"+curSpeed);
 
                 ps.setStateVector(startCoords.x, startCoords.y, 0, 0);
                 ps.performMove(new Vector2(curSpeed.x, curSpeed.y));
@@ -178,7 +190,7 @@ public class RuleBasedBot {
             speeds = swing(coords.x, coords.y);
 
             ps.setStateVector(coords.x, coords.y, 0, 0);
-            //System.out.println("The state vector: "+coords+" "+speeds);
+            System.out.println("The state vector: "+coords+" "+speeds);
             ps.performMove(speeds);
             while(ps.iteration()==0){
                 ps.iteration();
@@ -186,7 +198,7 @@ public class RuleBasedBot {
             coords.x = (float) ps.x;
             coords.y = (float) ps.y;
             i++;
-            //System.out.println("ShotNr: "+i);
+            System.out.println("ShotNr: "+i);
         }
 
         System.out.println("The state vector: "+coords+" "+speeds);
@@ -199,5 +211,6 @@ public class RuleBasedBot {
         RuleBasedBot rbb= new RuleBasedBot(LevelInfo.exampleInput);
         System.out.println(rbb.EPSILON);
         rbb.run();
+        //rbb.swing(0,0);
     }
 }
