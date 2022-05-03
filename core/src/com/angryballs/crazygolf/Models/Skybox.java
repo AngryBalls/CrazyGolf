@@ -1,4 +1,4 @@
-package com.angryballs.crazygolf;
+package com.angryballs.crazygolf.Models;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;

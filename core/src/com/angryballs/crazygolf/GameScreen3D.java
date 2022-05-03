@@ -1,5 +1,12 @@
 package com.angryballs.crazygolf;
 
+import com.angryballs.crazygolf.Models.BallModel;
+import com.angryballs.crazygolf.Models.FlagpoleModel;
+import com.angryballs.crazygolf.Models.LeafModel;
+import com.angryballs.crazygolf.Models.LogModel;
+import com.angryballs.crazygolf.Models.Skybox;
+import com.angryballs.crazygolf.Models.TerrainModel;
+import com.angryballs.crazygolf.Models.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
@@ -20,6 +27,9 @@ public class GameScreen3D extends ScreenAdapter {
     private final BallModel ballModel;
     private final FlagpoleModel poleModel;
     private final Skybox skybox;
+    private final LogModel treeModel;
+    private final LeafModel leafModel;
+
     private PerspectiveCamera cam;
 
     private final Environment environment;
@@ -45,6 +55,11 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
+        treeModel = new LogModel();
+        treeModel.transform.setTranslation(new Vector3(-5, 0, -5));
+
+        leafModel = new LeafModel();
+        leafModel.transform.setTranslation(new Vector3(-5, 5f, -5));
 
         inputAdapter = new GameScreenInputAdapter();
 
@@ -93,6 +108,8 @@ public class GameScreen3D extends ScreenAdapter {
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
         modelBatch.render(poleModel, environment);
+        modelBatch.render(treeModel, environment);
+        modelBatch.render(leafModel, environment);
         modelBatch.end();
 
         if (state == State.PAUSE) {
