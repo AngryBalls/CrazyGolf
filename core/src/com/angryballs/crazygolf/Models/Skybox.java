@@ -16,9 +16,9 @@ public class Skybox extends ModelInstance {
     private static Model createBallModel() {
         var mat = new Material();
         // mat.set(TextureAttribute.createDiffuse(new Texture("ball_Normal.png")));
-        mat.set(TextureAttribute.createDiffuse(new Texture("mc-skybox.png")));
+        mat.set(TextureAttribute.createDiffuse(new Texture("Source_Gray.png")));
 
-        return new ModelBuilder().createSphere(-128, -128, -128, 128, 128, mat,
+        return new ModelBuilder().createSphere(-256, -256, -256, 128, 128, mat,
                 Usage.Position | Usage.Normal | Usage.TextureCoordinates);
     }
 }

@@ -6,6 +6,11 @@ import com.angryballs.crazygolf.Models.LeafModel;
 import com.angryballs.crazygolf.Models.LogModel;
 import com.angryballs.crazygolf.Models.Skybox;
 import com.angryballs.crazygolf.Models.TerrainModel;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import com.angryballs.crazygolf.Models.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
@@ -27,8 +32,6 @@ public class GameScreen3D extends ScreenAdapter {
     private final BallModel ballModel;
     private final FlagpoleModel poleModel;
     private final Skybox skybox;
-    private final LogModel treeModel;
-    private final LeafModel leafModel;
 
     private PerspectiveCamera cam;
 
@@ -55,18 +58,14 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        treeModel = new LogModel();
-        treeModel.transform.setTranslation(new Vector3(-5, 0, -5));
-
-        leafModel = new LeafModel();
-        leafModel.transform.setTranslation(new Vector3(-5, 5f, -5));
+        generateTrees();
 
         inputAdapter = new GameScreenInputAdapter();
 
         cam = new PerspectiveCamera(60, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 3, 0);
         cam.near = 1f;
-        cam.far = 128f;
+        cam.far = 256f;
         cam.update();
 
         camControls = new FirstPersonCameraController2(cam, levelInfo, false);
@@ -108,8 +107,8 @@ public class GameScreen3D extends ScreenAdapter {
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
         modelBatch.render(poleModel, environment);
-        modelBatch.render(treeModel, environment);
-        modelBatch.render(leafModel, environment);
+        for (var tree : trees)
+            tree.Render(modelBatch, environment);
         modelBatch.end();
 
         if (state == State.PAUSE) {
@@ -233,6 +232,26 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+    }
+
+    private List<TreeModel> trees = new ArrayList<TreeModel>();
+
+    private void generateTrees() {
+        int n = 512;
+
+        Random rng = new Random();
+        trees.clear();
+        for (int i = 0; i < n; ++i) {
+            float x = rng.nextFloat() * rng.nextInt(256) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(256) * (rng.nextBoolean() ? -1 : 1);
+
+            float y = levelInfo.heightProfile(x, z).floatValue();
+
+            var tree = new TreeModel();
+            tree.setPosition(new Vector3(x, y, z));
+            trees.add(tree);
+        }
+
     }
 
 }
