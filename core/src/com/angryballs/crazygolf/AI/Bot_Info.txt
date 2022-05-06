@@ -1,70 +1,3 @@
-Shoot from (0,0) with plain map h = 0
-Target: ( 4.0 , 1.0 )
-
-Step size = 1.0 for both velocities
-Distance = 1.031510123342343
-Best x: 4.831456839198402, Best Y: 1.6104855928749988
-Best Vx: 3.0, Best Vy: 1.0
-
-Step size = 0.1 for both velocities
-Distance = 0.11853780652303936
-Best x: 4.114998563982005, Best Y: 1.0287496409955013
-Best Vx: 2.799999952316284, Best Vy: 0.699999988079071
-
-Step size = 0.01 for vx, 0.1 for vy
-Distance = 0.014995056076730993
-Best x: 4.001630119995216, Best Y: 1.0149061871565301
-Best Vx: 2.759999990463257, Best Vy: 0.699999988079071
-
-Step size = 0.01 for vx,vy
-Distance = 0.0019179478173367015
-Best x: 3.9981393173093407, Best Y: 0.9995348293273352
-Best Vx: 2.759999990463257, Best Vy: 0.6899999976158142
-
-Full game from (0,0) to (40,10) with speed step size 0.1 and EPSILON 0.1
-Map profile: 1
-
-Target:             ( 40.0 , 10.0 )
-Distance:           23.843831562133975
-The speed found:    ( 4.900000095367432 , 4.900000095367432 )
-X: 17.301678638709078, Y:17.301678638709078, Vx: 0.0, Vy: 0.0
-ShotNr: 1
-Distance:           8.372514620084976
-The speed found:    ( 4.900000095367432 , -3.299999952316284 )
-X: 32.05201931944214, Y:7.3677758140660465, Vx: 0.0, Vy: 0.0
-ShotNr: 2
-Distance:           0.17504319932425955
-The speed found:    ( 3.799999952316284 , 1.2999999523162842 )
-X: 39.82716124182399, Y:10.02769269401568, Vx: 0.0, Vy: 0.0
-ShotNr: 3
-Distance:           0.008657401795167177
-The speed found:    ( 0.6000000238418579 , -0.10000000149011612 )
-X: 40.00828996146261, Y:9.997504575228257, Vx: 0.0, Vy: 0.0
-ShotNr: 4
-
-Full game from (0,0) to (40,10) with speed step size 0.01 and EPSILON 0.01
-Map profile: 1
-
-Target:             ( 40.0 , 10.0 )
-Distance:           23.437175001579664
-The speed found:    ( 4.989999771118164 , 4.900000095367432 )
-X: 17.782305748911046, Y:17.46158389484429, Vx: 0.0, Vy: 0.0
-ShotNr: 1
-Distance:           7.471265101996686
-The speed found:    ( 4.989999771118164 , -3.2699999809265137 )
-X: 32.952121962712404, Y:7.520641737095528, Vx: 0.0, Vy: 0.0
-ShotNr: 2
-Distance:           0.010804654611663024
-The speed found:    ( 3.609999895095825 , 1.2699999809265137 )
-X: 39.98978005021469, Y:9.996493835762106, Vx: 0.0, Vy: 0.0
-ShotNr: 3
-Distance:           1.38750857850769E-4
-The speed found:    ( 0.17000000178813934 , 0.05999999865889549 )
-X: 40.00006359098507, Y:10.000123320668065, Vx: 0.0, Vy: 0.0
-ShotNr: 4
-
-Run in 4m 52s
-
 4 tests, speed step size 0.1, hole radius 0.1:
 
 1.  Height map without file, 2 for loops, (0,0) -> (40,-10)
@@ -76,7 +9,6 @@ Run in 4m 52s
     The state vector: (32.052017,-7.367775) (4.5,-1.5)
     ShotNr: 3
     The state vector: (39.903618,-9.984975) (4.5,-1.5)
-    Ran in : 30.21 s
 
 2.  Height map without file, straight line,  (0,0) -> (40,-10)
     The state vector: (0.0,0.0) (4.9999986,-4.9)
@@ -86,10 +18,10 @@ Run in 4m 52s
     The state vector: (33.386135,-6.5943675) (4.699999,-2.4056349)
     ShotNr: 3
     The state vector: (39.92376,-9.940567) (4.699999,-2.4056349)
-    Ran in : 3.22 s
+
 
 3. Height map with file, 2 for loops,  (0,0) -> (40,-10)
-    5 min - no result
+
 4. Height map with file, straight line,  (0,0) -> (40,-10)
     ( ! ) I increased h by 10 times, decreased the distribution from 1.5 to 0.5
 
@@ -108,6 +40,3 @@ Run in 4m 52s
     The state vector: (38.451225,-5.4893265) (1.4487748,-4.200001)
     ShotNr: 7
     The state vector: (39.982616,-9.92883) (1.4487748,-4.200001)
-    Ran in : 118.75 s
-
-    Same shit but without file reading gives : 0.52 s

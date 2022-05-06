@@ -136,7 +136,7 @@ public class GradientDescent {
 
         System.out.println("The state vector: "+coords+" "+speeds);
         long end = System.currentTimeMillis();
-        System.out.println("Ran in : "+(end-start)*0.01+" s");
+        System.out.println("Ran in : "+(end-start)*0.001+" s");
 
     }
 

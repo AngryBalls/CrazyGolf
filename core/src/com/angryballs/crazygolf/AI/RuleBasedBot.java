@@ -3,10 +3,11 @@ package com.angryballs.crazygolf.AI;
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.PhysicsSystem;
 import com.badlogic.gdx.math.Vector2;
+import java.util.LinkedList;
 
 public class RuleBasedBot {
     public final PhysicsSystem ps;
-    private final double EPSILON;
+    public final double EPSILON;
 
     //Target
     private double xt;
@@ -129,10 +130,10 @@ public class RuleBasedBot {
 
         //take target coords as direction + approximate values
         Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(xt-x,5),-5),(float)Math.max(Math.min(yt-y,5),-5));
-//        System.out.println("Target speed: "+targetSpeed);
+        //System.out.println("Target speed: "+targetSpeed);
 
         float speedStep = 0.5f;
-        float speedDistribution = 3.0f/2;   // defines how far we can go from target speed
+        float speedDistribution = 1.0f/2;   // defines how far we can go from target speed
 
         Vector2 speedLowerPos = new Vector2(Math.max(targetSpeed.x-speedDistribution,-5), Math.max(targetSpeed.y - speedDistribution,-5));
         Vector2 speedUpperPos = new Vector2(Math.min(targetSpeed.x+speedDistribution,5), Math.min(targetSpeed.y + speedDistribution,5));
@@ -145,7 +146,7 @@ public class RuleBasedBot {
                 if (curSpeed.x == 0 || curSpeed.y == 0)
                     continue;
 
-//                System.out.println("curSpeed:"+curSpeed);
+                //System.out.println("curSpeed:"+curSpeed);
 
                 ps.setStateVector(startCoords.x, startCoords.y, 0, 0);
                 ps.performMove(new Vector2(curSpeed.x, curSpeed.y));
@@ -154,7 +155,7 @@ public class RuleBasedBot {
                 }
 
                 double locDist = estDist(ps.x, ps.y);
-                //System.out.println(locDist);
+//                System.out.println(locDist);
                 if (locDist < distance) {
                     distance = locDist;
                     xb = ps.x;
@@ -203,13 +204,12 @@ public class RuleBasedBot {
 
         System.out.println("The state vector: "+coords+" "+speeds);
         long end = System.currentTimeMillis();
-        System.out.println("Ran in : "+(end-start)*0.01+" s");
+        System.out.println("Ran in : "+(end-start)*0.001+" s");
 
     }
 
     public static void main(String[] args) {
         RuleBasedBot rbb= new RuleBasedBot(LevelInfo.exampleInput);
-        System.out.println(rbb.EPSILON);
         rbb.run();
         //rbb.swing(0,0);
     }
