@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
@@ -30,7 +33,9 @@ public class LevelInfo {
 
     private final String heightProfile;
 
-    public Double heightProfile(double x, double y) {
+    // Older usage of the script engine, which always interpreted the heightProfile
+    // Discontinued in favor of the new method, which uses a precompiled profile
+    private Double heightProfileOld(double x, double y) {
         engine.put("x", x);
         engine.put("y", y);
 
@@ -43,8 +48,39 @@ public class LevelInfo {
         return 0.0;
     }
 
+    // Storage to avoid updating bindings for the same (x,y) pair
+    private Double lastX = null;
+    private Double lastY = null;
+
+    public Double heightProfile(double x, double y) {
+        if (lastX == null || lastX != x) {
+            bindings.put("x", x);
+            lastX = x;
+        }
+
+        if (lastY == null || lastY != y) {
+            bindings.put("y", y);
+            lastY = y;
+        }
+
+        try {
+            return ((Double) expression.eval(bindings));
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return 0.0;
+    }
+
+    public Double heightProfileNative(double x, double y) {
+        return 0.5 * (Math.sin((x - y) / 7) + 0.9);
+    }
+
     private static ScriptEngineManager mgr = new ScriptEngineManager();
     private static ScriptEngine engine = mgr.getEngineByName("JavaScript");
+
+    private final CompiledScript expression;
+    private final Bindings bindings;
 
     public LevelInfo(File file) throws FileNotFoundException, IOException {
         Properties props = new Properties();
@@ -72,6 +108,8 @@ public class LevelInfo {
             sandPitBounds[1] = new Vector2(Float.parseFloat(sandPitX[1]), Float.parseFloat(sandPitY[1]));
 
             heightProfile = props.getProperty("heightProfile", "0");
+            expression = ((Compilable) engine).compile(heightProfile);
+            bindings = engine.createBindings();
 
             return;
         } catch (Exception e) {
@@ -87,5 +125,76 @@ public class LevelInfo {
             System.err.println("example file is either malformed or nonexistent");
         }
         exampleInput = tmp;
+    }
+
+    public static void main(String[] args) {
+        var lvlInfo = LevelInfo.exampleInput;
+
+        double avgA = 0;
+        double avgB = 0;
+        double avgNative = 0;
+        {
+            var result = lvlInfo.heightProfileOld(0, 1);
+            System.out.println(result);
+        }
+        {
+            var result = lvlInfo.heightProfile(0, 1);
+            System.out.println(result);
+        }
+        {
+            double res = 0;
+            long duration = 0;
+            for (int i = 0; i < 100000; i++) {
+                long startTime = System.currentTimeMillis();
+                res += lvlInfo.heightProfileOld(0, 1);
+                long endTime = System.currentTimeMillis();
+                duration += endTime - startTime;
+            }
+            avgA = duration / (float) 100000;
+            System.out.println("Total time: " + String.format("%.8f", (duration / 1000.0)));
+            System.out.println(res);
+        }
+
+        {
+            double res = 0;
+            long duration = 0;
+            for (int i = 0; i < 100000; i++) {
+                long startTime = System.currentTimeMillis();
+                res += lvlInfo.heightProfile(0, 1);
+
+                long endTime = System.currentTimeMillis();
+                duration += endTime - startTime;
+            }
+            avgB = duration / (float) 100000;
+            System.out.println("Total time: " + String.format("%.8f", (duration / 1000.0)));
+            System.out.println(res);
+        }
+
+        {
+            double res = 0;
+            long duration = 0;
+            for (int i = 0; i < 100000; i++) {
+                long startTime = System.currentTimeMillis();
+                res += lvlInfo.heightProfileNative(0, 1);
+
+                long endTime = System.currentTimeMillis();
+                duration += endTime - startTime;
+
+            }
+            System.out.println(res);
+            System.out.println("Total time: " + String.format("%.8f", (duration / 1000.0)));
+            avgNative = duration / (float) 100000;
+        }
+
+        System.out.println(
+                "(Original) Avg Running time over " + 100000 + " runs : "
+                        + String.format("%.8f", avgA / 1000) + "s");
+        System.out.println(
+                "(Improved) Avg Running time over " + 100000 + " runs : "
+                        + String.format("%.8f", avgB / 1000) + "s");
+        System.out.println(
+                "(Native)   Avg Running time over " + 100000 + " runs : "
+                        + String.format("%.8f", avgNative / 1000) + "s");
+
     }
 }
