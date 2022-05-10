@@ -1,17 +1,16 @@
 package com.angryballs.crazygolf;
 
-import com.angryballs.crazygolf.Models.BallModel;
-import com.angryballs.crazygolf.Models.FlagpoleModel;
-import com.angryballs.crazygolf.Models.LeafModel;
-import com.angryballs.crazygolf.Models.LogModel;
-import com.angryballs.crazygolf.Models.Skybox;
-import com.angryballs.crazygolf.Models.TerrainModel;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.angryballs.crazygolf.Models.*;
+import com.angryballs.crazygolf.Models.BallModel;
+import com.angryballs.crazygolf.Models.FlagpoleModel;
+import com.angryballs.crazygolf.Models.Skybox;
+import com.angryballs.crazygolf.Models.TerrainModel;
+import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
+import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
@@ -39,7 +38,7 @@ public class GameScreen3D extends ScreenAdapter {
 
     private FirstPersonCameraController2 camControls;
 
-    private PhysicsSystem physicsSystem;
+    private PhysicsEngine physicsSystem;
 
     private LevelInfo levelInfo;
 
@@ -53,7 +52,7 @@ public class GameScreen3D extends ScreenAdapter {
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         this.levelInfo = levelInfo;
-        physicsSystem = new PhysicsSystem(levelInfo);
+        physicsSystem = new GRK2PhysicsEngine(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
@@ -116,7 +115,7 @@ public class GameScreen3D extends ScreenAdapter {
             menuOverlay.draw();
         } else if (state == State.RUN) {
             for (int i = 0; i < 50; ++i)
-                physicsSystem.iteration();
+                physicsSystem.iterate();
             camControls.update(delta);
             skybox.transform.setTranslation(new Vector3(cam.position).add(new Vector3(0, 20, 0)));
             skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
