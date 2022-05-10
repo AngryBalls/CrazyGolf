@@ -37,16 +37,22 @@ public class FirstPersonCameraController2 extends InputAdapter {
     private int STRAFE_RIGHT = Keys.D;
     private int FORWARD = Keys.W;
     private int BACKWARD = Keys.S;
-    private int UP = Keys.Q;
-    private int DOWN = Keys.E;
     private float velocity = 5;
     private float degreesPerPixel = 0.5f;
     private final Vector3 tmp = new Vector3();
     private final Vector3 tmp2 = new Vector3();
     private final Vector3 tmp3 = new Vector3();
 
-    public FirstPersonCameraController2(Camera camera) {
+    private static float playerHeight = 1.7f;
+
+    private final LevelInfo levelInfo;
+
+    private final boolean noclip;
+
+    public FirstPersonCameraController2(Camera camera, LevelInfo levelInfo, boolean noclip) {
         this.camera = camera;
+        this.levelInfo = levelInfo;
+        this.noclip = noclip;
     }
 
     @Override
@@ -115,14 +121,12 @@ public class FirstPersonCameraController2 extends InputAdapter {
             tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * velocity);
             camera.position.add(tmp);
         }
-        if (keys.containsKey(UP)) {
-            tmp.set(camera.up).nor().scl(deltaTime * velocity);
-            camera.position.add(tmp);
+
+        if (!noclip) {
+            var camPos = camera.position;
+            camPos.y = levelInfo.heightProfile(camPos.x, -camPos.z).floatValue() + playerHeight;
         }
-        if (keys.containsKey(DOWN)) {
-            tmp.set(camera.up).nor().scl(-deltaTime * velocity);
-            camera.position.add(tmp);
-        }
-        camera.update(true);
+
+        camera.update(false);
     }
 }
