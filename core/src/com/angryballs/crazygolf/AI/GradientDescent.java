@@ -25,7 +25,7 @@ public class GradientDescent extends Bot {
     }
 
     @Override
-    public Vector2 getSpeedVector(double x, double y) {
+    public Vector2 computeOptimalMove(double x, double y) {
         return predict(x, y);
     }
 
@@ -35,11 +35,9 @@ public class GradientDescent extends Bot {
 
         // Calculate the f(V) = dist(point, target)
         ps.setStateVector(coords.x, coords.y, 0, 0);
-        ps.performMove(speed);
-        while (ps.iterate() == 0) {
-            ps.iterate();
-        }
-        distV = getDist(ps.x, ps.y);
+        performMove(speed);
+
+        distV = distance(ps.x, ps.y);
 
         // Calculate the f(V+dV) = dist(new point, target)
         ps.setStateVector(coords.x, coords.y, 0, 0);
@@ -49,10 +47,7 @@ public class GradientDescent extends Bot {
         else
             newSpeed = new Vector2(speed.x, (float) (speed.y + dv));
         ps.performMove(newSpeed);
-        while (ps.iterate() == 0) {
-            ps.iterate();
-        }
-        distVnew = getDist(ps.x, ps.y);
+        distVnew = distance(ps.x, ps.y);
 
         // Calculate the derivative
         return (distVnew - distV) / dv;

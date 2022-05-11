@@ -29,7 +29,7 @@ public class NewtonRaphson extends Bot {
     }
 
     @Override
-    public Vector2 getSpeedVector(double x, double y) {
+    public Vector2 computeOptimalMove(double x, double y) {
         return predict(x, y);
     }
 
@@ -55,18 +55,15 @@ public class NewtonRaphson extends Bot {
 
         // Calculate the f(V) = dist(point, target)
         ps.setStateVector(coords.x, coords.y, 0, 0);
-        ps.performMove(speed);
-        while (ps.iterate() == 0) {
-            ps.iterate();
-        }
-        distV = getDist(ps.x, ps.y);
+        performMove(speed);
+        distV = distance(ps.x, ps.y);
 
         return distV;
     }
 
     /**
      * Performs a prediction of the next (vx,vy) vector
-     * 
+     *
      * @param x starting X coordinate
      * @param y starting Y coordinate
      * @return vector( vx, vy )

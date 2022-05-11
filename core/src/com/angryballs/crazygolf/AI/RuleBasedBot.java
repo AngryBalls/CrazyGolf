@@ -18,7 +18,7 @@ public class RuleBasedBot extends Bot {
      * @return vector( vx, vy )
      */
     public Vector2 shoot(double x, double y) {
-        this.distance = estDist(x, y);
+        double distance = distanceSquared(x, y);
 
         double xs = x;
         double ys = y;
@@ -35,18 +35,15 @@ public class RuleBasedBot extends Bot {
                 speed.y = (fvy * 1.0f);
 
                 ps.setStateVector(xs, ys, 0, 0);
-                ps.performMove(new Vector2(speed.x, speed.y));
-                while (ps.iterate() == 0) {
-                    ps.iterate();
-                }
+                performMove(new Vector2(speed.x, speed.y));
 
-                double locDist = estDist(ps.x, ps.y);
+                double locDist = distanceSquared(ps.x, ps.y);
                 if (locDist < distance) {
-                    this.distance = locDist;
-                    this.xb = ps.x;
-                    this.yb = ps.y;
-                    this.vxb = speed.x;
-                    this.vyb = speed.y;
+                    distance = locDist;
+                    xb = ps.x;
+                    yb = ps.y;
+                    vxb = speed.x;
+                    vyb = speed.y;
                 }
             }
         }
@@ -61,7 +58,7 @@ public class RuleBasedBot extends Bot {
      * @return vector( vx, vy )
      */
     public Vector2 swing(double x, double y) {
-        distance = estDist(ps.x, ps.y);
+        double distance = distanceSquared(ps.x, ps.y);
         Vector2 startCoords = new Vector2((float) x, (float) y);
 
         // take target coords as direction + approximate values
@@ -86,18 +83,15 @@ public class RuleBasedBot extends Bot {
                     continue;
 
                 ps.setStateVector(startCoords.x, startCoords.y, 0, 0);
-                ps.performMove(curSpeed);
-                while (ps.iterate() == 0) {
-                    ps.iterate();
-                }
+                performMove(curSpeed);
 
-                double locDist = estDist(ps.x, ps.y);
+                double locDist = distanceSquared(ps.x, ps.y);
                 if (locDist < distance) {
-                    this.distance = locDist;
-                    this.xb = ps.x;
-                    this.yb = ps.y;
-                    this.vxb = curSpeed.x;
-                    this.vyb = curSpeed.y;
+                    distance = locDist;
+                    xb = ps.x;
+                    yb = ps.y;
+                    vxb = curSpeed.x;
+                    vyb = curSpeed.y;
                 }
 
                 curSpeed.y += speedStep;
@@ -109,7 +103,7 @@ public class RuleBasedBot extends Bot {
     }
 
     @Override
-    public Vector2 getSpeedVector(double x, double y) {
+    public Vector2 computeOptimalMove(double x, double y) {
         // Try every possible shot
         // return shoot(x,y);
         // Swing towards the target

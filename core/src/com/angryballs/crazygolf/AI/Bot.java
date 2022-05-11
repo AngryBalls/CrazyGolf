@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Bot {
     protected final PhysicsEngine ps;
-    protected final double EPSILON;
+    private final double EPSILON;
 
     // Target
     protected double xt;
@@ -20,8 +20,6 @@ public abstract class Bot {
     protected double vxb;
     protected double vyb;
 
-    protected double distance = Double.MAX_VALUE;
-
     public Bot(LevelInfo info) {
         this.ps = new EulersPhysicsEngine(info);
         this.EPSILON = ps.getRadius();
@@ -29,7 +27,7 @@ public abstract class Bot {
         this.yt = ps.getYt();
     }
 
-    public abstract Vector2 getSpeedVector(double x, double y);
+    public abstract Vector2 computeOptimalMove(double x, double y);
 
     /**
      * Estimates the distance between point ( x,y ) and target point
@@ -39,7 +37,7 @@ public abstract class Bot {
      * @param y y coordinate of the point ( x,y )
      * @return estimated distance
      */
-    public double estDist(double x, double y) {
+    public double distanceSquared(double x, double y) {
         return (x - xt) * (x - xt) + (y - yt) * (y - yt);
     }
 
@@ -50,28 +48,28 @@ public abstract class Bot {
      * @param y y coordinate of the point ( x,y )
      * @return estimated distance
      */
-    public double getDist(double x, double y) {
+    public double distance(double x, double y) {
         return Math.sqrt((x - xt) * (x - xt) + (y - yt) * (y - yt));
     }
 
-    public void run(Bot bot) {
+    public void run() {
         long start = System.currentTimeMillis();
         System.out.println("Target:             ( " + xt + " , " + yt + " )");
         Vector2 coords = new Vector2((float) ps.x, (float) ps.y);
         Vector2 speeds = new Vector2();
         int i = 0;
 
-        while (Math.abs(Math.sqrt(bot.distance)) > EPSILON) {
-            speeds = bot.getSpeedVector(coords.x, coords.y);
+        double distance = Double.MAX_VALUE;
+
+        while (Math.abs(Math.sqrt(distance)) > EPSILON) {
+            speeds = computeOptimalMove(coords.x, coords.y);
             ps.setStateVector(coords.x, coords.y, 0, 0);
             System.out.println("The state vector: " + coords + " " + speeds);
-            ps.performMove(speeds);
-            while (ps.iterate() == 0) {
-                ps.iterate();
-            }
+            performMove(speeds);
+
             coords.x = (float) ps.x;
             coords.y = (float) ps.y;
-            bot.distance = estDist(coords.x, coords.y);
+            distance = distanceSquared(coords.x, coords.y);
             i++;
             System.out.println("ShotNr: " + i);
         }
@@ -79,5 +77,12 @@ public abstract class Bot {
         System.out.println("The state vector: " + coords + " " + speeds);
         long end = System.currentTimeMillis();
         System.out.println("Ran in : " + (end - start) * 0.001 + " s");
+    }
+
+    protected final void performMove(Vector2 speed) {
+        ps.performMove(speed);
+
+        while (ps.iterate() == 0)
+            ;
     }
 }
