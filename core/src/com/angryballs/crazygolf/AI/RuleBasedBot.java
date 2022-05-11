@@ -35,7 +35,7 @@ public class RuleBasedBot extends Bot {
                 speed.y = (fvy * 1.0f);
 
                 ps.setStateVector(xs, ys, 0, 0);
-                performMove(new Vector2(speed.x, speed.y));
+                performMoveFast(new Vector2(speed.x, speed.y));
 
                 double locDist = distanceSquared(ps.x, ps.y);
                 if (locDist < distance) {
@@ -83,7 +83,7 @@ public class RuleBasedBot extends Bot {
                     continue;
 
                 ps.setStateVector(startCoords.x, startCoords.y, 0, 0);
-                performMove(curSpeed);
+                performMoveFast(curSpeed);
 
                 double locDist = distanceSquared(ps.x, ps.y);
                 if (locDist < distance) {

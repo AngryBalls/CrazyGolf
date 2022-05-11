@@ -79,10 +79,19 @@ public abstract class Bot {
         System.out.println("Ran in : " + (end - start) * 0.001 + " s");
     }
 
+    // Used for higher precision simulations
     protected final void performMove(Vector2 speed) {
         ps.performMove(speed);
 
         while (ps.iterate() == 0)
+            ;
+    }
+
+    // Used for lower precision simulations
+    protected final void performMoveFast(Vector2 speed) {
+        ps.performMove(speed);
+
+        while (ps.iterate(0.01f) == 0)
             ;
     }
 }
