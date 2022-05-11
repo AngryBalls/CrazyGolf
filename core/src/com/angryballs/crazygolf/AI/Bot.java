@@ -80,19 +80,25 @@ public abstract class Bot {
     }
 
     // Used for higher precision simulations
-    protected final void performMove(Vector2 speed) {
+    protected final int performMove(Vector2 speed) {
         ps.performMove(speed);
 
-        while (ps.iterate() == 0)
-            ;
+        int result = 0;
+        while (result == 0)
+            result = ps.iterate();
+
+        return result;
     }
 
     // Used for lower precision simulations
-    protected final void performMoveFast(Vector2 speed) {
+    protected final int performMoveFast(Vector2 speed) {
         ps.performMove(speed);
 
-        while (ps.iterate(0.001f) == 0)
-            ;
+        int result = 0;
+        while (result == 0)
+            result = ps.iterate();
+
+        return result;
     }
 
     public void applyPhysicsState(float x, float y, float vx, float vy) {
