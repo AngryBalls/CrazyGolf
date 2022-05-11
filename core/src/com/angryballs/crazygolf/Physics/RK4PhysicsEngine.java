@@ -13,17 +13,17 @@ public class RK4PhysicsEngine extends PhysicsEngine {
     }
 
     @Override
-    protected void performCalculations(Vector2 derivative) {
-        var res1 = rkKForPos();
+    protected void performCalculations(Vector2 derivative, float h) {
+        var res1 = rkKForPos(h);
         this.x += res1.x;
         this.y += res1.y;
 
-        var res2 = rkKforVel(derivative);
+        var res2 = rkKforVel(derivative, h);
         this.vx += res2.x;
         this.vy += res2.y;
     }
 
-    private Vector2 rkKForPos() {
+    private Vector2 rkKForPos(float h) {
         double x = 0;
         {
             var k1 = h * vx;
@@ -47,7 +47,7 @@ public class RK4PhysicsEngine extends PhysicsEngine {
         return new Vector2((float) x, (float) y);
     }
 
-    private Vector2 rkKforVel(Vector2 derivative) {
+    private Vector2 rkKforVel(Vector2 derivative, float h) {
         double x = 0;
         {
             var k1 = h * accelerationX(0, derivative.x);

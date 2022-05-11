@@ -16,7 +16,7 @@ public abstract class PhysicsEngine {
     public double vy; // speed in y
 
     // Physics properties
-    protected static final float h = 0.001f; // a single time step of length h
+    private static final float defaultH = 0.001f; // a single time step of length h
     protected static final float g = 9.81f;
     protected static final float dh = 0.000000001f; // derivative step
 
@@ -91,6 +91,10 @@ public abstract class PhysicsEngine {
      */
 
     public final int iterate() {
+        return iterate(defaultH);
+    }
+
+    public final int iterate(float h) {
         if (!ballMoving) {
             // System.out.println("Iteration is called on stationary ball, returning
             // early.");
@@ -99,7 +103,7 @@ public abstract class PhysicsEngine {
 
         var derivative = derivative(x, y);
 
-        performCalculations(derivative);
+        performCalculations(derivative, h);
 
         // TODO: add the range of trees
         if (getHeight(this.x, this.y) < 0) {
@@ -130,7 +134,7 @@ public abstract class PhysicsEngine {
             return 0;
     }
 
-    protected abstract void performCalculations(Vector2 derivative);
+    protected abstract void performCalculations(Vector2 derivative, float h);
 
     /**
      * Method to check if the ball inside the hole's radius

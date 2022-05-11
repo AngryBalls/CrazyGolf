@@ -16,17 +16,17 @@ public class GRK2PhysicsEngine extends PhysicsEngine {
     }
 
     @Override
-    protected void performCalculations(Vector2 derivative) {
-        var res1 = grk2ForPos();
+    protected void performCalculations(Vector2 derivative, float h) {
+        var res1 = grk2ForPos(h);
         this.x += h * res1.x;
         this.y += h * res1.y;
 
-        var res2 = grk2ForVel(derivative);
+        var res2 = grk2ForVel(derivative, h);
         this.vx += h * res2.x;
         this.vy += h * res2.y;
     }
 
-    private Vector2 grk2ForPos() {
+    private Vector2 grk2ForPos(float h) {
         Vector2 derivative = derivative(x + alpha * h * vx, y + alpha * h * vy);
 
         Vector2 acceleration = acceleration(derivative);
@@ -38,7 +38,7 @@ public class GRK2PhysicsEngine extends PhysicsEngine {
         return new Vector2((float) x, (float) y);
     }
 
-    private Vector2 grk2ForVel(Vector2 derivative) {
+    private Vector2 grk2ForVel(Vector2 derivative, float h) {
         var w = acceleration(derivative);
 
         // This needs cleaning
