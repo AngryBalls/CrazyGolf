@@ -72,8 +72,8 @@ public class NewtonRaphson extends Bot {
         Vector2 coords = new Vector2((float) x, (float) y);
 
         // take target coords as direction + approximate values
-        Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(this.xt - x, 5), -5),
-                (float) Math.max(Math.min(this.yt - y, 5), -5));
+        Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(x - xt, 5), -5),
+                (float) Math.max(Math.min(y - yt, 5), -5));
 
         Vector2 predictedSpeed = new Vector2();
         predictedSpeed.x = targetSpeed.x
