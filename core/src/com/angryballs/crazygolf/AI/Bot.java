@@ -94,4 +94,12 @@ public abstract class Bot {
         while (ps.iterate(0.01f) == 0)
             ;
     }
+
+    public void applyPhysicsState(float x, float y, float vx, float vy) {
+        ps.setStateVector(x, y, vx, vy);
+    }
+
+    public void applyPhysicsState(PhysicsEngine engine) {
+        ps.setStateVector(engine.x, engine.y, engine.vx, engine.vy);
+    }
 }

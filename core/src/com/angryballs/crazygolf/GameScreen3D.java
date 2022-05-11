@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.angryballs.crazygolf.AI.Bot;
+import com.angryballs.crazygolf.AI.GradientDescent;
+import com.angryballs.crazygolf.AI.NewtonRaphson;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
 import com.angryballs.crazygolf.Models.Skybox;
@@ -57,6 +60,7 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
+        gameplayBot = new NewtonRaphson(levelInfo);
         generateTrees();
 
         inputAdapter = new GameScreenInputAdapter();
@@ -171,7 +175,7 @@ public class GameScreen3D extends ScreenAdapter {
     private class GameScreenInputAdapter extends InputAdapter {
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             if (state == State.RUN)
-                performSwing();
+                botPerformSwing();
             return true;
         }
 
@@ -231,6 +235,17 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+    }
+
+    private Bot gameplayBot;
+
+    private void botPerformSwing() {
+        gameplayBot.applyPhysicsState(physicsSystem);
+
+        var optimalMove = gameplayBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
+        System.out.println(optimalMove);
+
+        physicsSystem.performMove(optimalMove);
     }
 
     private List<TreeModel> trees = new ArrayList<TreeModel>();
