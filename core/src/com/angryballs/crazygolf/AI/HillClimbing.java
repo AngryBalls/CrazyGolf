@@ -30,6 +30,7 @@ public class HillClimbing extends Bot {
                 for (int j = 0; j < candidates.length; ++j) {
                     var step = stepSize[i] * candidates[j];
                     current[i] = prev + step;
+                    current[i] = Math.min(Math.max(current[i], -5), 5);
                     var score = evaluate(x, y, current);
                     if (score < bestScore) {
                         bestScore = score;

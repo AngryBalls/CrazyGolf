@@ -242,7 +242,6 @@ public class GameScreen3D extends ScreenAdapter {
 
     private void botPerformSwing() {
         gameplayBot.applyPhysicsState(physicsSystem);
-
         var optimalMove = gameplayBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
         System.out.println(optimalMove);
 
