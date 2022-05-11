@@ -251,13 +251,13 @@ public class GameScreen3D extends ScreenAdapter {
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
-        int n = 512;
+        int n = 128;
 
         Random rng = new Random();
         trees.clear();
         for (int i = 0; i < n; ++i) {
-            float x = rng.nextFloat() * rng.nextInt(256) * (rng.nextBoolean() ? -1 : 1);
-            float z = rng.nextFloat() * rng.nextInt(256) * (rng.nextBoolean() ? -1 : 1);
+            float x = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
 
             float y = levelInfo.heightProfile(x, z).floatValue();
 
