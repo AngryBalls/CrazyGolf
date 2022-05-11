@@ -6,6 +6,7 @@ import java.util.Random;
 
 import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
+import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.NewtonRaphson;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
@@ -60,7 +61,7 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gameplayBot = new NewtonRaphson(levelInfo);
+        gameplayBot = new HillClimbing(levelInfo);
         generateTrees();
 
         inputAdapter = new GameScreenInputAdapter();
