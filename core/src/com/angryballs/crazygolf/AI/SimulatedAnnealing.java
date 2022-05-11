@@ -13,26 +13,25 @@ public class SimulatedAnnealing {
 
     private LevelInfo levelInfo;
 
-    public SimulatedAnnealing(LevelInfo info){
+    public SimulatedAnnealing(LevelInfo info) {
         this.levelInfo = info;
     }
 
     // generates an acceptance possibility for the new distance
-    private double acceptanceChance(double minDist, double curDist, double temperature){
+    private double acceptanceChance(double minDist, double curDist, double temperature) {
         // accept better distance in 100%
-        if(minDist>curDist)
+        if (minDist > curDist)
             return 1.0;
 
-        return Math.exp(curDist-minDist)/temperature;
+        return Math.exp(curDist - minDist) / temperature;
     }
 
-    public void run(){
+    public void run() {
         RuleBasedBot rbb = new RuleBasedBot(levelInfo);
 
-        while (temperature>1){
+        while (temperature > 1) {
 
         }
     }
-
 
 }

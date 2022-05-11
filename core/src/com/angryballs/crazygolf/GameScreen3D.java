@@ -1,13 +1,21 @@
 package com.angryballs.crazygolf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import com.angryballs.crazygolf.Models.BallModel;
+import com.angryballs.crazygolf.Models.FlagpoleModel;
+import com.angryballs.crazygolf.Models.Skybox;
+import com.angryballs.crazygolf.Models.TerrainModel;
+import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
+import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -23,51 +31,40 @@ public class GameScreen3D extends ScreenAdapter {
     private final BallModel ballModel;
     private final FlagpoleModel poleModel;
     private final Skybox skybox;
+
     private PerspectiveCamera cam;
 
     private final Environment environment;
 
     private FirstPersonCameraController2 camControls;
 
-    private PhysicsSystem physicsSystem;
+    private PhysicsEngine physicsSystem;
 
     private LevelInfo levelInfo;
 
     private InputAdapter inputAdapter;
 
     private State state = State.RUN;
-    final SpriteBatch spriteBatch;
-    final BitmapFont font;
+    private final SpriteBatch spriteBatch;
+    private final BitmapFont font;
 
-    private final Texture exitButtonActive;
-    private final Texture exitButtonInactive;
-    private final Texture playButtonActive;
-    private final Texture playButtonInactive;
-
-    final private GrazyGolf game;
-
-    private static final int EXIT_BUTTON_WIDTH = 125;
-    private static final int EXIT_BUTTON_HEIGHT = 50;
-    private static final int PLAY_BUTTON_WIDTH = 140;
-    private static final int PLAY_BUTTON_HEIGHT = 50;
-    private static final int EXIT_BUTTON_Y = 35;
-    private static final int PLAY_BUTTON_Y = 110;
+    private MenuOverlay menuOverlay;
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
-        this.game = game;
         this.levelInfo = levelInfo;
-        physicsSystem = new PhysicsSystem(levelInfo);
+        physicsSystem = new GRK2PhysicsEngine(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
+        generateTrees();
 
         inputAdapter = new GameScreenInputAdapter();
 
         cam = new PerspectiveCamera(60, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.position.set(0, 3, 0);
         cam.near = 1f;
-        cam.far = 128f;
+        cam.far = 256f;
         cam.update();
 
         camControls = new FirstPersonCameraController2(cam, levelInfo, false);
@@ -91,15 +88,15 @@ public class GameScreen3D extends ScreenAdapter {
 
         font = new BitmapFont();
 
-        playButtonActive = new Texture("play_button_active.png");
-        playButtonInactive = new Texture("play_button_inactive.png");
-        exitButtonActive = new Texture("exit_button_active.png");
-        exitButtonInactive = new Texture("exit_button_inactive.png");
+        menuOverlay = new MenuOverlay(false, () -> {
+            hideMenu();
+        }, () -> {
+            game.Switch_Menu();
+        });
     }
 
     @Override
     public void render(float delta) {
-
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -109,48 +106,24 @@ public class GameScreen3D extends ScreenAdapter {
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
         modelBatch.render(poleModel, environment);
+        for (var tree : trees)
+            tree.Render(modelBatch, environment);
         modelBatch.end();
 
-        boolean queueExit = false;
-        spriteBatch.begin();
-
         if (state == State.PAUSE) {
-            int x = GrazyGolf.MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
-
-            if (Gdx.input.getX() < x + EXIT_BUTTON_WIDTH
-                    && Gdx.input.getX() > x
-                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT
-                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > EXIT_BUTTON_Y) {
-
-                spriteBatch.draw(exitButtonActive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
-                if (Gdx.input.isTouched())
-                    queueExit = true;
-            } else {
-                spriteBatch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
-            }
-
-            if (Gdx.input.getX() < x + PLAY_BUTTON_WIDTH
-                    && Gdx.input.getX() > x
-                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT
-                    && GrazyGolf.MENU_SCREEN_HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y) {
-                spriteBatch.draw(playButtonActive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
-
-                if (Gdx.input.isTouched()) {
-                    Gdx.input.setCursorCatched(true);
-                    state = State.RUN;
-                }
-            } else {
-                spriteBatch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
-            }
+            menuOverlay.act();
+            menuOverlay.draw();
         } else if (state == State.RUN) {
             for (int i = 0; i < 50; ++i)
-                physicsSystem.iteration();
+                physicsSystem.iterate();
             camControls.update(delta);
             skybox.transform.setTranslation(new Vector3(cam.position).add(new Vector3(0, 20, 0)));
             skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
             poleModel.transform.rotate(new Vector3(0, 1, 0), 0.25f);
             updateBallPos();
         }
+
+        spriteBatch.begin();
 
         font.draw(spriteBatch, Integer.toString(getRemainingSwings()) + " shot(s) remaining", 10,
                 Gdx.graphics.getHeight() - 10);
@@ -164,9 +137,6 @@ public class GameScreen3D extends ScreenAdapter {
                 Gdx.graphics.getHeight() - 70);
 
         spriteBatch.end();
-
-        if (queueExit)
-            game.Switch_Menu();
     }
 
     @Override
@@ -177,7 +147,6 @@ public class GameScreen3D extends ScreenAdapter {
 
     @Override
     public void hide() {
-        Gdx.input.setInputProcessor(null);
         Gdx.input.setCursorCatched(false);
     }
 
@@ -185,10 +154,18 @@ public class GameScreen3D extends ScreenAdapter {
     public void dispose() {
         modelBatch.dispose();
         spriteBatch.dispose();
-        exitButtonActive.dispose();
-        exitButtonInactive.dispose();
-        playButtonActive.dispose();
-        playButtonInactive.dispose();
+    }
+
+    private void showMenu() {
+        state = State.PAUSE;
+        Gdx.input.setCursorCatched(false);
+        Gdx.input.setInputProcessor(menuOverlay);
+    }
+
+    private void hideMenu() {
+        state = State.RUN;
+        Gdx.input.setCursorCatched(true);
+        Gdx.input.setInputProcessor(inputAdapter);
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
@@ -204,11 +181,9 @@ public class GameScreen3D extends ScreenAdapter {
 
             if (keycode == 44) {
                 if (state == State.RUN) {
-                    state = State.PAUSE;
-                    Gdx.input.setCursorCatched(false);
+                    showMenu();
                 } else if (state == State.PAUSE) {
-                    state = State.RUN;
-                    Gdx.input.setCursorCatched(true);
+                    hideMenu();
                 }
             }
             return true;
@@ -256,6 +231,26 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+    }
+
+    private List<TreeModel> trees = new ArrayList<TreeModel>();
+
+    private void generateTrees() {
+        int n = 512;
+
+        Random rng = new Random();
+        trees.clear();
+        for (int i = 0; i < n; ++i) {
+            float x = rng.nextFloat() * rng.nextInt(256) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(256) * (rng.nextBoolean() ? -1 : 1);
+
+            float y = levelInfo.heightProfile(x, z).floatValue();
+
+            var tree = new TreeModel();
+            tree.setPosition(new Vector3(x, y, z));
+            trees.add(tree);
+        }
+
     }
 
 }
