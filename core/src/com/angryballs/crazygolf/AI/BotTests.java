@@ -10,7 +10,7 @@ public class BotTests {
         // rbb.run(rbb);
         Bot gd = new GradientDescent(INFO);
         gd.ps.setStateVector(-1, -1, 0, 0);
-        gd.run();
+        // gd.run();
         Bot nr = new NewtonRaphson(INFO);
         nr.ps.setStateVector(-1, -1, 0, 0);
         nr.run();

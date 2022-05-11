@@ -35,7 +35,7 @@ public class GradientDescent extends Bot {
 
         // Calculate the f(V) = dist(point, target)
         ps.setStateVector(coords.x, coords.y, 0, 0);
-        performMoveFast(speed);
+        performMove(speed);
 
         distV = distance(ps.x, ps.y);
 
@@ -46,7 +46,7 @@ public class GradientDescent extends Bot {
             newSpeed = new Vector2((float) (speed.x + dv), speed.y);
         else
             newSpeed = new Vector2(speed.x, (float) (speed.y + dv));
-        performMoveFast(newSpeed);
+        performMove(newSpeed);
         distVnew = distance(ps.x, ps.y);
 
         // Calculate the derivative

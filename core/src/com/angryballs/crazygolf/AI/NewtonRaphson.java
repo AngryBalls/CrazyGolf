@@ -55,7 +55,7 @@ public class NewtonRaphson extends Bot {
 
         // Calculate the f(V) = dist(point, target)
         ps.setStateVector(coords.x, coords.y, 0, 0);
-        performMoveFast(speed);
+        performMove(speed);
         distV = distance(ps.x, ps.y);
 
         return distV;

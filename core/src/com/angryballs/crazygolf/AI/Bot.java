@@ -91,7 +91,7 @@ public abstract class Bot {
     protected final void performMoveFast(Vector2 speed) {
         ps.performMove(speed);
 
-        while (ps.iterate(0.01f) == 0)
+        while (ps.iterate(0.001f) == 0)
             ;
     }
 
