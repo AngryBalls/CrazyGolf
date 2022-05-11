@@ -21,7 +21,7 @@ public abstract class Bot {
     protected double vyb;
 
     public Bot(LevelInfo info) {
-        this.ps = new GRK2PhysicsEngine(info);
+        this.ps = new EulersPhysicsEngine(info);
         this.EPSILON = ps.getRadius();
         this.xt = ps.getXt();
         this.yt = ps.getYt();

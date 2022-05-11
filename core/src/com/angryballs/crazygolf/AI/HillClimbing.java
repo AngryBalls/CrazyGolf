@@ -41,7 +41,7 @@ public class HillClimbing extends Bot {
                     current[i] = prev;
                     stepSize[i] = stepSize[i] / acc;
                 } else {
-                    current[i] = prev + bestStep;
+                    current[i] = Math.min(Math.max(prev + bestStep, -5), 5);
                     stepSize[i] = bestStep;
                 }
             }

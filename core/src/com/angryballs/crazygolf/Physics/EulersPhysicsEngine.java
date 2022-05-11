@@ -18,8 +18,8 @@ public class EulersPhysicsEngine extends PhysicsEngine {
         this.x += h * vx;
         this.y += h * vy;
 
-        this.vx = Math.max(-5, Math.min(vx + h * a.x, 5));
-        this.vy = Math.max(-5, Math.min(vy + h * a.y, 5));
+        this.vx += h * a.x;
+        this.vy += h * a.y;
     }
 
     public static void main(String[] args) {

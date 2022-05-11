@@ -14,7 +14,7 @@ public class BotTests {
 
         System.out.println("\nNewton Raphson");
         Bot nr = new NewtonRaphson(INFO);
-        nr.run();
+        // nr.run();
 
         System.out.println("\nHill Climbing");
         Bot hc = new HillClimbing(INFO);

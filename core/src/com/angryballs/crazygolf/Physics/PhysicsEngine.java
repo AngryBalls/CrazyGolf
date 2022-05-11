@@ -75,8 +75,8 @@ public abstract class PhysicsEngine {
             System.out.println("Didn't actually hit the ball.");
             return;
         }
-        vx = velocity.x;
-        vy = velocity.y;
+        vx = Math.max(-5, Math.min(velocity.x, 5));
+        vy = Math.max(-5, Math.min(velocity.y, 5));
         ballMoving = true;
     }
 

@@ -61,7 +61,7 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gameplayBot = new HillClimbing(levelInfo);
+        gameplayBot = new NewtonRaphson(levelInfo);
         generateTrees();
 
         inputAdapter = new GameScreenInputAdapter();
