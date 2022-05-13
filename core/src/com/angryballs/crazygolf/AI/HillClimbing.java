@@ -5,8 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 
 public class HillClimbing extends Bot {
 
-    private static double EPSILON = Double.MIN_VALUE;
-
     public HillClimbing(LevelInfo info) {
         super(info);
     }

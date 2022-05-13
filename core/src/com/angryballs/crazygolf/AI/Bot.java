@@ -6,7 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Bot {
     protected final PhysicsEngine ps;
-    private final double EPSILON;
+    protected final double RADIUS;
+    protected static double EPSILON = Double.MIN_VALUE;
 
     // Target
     protected double xt;
@@ -21,8 +22,8 @@ public abstract class Bot {
     protected double vyb;
 
     public Bot(LevelInfo info) {
-        this.ps = new GRK2PhysicsEngine(info);
-        this.EPSILON = ps.getRadius();
+        this.ps = new EulersPhysicsEngine(info);
+        this.RADIUS = ps.getRadius();
         this.xt = ps.getXt();
         this.yt = ps.getYt();
     }
@@ -52,6 +53,13 @@ public abstract class Bot {
         return Math.sqrt((x - xt) * (x - xt) + (y - yt) * (y - yt));
     }
 
+    public double distance3D(double x, double y) {
+        return Math.sqrt((x - xt) * (x - xt) + (y - yt) * (y - yt)+(ps.getHeight(x,y)- ps.getHeight(xt,yt))*(ps.getHeight(x,y)- ps.getHeight(xt,yt)));
+    }
+    public double distanceABS(double x, double y) {
+        return Math.abs(xt - x) +Math.abs(yt-y);
+    }
+
     public void run() {
         long start = System.currentTimeMillis();
         System.out.println("Target:             ( " + xt + " , " + yt + " )");
@@ -61,7 +69,7 @@ public abstract class Bot {
 
         double distance = Double.MAX_VALUE;
 
-        while (Math.abs(Math.sqrt(distance)) > EPSILON) {
+        while (Math.abs(Math.sqrt(distance)) > RADIUS) {
             speeds = computeOptimalMove(coords.x, coords.y);
             ps.setStateVector(coords.x, coords.y, 0, 0);
             System.out.println("The state vector: " + coords + " " + speeds);
@@ -107,5 +115,9 @@ public abstract class Bot {
 
     public void applyPhysicsState(PhysicsEngine engine) {
         ps.setStateVector(engine.x, engine.y, engine.vx, engine.vy);
+    }
+
+    public double getRADIUS() {
+        return RADIUS;
     }
 }

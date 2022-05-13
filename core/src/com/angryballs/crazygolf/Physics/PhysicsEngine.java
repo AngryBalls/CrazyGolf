@@ -18,7 +18,8 @@ public abstract class PhysicsEngine {
     // Physics properties
     private static final float defaultH = 0.001f; // a single time step of length h
     protected static final float g = 9.81f;
-    protected static final float dh = 0.000000001f; // derivative step
+//    protected static final float dh = 0.000000001f; // derivative step
+    protected static final float dh = 0.001f; // derivative step
 
     protected float uk;
     protected float us;
@@ -100,6 +101,7 @@ public abstract class PhysicsEngine {
             // early.");
             return 1;
         }
+
 
         var derivative = derivative(x, y);
 
