@@ -1,6 +1,9 @@
 package com.angryballs.crazygolf.Physics;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -8,8 +11,8 @@ import com.badlogic.gdx.math.Vector2;
  * approximate the results
  */
 public class RK4PhysicsEngine extends PhysicsEngine {
-    public RK4PhysicsEngine(LevelInfo levelInfo) {
-        super(levelInfo);
+    public RK4PhysicsEngine(LevelInfo levelInfo, List<TreeModel> trees) {
+        super(levelInfo, trees);
     }
 
     @Override

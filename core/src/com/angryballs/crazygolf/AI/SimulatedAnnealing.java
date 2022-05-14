@@ -1,5 +1,7 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.ArrayList;
+
 import com.angryballs.crazygolf.LevelInfo;
 import com.badlogic.gdx.math.Vector2;
 
@@ -27,7 +29,7 @@ public class SimulatedAnnealing {
     }
 
     public void run() {
-        RuleBasedBot rbb = new RuleBasedBot(levelInfo);
+        RuleBasedBot rbb = new RuleBasedBot(levelInfo, new ArrayList<>());
 
         while (temperature > 1) {
 

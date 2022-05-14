@@ -1,6 +1,9 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Physics.*;
 import com.badlogic.gdx.math.Vector2;
 
@@ -20,8 +23,8 @@ public abstract class Bot {
     protected double vxb;
     protected double vyb;
 
-    public Bot(LevelInfo info) {
-        this.ps = new GRK2PhysicsEngine(info);
+    public Bot(LevelInfo info, List<TreeModel> trees) {
+        this.ps = new GRK2PhysicsEngine(info, trees);
         this.EPSILON = ps.getRadius();
         this.xt = ps.getXt();
         this.yt = ps.getYt();

@@ -1,5 +1,7 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.ArrayList;
+
 import com.angryballs.crazygolf.LevelInfo;
 
 public class BotTests {
@@ -9,15 +11,15 @@ public class BotTests {
         // Bot rbb = new RuleBasedBot(INFO);
         // rbb.run(rbb);
         System.out.println("\nGradient Descent");
-        Bot gd = new GradientDescent(INFO);
+        Bot gd = new GradientDescent(INFO, new ArrayList<>());
         gd.run();
 
         System.out.println("\nNewton Raphson");
-        Bot nr = new NewtonRaphson(INFO);
+        Bot nr = new NewtonRaphson(INFO, new ArrayList<>());
         nr.run();
 
         System.out.println("\nHill Climbing");
-        Bot hc = new HillClimbing(INFO);
+        Bot hc = new HillClimbing(INFO, new ArrayList<>());
         hc.run();
 
     }

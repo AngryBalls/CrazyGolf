@@ -1,14 +1,17 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class HillClimbing extends Bot {
 
     private static double EPSILON = Double.MIN_VALUE;
 
-    public HillClimbing(LevelInfo info) {
-        super(info);
+    public HillClimbing(LevelInfo info, List<TreeModel> trees) {
+        super(info, trees);
     }
 
     @Override

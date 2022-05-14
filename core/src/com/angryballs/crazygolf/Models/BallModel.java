@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 public class BallModel extends ModelInstance {
 
     public final static float ballDiameter = 0.04267f;
+    public final static float ballRadius = ballDiameter / 2;
 
     public BallModel() {
         super(createBallModel());

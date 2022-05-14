@@ -1,6 +1,9 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -24,8 +27,8 @@ public class NewtonRaphson extends Bot {
     private final double dv = 0.00001; // derivative step
     private final double A = 1; // step size of descent
 
-    public NewtonRaphson(LevelInfo info) {
-        super(info);
+    public NewtonRaphson(LevelInfo info, List<TreeModel> trees) {
+        super(info, trees);
     }
 
     @Override

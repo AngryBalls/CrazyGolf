@@ -1,11 +1,14 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class RuleBasedBot extends Bot {
-    public RuleBasedBot(LevelInfo info) {
-        super(info);
+    public RuleBasedBot(LevelInfo info, List<TreeModel> trees) {
+        super(info, trees);
     }
 
     /**
