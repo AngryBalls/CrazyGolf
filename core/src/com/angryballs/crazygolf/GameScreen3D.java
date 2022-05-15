@@ -1,7 +1,5 @@
 package com.angryballs.crazygolf;
 
-import java.util.Random;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
@@ -17,6 +15,8 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import java.awt.*;
+
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
     private final TerrainModel terrainModel;
@@ -24,28 +24,19 @@ public class GameScreen3D extends ScreenAdapter {
     private final FlagpoleModel poleModel;
     private final Skybox skybox;
     private PerspectiveCamera cam;
-
     private final Environment environment;
-
     private FirstPersonCameraController2 camControls;
-
     private PhysicsSystem physicsSystem;
-
     private LevelInfo levelInfo;
-
     private InputAdapter inputAdapter;
-
     private State state = State.RUN;
     final SpriteBatch spriteBatch;
     final BitmapFont font;
-
     private final Texture exitButtonActive;
     private final Texture exitButtonInactive;
     private final Texture playButtonActive;
     private final Texture playButtonInactive;
-
     final private GrazyGolf game;
-
     private static final int EXIT_BUTTON_WIDTH = 125;
     private static final int EXIT_BUTTON_HEIGHT = 50;
     private static final int PLAY_BUTTON_WIDTH = 140;
@@ -53,7 +44,21 @@ public class GameScreen3D extends ScreenAdapter {
     private static final int EXIT_BUTTON_Y = 35;
     private static final int PLAY_BUTTON_Y = 110;
 
+    //USERINPUT:
+    private long prevTime;
+    private long newTime;
+    private long pressedTime;
+
+    //power 1 = timeForOne milliseconds
+    private long timeForOne;
+    private int maxPower;
+
+    private boolean spacePressed;
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
+        spacePressed = false;
+        timeForOne = 100;
+        maxPower = 5;
+
         this.game = game;
         this.levelInfo = levelInfo;
         physicsSystem = new PhysicsSystem(levelInfo);
@@ -163,6 +168,10 @@ public class GameScreen3D extends ScreenAdapter {
         font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y * 100) / 100, 10,
                 Gdx.graphics.getHeight() - 70);
 
+        if (spacePressed)
+        font.draw(spriteBatch, "power = " + CalculatePower(System.currentTimeMillis()),10, Gdx.graphics.getHeight() - 90);
+
+
         spriteBatch.end();
 
         if (queueExit)
@@ -193,8 +202,12 @@ public class GameScreen3D extends ScreenAdapter {
 
     private class GameScreenInputAdapter extends InputAdapter {
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            if (state == State.RUN)
-                performSwing();
+//            if (state == State.RUN)
+//                performSwing();
+            return true;
+        }
+
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
             return true;
         }
 
@@ -211,6 +224,12 @@ public class GameScreen3D extends ScreenAdapter {
                     Gdx.input.setCursorCatched(true);
                 }
             }
+            else if (keycode == 62) {
+                if (state == State.RUN) {
+                    prevTime = System.currentTimeMillis();
+                    spacePressed = true;
+                }
+            }
             return true;
         }
 
@@ -218,6 +237,14 @@ public class GameScreen3D extends ScreenAdapter {
         public boolean keyUp(int keycode) {
 
             camControls.keyUp(keycode);
+
+            if (keycode == 62) {
+                if (state == State.RUN) {
+                    newTime = System.currentTimeMillis();
+                    shootBall();
+                    spacePressed = false;
+                }
+            }
             return true;
         }
 
@@ -256,6 +283,29 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+    }
+    private void shootBall() {
+//        System.out.println("cam.direction:");
+//        System.out.println(cam.direction);
+        pressedTime = newTime - prevTime;
+        System.out.println("time passed: " + pressedTime);
+        if (pressedTime > timeForOne * maxPower)
+            pressedTime = timeForOne * maxPower;
+        float speed = (float) pressedTime / timeForOne;
+        physicsSystem.performMove(new Vector2(speed * cam.direction.x,speed * -cam.direction.z));
+
+
+    }
+
+    private double CalculatePower(long curTime) {
+        double power = 0;
+        pressedTime = curTime - prevTime;
+        power = (double) pressedTime / timeForOne;
+        if (power > maxPower) {
+            return maxPower;
+        }
+        else
+            return power;
     }
 
 }
