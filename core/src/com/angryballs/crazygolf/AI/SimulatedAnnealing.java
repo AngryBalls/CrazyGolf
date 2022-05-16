@@ -27,6 +27,9 @@ public class SimulatedAnnealing extends Bot {
     private double bestDistance = Double.MAX_VALUE;
     private Vector2 bestMove = new Vector2();
 
+    private double currentDistance = Double.MAX_VALUE;
+    private Vector2 currentMove = new Vector2();
+
     private void cooldown() {
         temperature -= coolingRate;
     }
@@ -41,11 +44,7 @@ public class SimulatedAnnealing extends Bot {
 
     // generates an acceptance possibility for the new distance
     private boolean shouldAccept(double newDist) {
-        // accept better distance in 100%
-        if (newDist < bestDistance)
-            return true;
-
-        var probability = Math.exp(-(newDist - bestDistance) / temperature);
+        var probability = Math.exp(-(newDist - currentDistance) / temperature);
 
         return rng.nextFloat() < probability;
     }
@@ -60,9 +59,13 @@ public class SimulatedAnnealing extends Bot {
             performMove(newMove);
 
             var newDist = distanceSquared(ps.x, ps.y);
-            if (shouldAccept(newDist)) {
-                bestDistance = newDist;
-                bestMove = newMove;
+
+            if (newDist < bestDistance) {
+                bestDistance = currentDistance = newDist;
+                bestMove = currentMove = newMove;
+            } else if (shouldAccept(newDist)) {
+                currentDistance = newDist;
+                currentMove = newMove;
             }
             cooldown();
         }
