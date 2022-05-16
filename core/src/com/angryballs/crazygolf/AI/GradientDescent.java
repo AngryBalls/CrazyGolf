@@ -1,6 +1,9 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -26,8 +29,8 @@ public class GradientDescent extends Bot {
     private  float A = 0.1f; // step size of descent
     private final double ZERO = 0.001;
 
-    public GradientDescent(LevelInfo info) {
-        super(info);
+    public GradientDescent(LevelInfo info, List<TreeModel> trees) {
+        super(info, trees);
     }
 
     @Override

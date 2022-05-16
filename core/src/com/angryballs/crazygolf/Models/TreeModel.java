@@ -11,12 +11,13 @@ public class TreeModel {
     private final LogModel logModel;
     private final LeafModel leafModel;
 
+    public final float treeRadius = 0.25f;
+
     public TreeModel() {
         logModel = new LogModel();
         leafModel = new LeafModel();
 
         setPosition(new Vector3(0, 0, 0));
-
     }
 
     public void setPosition(Vector3 position) {

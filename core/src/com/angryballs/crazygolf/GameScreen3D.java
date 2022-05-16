@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.angryballs.crazygolf.AI.Bot;
-import com.angryballs.crazygolf.AI.GradientDescent;
-import com.angryballs.crazygolf.AI.HillClimbing;
-import com.angryballs.crazygolf.AI.NewtonRaphson;
+import com.angryballs.crazygolf.AI.SimulatedAnnealing;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
 import com.angryballs.crazygolf.Models.Skybox;
@@ -56,13 +54,13 @@ public class GameScreen3D extends ScreenAdapter {
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         this.levelInfo = levelInfo;
-        physicsSystem = new GRK2PhysicsEngine(levelInfo);
+        generateTrees();
+        physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gameplayBot = new NewtonRaphson(levelInfo);
-        generateTrees();
+        gameplayBot = new SimulatedAnnealing(levelInfo, trees);
 
         inputAdapter = new GameScreenInputAdapter();
 
@@ -256,8 +254,8 @@ public class GameScreen3D extends ScreenAdapter {
         Random rng = new Random();
         trees.clear();
         for (int i = 0; i < n; ++i) {
-            float x = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
-            float z = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
+            float x = rng.nextFloat() * rng.nextInt(32) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(32) * (rng.nextBoolean() ? -1 : 1);
 
             float y = levelInfo.heightProfile(x, z).floatValue();
 
@@ -265,7 +263,6 @@ public class GameScreen3D extends ScreenAdapter {
             tree.setPosition(new Vector3(x, y, z));
             trees.add(tree);
         }
-
     }
 
 }

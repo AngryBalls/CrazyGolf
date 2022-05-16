@@ -1,7 +1,11 @@
 package com.angryballs.crazygolf.Physics;
 
-import com.angryballs.crazygolf.*;
-import com.badlogic.gdx.math.*;
+import java.util.List;
+
+import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.BallModel;
+import com.angryballs.crazygolf.Models.TreeModel;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * The base PhysicsEngine class which contains components that will be used by
@@ -36,8 +40,11 @@ public abstract class PhysicsEngine {
 
     protected final LevelInfo levelInfo;
 
-    public PhysicsEngine(LevelInfo info) {
+    private final List<TreeModel> trees;
+
+    public PhysicsEngine(LevelInfo info, List<TreeModel> trees) {
         levelInfo = info;
+        this.trees = trees;
 
         applyPhysicsProperties();
         reset();
@@ -107,8 +114,12 @@ public abstract class PhysicsEngine {
 
         performCalculations(derivative, h);
 
-        // TODO: add the range of trees
         if (getHeight(this.x, this.y) < 0) {
+            ballMoving = false;
+            return 2;
+        }
+
+        if (collidesWithTree()) {
             ballMoving = false;
             return 2;
         }
@@ -253,5 +264,24 @@ public abstract class PhysicsEngine {
 
     public double getRadius() {
         return (double) r;
+    }
+
+    private boolean isIntersectingTree(TreeModel model) {
+        var ballRadius = BallModel.ballRadius;
+
+        var distanceSquared = Vector2.dst((float) x, (float) -y, model.getPosition().x, model.getPosition().z);
+
+        if (distanceSquared < ballRadius + model.treeRadius)
+            return true;
+
+        return false;
+    }
+
+    private boolean collidesWithTree() {
+        for (TreeModel treeModel : trees)
+            if (isIntersectingTree(treeModel))
+                return true;
+
+        return false;
     }
 }

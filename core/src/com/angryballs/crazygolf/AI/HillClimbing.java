@@ -1,24 +1,29 @@
 package com.angryballs.crazygolf.AI;
 
+import java.util.List;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class HillClimbing extends Bot {
 
-    public HillClimbing(LevelInfo info) {
-        super(info);
+    private static double EPSILON = Double.MIN_VALUE;
+
+    public HillClimbing(LevelInfo info, List<TreeModel> trees) {
+        super(info, trees);
     }
 
     @Override
     public Vector2 computeOptimalMove(double x, double y) {
         var current = new double[] { 0, 0 };
         var stepSize = new double[] { 1.0, 1.0 };
-        var acc = 1.2;
+        var acc = 2.1;
 
         var candidates = new double[] { -acc, -1 / acc, 1 / acc, acc };
 
         // Lower is better
-        var bestScore = distanceSquared(x, y);
+        var bestScore = Double.MAX_VALUE;
 
         while (true) {
             var prevScore = bestScore;
@@ -50,7 +55,16 @@ public class HillClimbing extends Bot {
 
     private double evaluate(double x, double y, double[] vel) {
         applyPhysicsState((float) x, (float) y, 0, 0);
-        performMove(new Vector2((float) vel[0], (float) vel[1]));
-        return distanceSquared(ps.x, ps.y);
+
+        var moveResult = performMove(new Vector2((float) vel[0], (float) vel[1]));
+
+        if (moveResult == 3)
+            return 0;
+        else if (moveResult == 2)
+            return Double.MAX_VALUE;
+
+        double fitness = distanceSquared(ps.x, ps.y);
+
+        return fitness;
     }
 }
