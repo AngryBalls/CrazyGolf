@@ -1,6 +1,5 @@
 package com.angryballs.crazygolf.AI;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -9,7 +8,6 @@ import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class SimulatedAnnealing extends Bot {
-
     public SimulatedAnnealing(LevelInfo info, List<TreeModel> trees) {
         super(info, trees);
     }
@@ -22,13 +20,10 @@ public class SimulatedAnnealing extends Bot {
     // cooling step size
     private double coolingRate = 0.1;
 
-    private LevelInfo levelInfo;
-
     private double bestDistance = Double.MAX_VALUE;
     private Vector2 bestMove = new Vector2();
 
     private double currentDistance = Double.MAX_VALUE;
-    private Vector2 currentMove = new Vector2();
 
     private void cooldown() {
         temperature -= coolingRate;
@@ -72,10 +67,9 @@ public class SimulatedAnnealing extends Bot {
 
             if (newDist < bestDistance) {
                 bestDistance = currentDistance = newDist;
-                bestMove = currentMove = newMove;
+                bestMove = newMove;
             } else if (shouldAccept(newDist)) {
                 currentDistance = newDist;
-                currentMove = newMove;
             }
         }
         return bestMove;

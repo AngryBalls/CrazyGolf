@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import com.angryballs.crazygolf.AI.Bot;
-import com.angryballs.crazygolf.AI.GradientDescent;
-import com.angryballs.crazygolf.AI.HillClimbing;
-import com.angryballs.crazygolf.AI.NewtonRaphson;
 import com.angryballs.crazygolf.AI.SimulatedAnnealing;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
@@ -257,8 +254,8 @@ public class GameScreen3D extends ScreenAdapter {
         Random rng = new Random();
         trees.clear();
         for (int i = 0; i < n; ++i) {
-            float x = rng.nextFloat() * rng.nextInt(64) * (rng.nextBoolean() ? -1 : 1);
-            float z = rng.nextFloat() * rng.nextInt(64) * (rng.nextBoolean() ? -1 : 1);
+            float x = rng.nextFloat() * rng.nextInt(32) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(32) * (rng.nextBoolean() ? -1 : 1);
 
             float y = levelInfo.heightProfile(x, z).floatValue();
 

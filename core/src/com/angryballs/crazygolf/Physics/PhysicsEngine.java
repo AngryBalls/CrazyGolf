@@ -2,11 +2,10 @@ package com.angryballs.crazygolf.Physics;
 
 import java.util.List;
 
-import com.angryballs.crazygolf.*;
+import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TreeModel;
-import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.scenes.scene2d.ui.Tree;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * The base PhysicsEngine class which contains components that will be used by
