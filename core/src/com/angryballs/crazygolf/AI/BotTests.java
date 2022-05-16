@@ -22,5 +22,8 @@ public class BotTests {
         Bot hc = new HillClimbing(INFO, new ArrayList<>());
         hc.run();
 
+        System.out.println("\nSimulated Annealing");
+        Bot sa = new SimulatedAnnealing(INFO, new ArrayList<>());
+        sa.run();
     }
 }

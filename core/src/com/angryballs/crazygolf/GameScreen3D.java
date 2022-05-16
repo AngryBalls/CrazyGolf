@@ -8,6 +8,7 @@ import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
 import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.NewtonRaphson;
+import com.angryballs.crazygolf.AI.SimulatedAnnealing;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
 import com.angryballs.crazygolf.Models.Skybox;
@@ -62,7 +63,7 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gameplayBot = new HillClimbing(levelInfo, trees);
+        gameplayBot = new SimulatedAnnealing(levelInfo, trees);
 
         inputAdapter = new GameScreenInputAdapter();
 

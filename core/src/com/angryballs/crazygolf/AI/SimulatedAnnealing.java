@@ -1,39 +1,71 @@
 package com.angryballs.crazygolf.AI;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.Models.TreeModel;
 import com.badlogic.gdx.math.Vector2;
 
-public class SimulatedAnnealing {
+public class SimulatedAnnealing extends Bot {
+
+    public SimulatedAnnealing(LevelInfo info, List<TreeModel> trees) {
+        super(info, trees);
+    }
+
+    private Random rng = new Random();
 
     // initial temperature
-    private double temperature = 10000;
+    private double temperature = 20;
 
     // cooling step size
-    private double coolingRate = 0.005;
+    private double coolingRate = 0.1;
 
     private LevelInfo levelInfo;
 
-    public SimulatedAnnealing(LevelInfo info) {
-        this.levelInfo = info;
+    private double bestDistance = Double.MAX_VALUE;
+    private Vector2 bestMove = new Vector2();
+
+    private void cooldown() {
+        temperature -= coolingRate;
+    }
+
+    private Vector2 generateRandomNeighbour() {
+        // Generates a new vector with each axis being between -5 and 5
+        float x = (rng.nextFloat() * 10) - 5;
+        float y = (rng.nextFloat() * 10) - 5;
+
+        return new Vector2(x, y);
     }
 
     // generates an acceptance possibility for the new distance
-    private double acceptanceChance(double minDist, double curDist, double temperature) {
+    private boolean shouldAccept(double newDist) {
         // accept better distance in 100%
-        if (minDist > curDist)
-            return 1.0;
+        if (newDist < bestDistance)
+            return true;
 
-        return Math.exp(curDist - minDist) / temperature;
+        var probability = Math.exp(-(newDist - bestDistance) / temperature);
+
+        return rng.nextFloat() < probability;
     }
 
-    public void run() {
-        RuleBasedBot rbb = new RuleBasedBot(levelInfo, new ArrayList<>());
+    @Override
+    public Vector2 computeOptimalMove(double x, double y) {
+        temperature = 20;
+        while (temperature > 0) {
+            Vector2 newMove = generateRandomNeighbour();
 
-        while (temperature > 1) {
+            applyPhysicsState((float) x, (float) y, 0, 0);
+            performMove(newMove);
 
+            var newDist = distanceSquared(ps.x, ps.y);
+            if (shouldAccept(newDist)) {
+                bestDistance = newDist;
+                bestMove = newMove;
+            }
+            cooldown();
         }
+        return bestMove;
     }
-
 }
