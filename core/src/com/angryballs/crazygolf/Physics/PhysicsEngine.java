@@ -18,8 +18,8 @@ public abstract class PhysicsEngine {
     // Physics properties
     private static final float defaultH = 0.001f; // a single time step of length h
     protected static final float g = 9.81f;
-//    protected static final float dh = 0.000000001f; // derivative step
-    protected static final float dh = 0.001f; // derivative step
+    protected static final float dh = 0.000000001f; // derivative step
+    protected static final float threshold = 0.001f;
 
     protected float uk;
     protected float us;
@@ -120,7 +120,7 @@ public abstract class PhysicsEngine {
         }
 
         // Check if the ball is in the final position (will not move)
-        if (Math.abs(vx) <= 0.1 && Math.abs(vy) <= 0.1) { // 0.09
+        if (Math.abs(vx) <= threshold && Math.abs(vy) <= threshold) { // 0.09
             if (Math.abs(derivative.x) < Float.MIN_VALUE && Math.abs(derivative.y) < Float.MIN_VALUE) {
                 ballMoving = false;
                 return 1;
@@ -168,7 +168,6 @@ public abstract class PhysicsEngine {
      * @param v2 current Y coordinate
      * @return dh/dx AND dh/dy
      */
-
     public final Vector2 derivative(double v1, double v2) {
         return new Vector2(
                 (float) ((getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh),
@@ -179,7 +178,6 @@ public abstract class PhysicsEngine {
         return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
 
     }
-
     public final double derivativeY(double v1, double v2) {
         return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
@@ -189,7 +187,7 @@ public abstract class PhysicsEngine {
 
         double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
 
-        return -g * dx - u * g * (vx) / sqrt;
+        return -g * dx - u * g * (vx + offset) / sqrt;
     }
 
     public final double accelerationY(double offset, double dy) {
@@ -197,7 +195,7 @@ public abstract class PhysicsEngine {
 
         double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
 
-        return -g * dy - u * g * (vy) / sqrt;
+        return -g * dy - u * g * (vy + offset) / sqrt;
     }
 
     /**
