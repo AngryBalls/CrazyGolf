@@ -51,12 +51,22 @@ public class SimulatedAnnealing extends Bot {
 
     @Override
     public Vector2 computeOptimalMove(double x, double y) {
-        temperature = 20;
+        temperature = 10;
         while (temperature > 0) {
+            cooldown();
             Vector2 newMove = generateRandomNeighbour();
 
             applyPhysicsState((float) x, (float) y, 0, 0);
-            performMove(newMove);
+
+            int moveResult = performMove(newMove);
+
+            // We hit a tree/body of water, don't even consider the move
+            if (moveResult == 2)
+                continue;
+
+            // We've putted, no need to consider any other options
+            if (moveResult == 3)
+                return newMove;
 
             var newDist = distanceSquared(ps.x, ps.y);
 
@@ -67,7 +77,6 @@ public class SimulatedAnnealing extends Bot {
                 currentDistance = newDist;
                 currentMove = newMove;
             }
-            cooldown();
         }
         return bestMove;
     }
