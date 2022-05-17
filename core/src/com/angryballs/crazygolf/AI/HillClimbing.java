@@ -16,14 +16,14 @@ public class HillClimbing extends Bot {
 
     @Override
     public Vector2 computeOptimalMove(double x, double y) {
-        var current = new double[] { 0, 0 };
+        var current = new double[] { Math.min(Math.max(xt - x, -5), 5), Math.min(Math.max(yt - y, -5), 5) };
         var stepSize = new double[] { 1.0, 1.0 };
         var acc = 0.1;
 
         var candidates = new double[] { -acc, -1 / acc, 1 / acc, acc };
 
         // Lower is better
-        var bestScore = Double.MAX_VALUE;
+        var bestScore = evaluate(x, y, current);
 
         while (true) {
             var prevScore = bestScore;
