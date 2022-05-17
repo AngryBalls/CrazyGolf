@@ -10,9 +10,10 @@ import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 
 import com.badlogic.gdx.math.Vector2;
+
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 public class LevelInfo {
     public static final LevelInfo exampleInput;
@@ -76,8 +77,7 @@ public class LevelInfo {
         return 0.5 * (Math.sin((x - y) / 7) + 0.9);
     }
 
-    private static ScriptEngineManager mgr = new ScriptEngineManager();
-    private static ScriptEngine engine = mgr.getEngineByName("JavaScript");
+    private static ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine();
 
     private final CompiledScript expression;
     private final Bindings bindings;
@@ -110,7 +110,6 @@ public class LevelInfo {
             heightProfile = props.getProperty("heightProfile", "0");
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
-
             return;
         } catch (Exception e) {
             throw new IOException("Malformed input file");
@@ -146,7 +145,7 @@ public class LevelInfo {
             long duration = 0;
             for (int i = 0; i < 100000; i++) {
                 long startTime = System.currentTimeMillis();
-                res += lvlInfo.heightProfileOld(0, 1);
+                res += lvlInfo.heightProfileOld(i, 1);
                 long endTime = System.currentTimeMillis();
                 duration += endTime - startTime;
             }
@@ -160,7 +159,7 @@ public class LevelInfo {
             long duration = 0;
             for (int i = 0; i < 100000; i++) {
                 long startTime = System.currentTimeMillis();
-                res += lvlInfo.heightProfile(0, 1);
+                res += lvlInfo.heightProfile(0, i);
 
                 long endTime = System.currentTimeMillis();
                 duration += endTime - startTime;
@@ -175,7 +174,7 @@ public class LevelInfo {
             long duration = 0;
             for (int i = 0; i < 100000; i++) {
                 long startTime = System.currentTimeMillis();
-                res += lvlInfo.heightProfileNative(0, 1);
+                res += lvlInfo.heightProfileNative(i, i);
 
                 long endTime = System.currentTimeMillis();
                 duration += endTime - startTime;
