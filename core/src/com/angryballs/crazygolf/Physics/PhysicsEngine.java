@@ -1,8 +1,13 @@
-package com.angryballs.crazygolf;
+package com.angryballs.crazygolf.Physics;
 
-import com.badlogic.gdx.math.Vector2;
+import com.angryballs.crazygolf.*;
+import com.badlogic.gdx.math.*;
 
-public class PhysicsSystem {
+/**
+ * The base PhysicsEngine class which contains components that will be used by
+ * all deriving engines.
+ */
+public abstract class PhysicsEngine {
 
     // Current State
     public double x; // x coordinate
@@ -11,26 +16,26 @@ public class PhysicsSystem {
     public double vy; // speed in y
 
     // Physics properties
-    private static final float h = 0.001f; // a single time step of length h
-    private static final float g = 9.81f;
-    private static final float dh = 0.000000001f; // derivative step
+    protected static final float h = 0.001f; // a single time step of length h
+    protected static final float g = 9.81f;
+    protected static final float dh = 0.000000001f; // derivative step
 
-    private float uk;
-    private float us;
+    protected float uk;
+    protected float us;
 
-    private float usk;
-    private float uss;
+    protected float usk;
+    protected float uss;
 
-    private float xt;
-    private float yt;
-    private float r;
+    protected float xt;
+    protected float yt;
+    protected float r;
 
-    private Vector2 sandBoundsX;
-    private Vector2 sandBoundsY;
+    protected Vector2 sandBoundsX;
+    protected Vector2 sandBoundsY;
 
-    private LevelInfo levelInfo;
+    protected final LevelInfo levelInfo;
 
-    public PhysicsSystem(LevelInfo info) {
+    public PhysicsEngine(LevelInfo info) {
         levelInfo = info;
 
         applyPhysicsProperties();
@@ -58,9 +63,14 @@ public class PhysicsSystem {
         y = levelInfo.startPosition.y;
     }
 
-    private boolean ballMoving = false;
+    protected boolean ballMoving = false;
 
-    public void performMove(Vector2 velocity) {
+    /**
+     * Performs a move, applying the input velocity to the ball
+     *
+     * @param velocity the velocity to be applied to the ball
+     */
+    public final void performMove(Vector2 velocity) {
         if (velocity.epsilonEquals(Vector2.Zero)) {
             System.out.println("Didn't actually hit the ball.");
             return;
@@ -79,29 +89,17 @@ public class PhysicsSystem {
      *         2: the ball is in the water (or tree)
      *         3: the ball is in the hole
      */
-    public int iteration() {
+
+    public final int iterate() {
         if (!ballMoving) {
             // System.out.println("Iteration is called on stationary ball, returning
             // early.");
             return 1;
         }
-        Vector2 dh = derivative(x, y);
-        Vector2 a;
-        boolean sandFlag = false;
 
-        if ((x >= sandBoundsX.x && x <= sandBoundsY.x)
-                && (y >= sandBoundsX.y && y <= sandBoundsY.y)) {
-            a = acceleration(dh, usk);
-            sandFlag = true;
-        } else {
-            a = acceleration(dh, uk);
-        }
+        var derivative = derivative(x, y);
 
-        this.x += h * vx;
-        this.y += h * vy;
-
-        this.vx = Math.max(-5, Math.min(vx + h * a.x, 5));
-        this.vy = Math.max(-5, Math.min(vy + h * a.y, 5));
+        performCalculations(derivative);
 
         // TODO: add the range of trees
         if (getHeight(this.x, this.y) < 0) {
@@ -117,13 +115,13 @@ public class PhysicsSystem {
 
         // Check if the ball is in the final position (will not move)
         if (Math.abs(vx) <= 0.1 && Math.abs(vy) <= 0.1) { // 0.09
-            if (Math.abs(dh.x) < Float.MIN_VALUE && Math.abs(dh.y) < Float.MIN_VALUE) {
+            if (Math.abs(derivative.x) < Float.MIN_VALUE && Math.abs(derivative.y) < Float.MIN_VALUE) {
                 ballMoving = false;
                 return 1;
-            } else if (!sandFlag && us > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2))) {
+            } else if (!isInSand() && us > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
                 ballMoving = false;
                 return 1;
-            } else if (sandFlag && uss > Math.sqrt(Math.pow(dh.x, 2) + Math.pow(dh.y, 2))) {
+            } else if (isInSand() && uss > Math.sqrt(Math.pow(derivative.x, 2) + Math.pow(derivative.y, 2))) {
                 ballMoving = false;
                 return 1;
             } else
@@ -131,6 +129,8 @@ public class PhysicsSystem {
         } else
             return 0;
     }
+
+    protected abstract void performCalculations(Vector2 derivative);
 
     /**
      * Method to check if the ball inside the hole's radius
@@ -142,12 +142,16 @@ public class PhysicsSystem {
      * @param r       the radius around the hole
      * @return Is the ball inside the target's radius?
      */
-    public boolean isInCircle(double x, double centerX, double y, double centerY, double r) {
+    public final boolean isInCircle(double x, double centerX, double y, double centerY, double r) {
         return Math.pow((x - centerX), 2) + Math.pow((y - centerY), 2) <= r * r;
     }
 
-    public double getHeight(double x, double y) {
+    public final double getHeight(double x, double y) {
         return levelInfo.heightProfile(x, y);
+    }
+
+    protected final boolean isInSand() {
+        return (x >= sandBoundsX.x && x <= sandBoundsY.x) && (y >= sandBoundsX.y && y <= sandBoundsY.y);
     }
 
     /**
@@ -158,10 +162,36 @@ public class PhysicsSystem {
      * @param v2 current Y coordinate
      * @return dh/dx AND dh/dy
      */
-    public Vector2 derivative(double v1, double v2) {
+
+    public final Vector2 derivative(double v1, double v2) {
         return new Vector2(
                 (float) ((getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh),
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
+    }
+
+    public final double derivativeX(double v1, double v2) {
+        return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
+
+    }
+
+    public final double derivativeY(double v1, double v2) {
+        return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
+    }
+
+    public final double accelerationX(double offset, double dx) {
+        var u = isInSand() ? usk : uk;
+
+        double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
+
+        return -g * dx - u * g * (vx) / sqrt;
+    }
+
+    public final double accelerationY(double offset, double dy) {
+        var u = isInSand() ? usk : uk;
+
+        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
+
+        return -g * dy - u * g * (vy) / sqrt;
     }
 
     /**
@@ -171,34 +201,29 @@ public class PhysicsSystem {
      * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
-    public Vector2 acceleration(Vector2 dh, double u) {
-        return new Vector2((float) (-g * dh.x - u * g * (vx) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))),
-                (float) (-g * dh.y - u * g * (vy) / Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))));
+    public final Vector2 acceleration(Vector2 dh) {
+        var u = isInSand() ? usk : uk;
+        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+
+        var x = -g * dh.x - u * g * (vx) / sqrt;
+        var y = -g * dh.y - u * g * (vy) / sqrt;
+
+        return new Vector2((float) x, (float) y);
     }
 
-    public double getX() {
+    public final double getX() {
         return x;
     }
 
-    public double getY() {
+    public final double getY() {
         return y;
     }
 
-    public double getVx() {
+    public final double getVx() {
         return vx;
     }
 
-    public double getVy() {
+    public final double getVy() {
         return vy;
-    }
-
-    public static void main(String[] args) {
-        PhysicsSystem sv = new PhysicsSystem(LevelInfo.exampleInput);
-        sv.performMove(new Vector2(3, 0));
-        int code = sv.iteration();
-        while (code == 0) {
-            System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
-            code = sv.iteration();
-        }
     }
 }

@@ -1,5 +1,6 @@
-package com.angryballs.crazygolf;
+package com.angryballs.crazygolf.Models;
 
+import com.angryballs.crazygolf.LevelInfo;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
