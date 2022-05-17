@@ -23,7 +23,7 @@ public abstract class PhysicsEngine {
     private static final float defaultH = 0.001f; // a single time step of length h
     protected static final float g = 9.81f;
     protected static final float dh = 0.000000001f; // derivative step
-    protected static final float threshold = 0.001f;
+    protected static final float threshold = 0.01f;
 
     protected float uk;
     protected float us;
