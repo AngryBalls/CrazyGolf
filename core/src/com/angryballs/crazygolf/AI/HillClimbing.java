@@ -18,7 +18,7 @@ public class HillClimbing extends Bot {
     public Vector2 computeOptimalMove(double x, double y) {
         var current = new double[] { 0, 0 };
         var stepSize = new double[] { 1.0, 1.0 };
-        var acc = 2.1;
+        var acc = 0.1;
 
         var candidates = new double[] { -acc, -1 / acc, 1 / acc, acc };
 
@@ -57,11 +57,6 @@ public class HillClimbing extends Bot {
         applyPhysicsState((float) x, (float) y, 0, 0);
 
         var moveResult = performMove(new Vector2((float) vel[0], (float) vel[1]));
-
-        if (moveResult == 3)
-            return 0;
-        else if (moveResult == 2)
-            return Double.MAX_VALUE;
 
         double fitness = distanceSquared(ps.x, ps.y);
 
