@@ -12,11 +12,11 @@ public class BotTests {
         // rbb.run(rbb);
         System.out.println("\nGradient Descent");
         Bot gd = new GradientDescent(INFO, new ArrayList<>());
-        gd.run();
+        // gd.run();
 
         System.out.println("\nNewton Raphson");
         Bot nr = new NewtonRaphson(INFO, new ArrayList<>());
-        nr.run();
+        // nr.run();
 
         System.out.println("\nHill Climbing");
         Bot hc = new HillClimbing(INFO, new ArrayList<>());

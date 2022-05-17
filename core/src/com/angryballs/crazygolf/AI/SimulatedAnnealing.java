@@ -15,7 +15,9 @@ public class SimulatedAnnealing extends Bot {
     private Random rng = new Random();
 
     // initial temperature
-    private double temperature = 20;
+    private double temperature = maxTemp;
+
+    private final static double maxTemp = 10;
 
     // cooling step size
     private double coolingRate = 0.1;
@@ -29,12 +31,18 @@ public class SimulatedAnnealing extends Bot {
         temperature -= coolingRate;
     }
 
-    private Vector2 generateRandomNeighbour() {
-        // Generates a new vector with each axis being between -5 and 5
-        float x = (rng.nextFloat() * 10) - 5;
-        float y = (rng.nextFloat() * 10) - 5;
+    private Vector2 generateRandomNeighbour(double x, double y) {
+        if (temperature == maxTemp)
+            return new Vector2((float) Math.min(Math.max(xt - x, -5), 5), (float) Math.min(Math.max(yt - y, -5), 5));
 
-        return new Vector2(x, y);
+        // Generates a new vector with each axis being between -5 and 5
+        float xDelta = (rng.nextFloat() * 10) - (5 + bestMove.x);
+        float yDelta = (rng.nextFloat() * 10) - (5 + bestMove.y);
+
+        // This is used to reduce the rate of change as temperature goes down
+        float coeff = (float) (temperature / maxTemp);
+
+        return new Vector2(bestMove.x + xDelta * coeff, bestMove.y + yDelta * coeff);
     }
 
     // generates an acceptance possibility for the new distance
@@ -46,14 +54,16 @@ public class SimulatedAnnealing extends Bot {
 
     @Override
     public Vector2 computeOptimalMove(double x, double y) {
-        temperature = 10;
+        temperature = maxTemp;
+
         while (temperature > 0) {
-            cooldown();
-            Vector2 newMove = generateRandomNeighbour();
+            Vector2 newMove = generateRandomNeighbour(x, y);
 
             applyPhysicsState((float) x, (float) y, 0, 0);
 
             int moveResult = performMove(newMove);
+
+            cooldown();
 
             // We hit a tree/body of water, don't even consider the move
             if (moveResult == 2)
