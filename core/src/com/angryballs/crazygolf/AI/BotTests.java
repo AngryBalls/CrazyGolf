@@ -19,11 +19,27 @@ public class BotTests {
         // nr.run();
 
         System.out.println("\nHill Climbing");
+
         Bot hc = new HillClimbing(INFO, new ArrayList<>());
         hc.run();
 
         System.out.println("\nSimulated Annealing");
-        Bot sa = new SimulatedAnnealing(INFO, new ArrayList<>());
-        sa.run();
+        int total = 0;
+        int holeInOnes = 0;
+        for (int i = 0; i < 100; ++i) {
+            Bot sa = new SimulatedAnnealing(INFO, new ArrayList<>());
+            int count = sa.run();
+
+            if (count == 1)
+                ++holeInOnes;
+
+            total += count;
+        }
+
+        float avg = total / 100f;
+        System.out.println("Stats for Simulated Annealing over 100 games");
+        System.out.printf("Average shots per game: %.8f\n", avg);
+        System.out.printf("Number of hole in ones: %d\n", holeInOnes);
+
     }
 }

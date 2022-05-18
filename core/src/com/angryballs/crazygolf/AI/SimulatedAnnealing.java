@@ -17,15 +17,13 @@ public class SimulatedAnnealing extends Bot {
     // initial temperature
     private double temperature = maxTemp;
 
-    private final static double maxTemp = 10;
+    private final static double maxTemp = 20;
 
     // cooling step size
     private double coolingRate = 0.1;
 
     private double bestDistance = Double.MAX_VALUE;
     private Vector2 bestMove = new Vector2();
-
-    private double currentDistance = Double.MAX_VALUE;
 
     private void cooldown() {
         temperature -= coolingRate;
@@ -40,21 +38,16 @@ public class SimulatedAnnealing extends Bot {
         float yDelta = (rng.nextFloat() * 10) - (5 + bestMove.y);
 
         // This is used to reduce the rate of change as temperature goes down
-        float coeff = (float) (temperature / maxTemp);
+        float coeff = 1 - easeOutBounce((float) (1 - temperature / maxTemp));
 
         return new Vector2(bestMove.x + xDelta * coeff, bestMove.y + yDelta * coeff);
-    }
-
-    // generates an acceptance possibility for the new distance
-    private boolean shouldAccept(double newDist) {
-        var probability = Math.exp(-(newDist - currentDistance) / temperature);
-
-        return rng.nextFloat() < probability;
     }
 
     @Override
     public Vector2 computeOptimalMove(double x, double y) {
         temperature = maxTemp;
+        // bestDistance = Double.MAX_VALUE;
+        bestMove = new Vector2();
 
         while (temperature > 0) {
             Vector2 newMove = generateRandomNeighbour(x, y);
@@ -76,12 +69,70 @@ public class SimulatedAnnealing extends Bot {
             var newDist = distanceSquared(ps.x, ps.y);
 
             if (newDist < bestDistance) {
-                bestDistance = currentDistance = newDist;
+                bestDistance = newDist;
                 bestMove = newMove;
-            } else if (shouldAccept(newDist)) {
-                currentDistance = newDist;
             }
         }
         return bestMove;
+    }
+
+    // MaxT 10 => 6, // MaxT = 20 => 10
+    // Viable on higher MaxT
+    private float easeOutPow2(float t) {
+        return t * t;
+    }
+
+    // MaxT 10 => 12, // MaxT = 20 => 44
+    // Viable on higher MaxT
+    private float easeOutCubic(float t) {
+        return (float) (1 - Math.pow(1 - t, 3));
+    }
+
+    // MaxT 10 => 8, // MaxT = 20 => 42
+    // Viable on higher MaxT, not good at all
+    // with lower T's
+    private float easeOutCirc(float t) {
+        return (float) Math.sqrt(1 - Math.pow(t - 1, 2));
+    }
+
+    // MaxT 10 => 20, // MaxT = 20 => 57
+    // Best of the bunch
+    private float easeOutBounce(float t) {
+        final float n1 = 7.5625f;
+        final float d1 = 2.75f;
+
+        if (t < 1 / d1) {
+            return n1 * t * t;
+        } else if (t < 2 / d1) {
+            return n1 * (t -= 1.5f / d1) * t + 0.75f;
+        } else if (t < 2.5 / d1) {
+            return n1 * (t -= 2.25f / d1) * t + 0.9375f;
+        } else {
+            return n1 * (t -= 2.625f / d1) * t + 0.984375f;
+        }
+    }
+
+    // MaxT 10 => 6, // MaxT = 20 => 23
+    // Crap
+    private float stepToEaseOutCirc(float t) {
+        if (t < 0.5f)
+            return 0;
+
+        return easeOutCirc((t - 0.5f) * 2);
+    }
+
+    // MaxT 10 => 6, // MaxT = 20 => 26
+    // Pretty good with higher maxT, crap at low maxT
+    private float stepToStep(float t) {
+        if (t < 0.25f)
+            return 0;
+
+        if (t < 0.5f)
+            return 0.5f;
+
+        if (t < 0.75f)
+            return 0.75f;
+
+        return 0.95f;
     }
 }

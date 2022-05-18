@@ -55,7 +55,7 @@ public abstract class Bot {
         return Math.sqrt((x - xt) * (x - xt) + (y - yt) * (y - yt));
     }
 
-    public void run() {
+    public int run() {
         long start = System.currentTimeMillis();
         System.out.println("Target:             ( " + xt + " , " + yt + " )");
         Vector2 coords = new Vector2((float) ps.x, (float) ps.y);
@@ -80,6 +80,7 @@ public abstract class Bot {
         System.out.println("The state vector: " + coords + " " + speeds);
         long end = System.currentTimeMillis();
         System.out.println("Ran in : " + (end - start) * 0.001 + " s");
+        return i;
     }
 
     // Used for higher precision simulations
