@@ -25,8 +25,6 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import java.awt.*;
-
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
     private final TerrainModel terrainModel;
@@ -49,20 +47,15 @@ public class GameScreen3D extends ScreenAdapter {
     private MenuOverlay menuOverlay;
 
     // USERINPUT:
-    private long prevTime;
-    private long newTime;
-    private long pressedTime;
+    private float pressedTime;
 
-    // power 1 = timeForOne milliseconds
-    private long timeForOne;
-    private int maxPower;
+    private static float timeForOne = 0.1f;// power 1 = timeForOne secodns
+    private static final int maxPower = 5;
 
     private boolean spacePressed;
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         spacePressed = false;
-        timeForOne = 100;
-        maxPower = 5;
 
         this.levelInfo = levelInfo;
         physicsSystem = new GRK2PhysicsEngine(levelInfo);
@@ -150,7 +143,7 @@ public class GameScreen3D extends ScreenAdapter {
                 Gdx.graphics.getHeight() - 70);
 
         if (spacePressed)
-            font.draw(spriteBatch, "power = " + CalculatePower(System.currentTimeMillis()), 10,
+            font.draw(spriteBatch, "Power = " + String.format("%.2f", updatePower(delta)), 10,
                     Gdx.graphics.getHeight() - 90);
 
         spriteBatch.end();
@@ -185,59 +178,6 @@ public class GameScreen3D extends ScreenAdapter {
         Gdx.input.setInputProcessor(inputAdapter);
     }
 
-    private class GameScreenInputAdapter extends InputAdapter {
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            // if (state == State.RUN)
-            // performSwing();
-            return true;
-        }
-
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            return true;
-        }
-
-        @Override
-        public boolean keyDown(int keycode) {
-            camControls.keyDown(keycode);
-
-            if (keycode == 44) {
-                if (state == State.RUN) {
-                    showMenu();
-                } else if (state == State.PAUSE) {
-                    hideMenu();
-                }
-            } else if (keycode == 62) {
-                if (state == State.RUN) {
-                    prevTime = System.currentTimeMillis();
-                    spacePressed = true;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-
-            camControls.keyUp(keycode);
-
-            if (keycode == 62) {
-                if (state == State.RUN) {
-                    newTime = System.currentTimeMillis();
-                    shootBall();
-                    spacePressed = false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            if (state == State.RUN)
-                camControls.touchDragged(screenX, screenY, 0);
-            return true;
-        }
-    }
-
     private void updateBallPos() {
         float x, y, z;
         x = (float) physicsSystem.x;
@@ -268,25 +208,16 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     private void shootBall() {
-        // System.out.println("cam.direction:");
-        // System.out.println(cam.direction);
-        pressedTime = newTime - prevTime;
+        var power = updatePower(0);
         System.out.println("time passed: " + pressedTime);
-        if (pressedTime > timeForOne * maxPower)
-            pressedTime = timeForOne * maxPower;
-        float speed = (float) pressedTime / timeForOne;
-        physicsSystem.performMove(new Vector2(speed * cam.direction.x, speed * -cam.direction.z));
+        physicsSystem.performMove(new Vector2(power * cam.direction.x, power * -cam.direction.z));
 
     }
 
-    private double CalculatePower(long curTime) {
-        double power = 0;
-        pressedTime = curTime - prevTime;
-        power = (double) pressedTime / timeForOne;
-        if (power > maxPower) {
-            return maxPower;
-        } else
-            return power;
+    private float updatePower(float delta) {
+        pressedTime += delta;
+        var power = Math.min(maxPower, (double) pressedTime / timeForOne);
+        return (float) power;
     }
 
     private List<TreeModel> trees = new ArrayList<TreeModel>();
@@ -306,14 +237,49 @@ public class GameScreen3D extends ScreenAdapter {
             tree.setPosition(new Vector3(x, y, z));
             trees.add(tree);
         }
-
     }
 
+    private class GameScreenInputAdapter extends InputAdapter {
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            pressedTime = 0;
+            spacePressed = true;
+
+            return true;
+        }
+
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+            shootBall();
+            spacePressed = false;
+            return true;
+        }
+
+        @Override
+        public boolean keyDown(int keycode) {
+            camControls.keyDown(keycode);
+
+            if (keycode == 44) {
+                if (state == State.RUN) {
+                    showMenu();
+                } else if (state == State.PAUSE) {
+                    hideMenu();
+                }
+            } else if (keycode == 62) {
+                performSwing();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean keyUp(int keycode) {
+            camControls.keyUp(keycode);
+            return true;
+        }
+
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+            if (state == State.RUN)
+                camControls.touchDragged(screenX, screenY, 0);
+            return true;
+        }
+    }
 }
-
-
-    
-         
-          
-
-     
