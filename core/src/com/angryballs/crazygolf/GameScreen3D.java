@@ -33,24 +33,30 @@ public class GameScreen3D extends ScreenAdapter {
     private final Skybox skybox;
 
     private PerspectiveCamera cam;
-
     private final Environment environment;
-
     private FirstPersonCameraController2 camControls;
 
     private PhysicsEngine physicsSystem;
 
     private LevelInfo levelInfo;
-
     private InputAdapter inputAdapter;
-
     private State state = State.RUN;
     private final SpriteBatch spriteBatch;
     private final BitmapFont font;
 
     private MenuOverlay menuOverlay;
 
+    // USERINPUT:
+    private float pressedTime;
+
+    private static float timeForOne = 0.1f;// power 1 = timeForOne secodns
+    private static final int maxPower = 5;
+
+    private boolean spacePressed;
+
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
+        spacePressed = false;
+
         this.levelInfo = levelInfo;
         physicsSystem = new GRK2PhysicsEngine(levelInfo);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
@@ -136,6 +142,10 @@ public class GameScreen3D extends ScreenAdapter {
         font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y * 100) / 100, 10,
                 Gdx.graphics.getHeight() - 70);
 
+        if (spacePressed)
+            font.draw(spriteBatch, "Power = " + String.format("%.2f", updatePower(delta)), 10,
+                    Gdx.graphics.getHeight() - 90);
+
         spriteBatch.end();
     }
 
@@ -168,42 +178,6 @@ public class GameScreen3D extends ScreenAdapter {
         Gdx.input.setInputProcessor(inputAdapter);
     }
 
-    private class GameScreenInputAdapter extends InputAdapter {
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            if (state == State.RUN)
-                performSwing();
-            return true;
-        }
-
-        @Override
-        public boolean keyDown(int keycode) {
-            camControls.keyDown(keycode);
-
-            if (keycode == 44) {
-                if (state == State.RUN) {
-                    showMenu();
-                } else if (state == State.PAUSE) {
-                    hideMenu();
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-
-            camControls.keyUp(keycode);
-            return true;
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            if (state == State.RUN)
-                camControls.touchDragged(screenX, screenY, 0);
-            return true;
-        }
-    }
-
     private void updateBallPos() {
         float x, y, z;
         x = (float) physicsSystem.x;
@@ -233,6 +207,19 @@ public class GameScreen3D extends ScreenAdapter {
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
     }
 
+    private void shootBall() {
+        var power = updatePower(0);
+        System.out.println("time passed: " + pressedTime);
+        physicsSystem.performMove(new Vector2(power * cam.direction.x, power * -cam.direction.z));
+
+    }
+
+    private float updatePower(float delta) {
+        pressedTime += delta;
+        var power = Math.min(maxPower, (double) pressedTime / timeForOne);
+        return (float) power;
+    }
+
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
@@ -250,7 +237,49 @@ public class GameScreen3D extends ScreenAdapter {
             tree.setPosition(new Vector3(x, y, z));
             trees.add(tree);
         }
-
     }
 
+    private class GameScreenInputAdapter extends InputAdapter {
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            pressedTime = 0;
+            spacePressed = true;
+
+            return true;
+        }
+
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+            shootBall();
+            spacePressed = false;
+            return true;
+        }
+
+        @Override
+        public boolean keyDown(int keycode) {
+            camControls.keyDown(keycode);
+
+            if (keycode == 44) {
+                if (state == State.RUN) {
+                    showMenu();
+                } else if (state == State.PAUSE) {
+                    hideMenu();
+                }
+            } else if (keycode == 62) {
+                performSwing();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean keyUp(int keycode) {
+            camControls.keyUp(keycode);
+            return true;
+        }
+
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+            if (state == State.RUN)
+                camControls.touchDragged(screenX, screenY, 0);
+            return true;
+        }
+    }
 }
