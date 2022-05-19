@@ -23,8 +23,8 @@ import java.util.ArrayList;
  */
 public class GradientDescent extends Bot {
 
-    protected  ArrayList<Double> fitness = new ArrayList<>();
-    protected  ArrayList<Double> speed = new ArrayList<>();
+    protected ArrayList<Double> fitness = new ArrayList<>();
+    protected ArrayList<Double> speed = new ArrayList<>();
 
     // Specific GD variables
     private final double dv = 0.0001; // derivative step
@@ -66,26 +66,24 @@ public class GradientDescent extends Bot {
         ps.setStateVector(coords.x, coords.y, 0, 0);
         Vector2 newSpeed;
 
-
-         if(isX){
-             if(speed.x > 0) {
-                 newSpeed = new Vector2((float) (speed.x - dv), speed.y);
-                 sign = -1;
-             }else
-                 newSpeed = new Vector2((float) (speed.x + dv), speed.y);
-        }else{
-             if (speed.y > 0) {
-                 newSpeed = new Vector2(speed.x, (float) (speed.y - dv));
-                 sign = -1;
-             }else
-                 newSpeed = new Vector2(speed.x, (float) (speed.y + dv));
+        if (isX) {
+            if (speed.x > 0) {
+                newSpeed = new Vector2((float) (speed.x - dv), speed.y);
+                sign = -1;
+            } else
+                newSpeed = new Vector2((float) (speed.x + dv), speed.y);
+        } else {
+            if (speed.y > 0) {
+                newSpeed = new Vector2(speed.x, (float) (speed.y - dv));
+                sign = -1;
+            } else
+                newSpeed = new Vector2(speed.x, (float) (speed.y + dv));
         }
         performMove(newSpeed);
         distVnew = distance(ps.x, ps.y);
 
-
         // Calculate the derivative
-        return sign*(distVnew - distV) / dv;
+        return sign * (distVnew - distV) / dv;
     }
 
     /**
@@ -103,40 +101,39 @@ public class GradientDescent extends Bot {
                 (float) Math.max(Math.min(this.yt - y, 5), -5));
         Vector2 predictedSpeed = new Vector2();
 
-        double curScore = evaluate(coords,curSpeed);
-        while(true){
+        double curScore = evaluate(coords, curSpeed);
+        while (true) {
             double dvx = derivative(coords, curSpeed, true);
             double dvy = derivative(coords, curSpeed, false);
-//            System.out.println("dVx: "+dvx+", dVy: "+dvy);
+            // System.out.println("dVx: "+dvx+", dVy: "+dvy);
             predictedSpeed.x = curSpeed.x - A * (float) dvx;
             predictedSpeed.y = curSpeed.y - A * (float) dvy;
             predictedSpeed.x = Math.max(Math.min(predictedSpeed.x, 5), -5);
             predictedSpeed.y = Math.max(Math.min(predictedSpeed.y, 5), -5);
-            curScore = evaluate(coords,predictedSpeed);
-//            System.out.println("Speed:      "+predictedSpeed+", Distance: "+Math.sqrt(curScore));
+            curScore = evaluate(coords, predictedSpeed);
+            // System.out.println("Speed: "+predictedSpeed+", Distance:
+            // "+Math.sqrt(curScore));
 
             boolean stop = false;
 
-            double curDist = Math.sqrt(curScore);
-
-            if(bestScore-curDist> DELTA_DISTANCE)
+            if (bestScore - curScore > DELTA_DISTANCE)
                 lastupd = iterator;
 
-            if(bestScore > curDist)
-                bestScore = curDist;
+            if (bestScore > curScore)
+                bestScore = curScore;
 
-            if(iterator - lastupd > UPDATE_LIMIT)
+            if (iterator - lastupd > UPDATE_LIMIT)
                 stop = true;
 
             curSpeed = predictedSpeed;
             iterator++;
 
-            if (iterator>ITERATION_LIMIT || curDist <= RADIUS || stop){
+            if (iterator > ITERATION_LIMIT || curScore <= RADIUS * RADIUS || stop) {
 
-//                System.out.println("X: "+ps.x+", Y: "+ps.y);
-//                System.out.println("Counter: "+iterator);
-//                System.out.println("Distance: "+bestScore);
-//                System.out.println("Speed:      "+predictedSpeed);
+                // System.out.println("X: "+ps.x+", Y: "+ps.y);
+                // System.out.println("Counter: "+iterator);
+                // System.out.println("Distance: "+bestScore);
+                // System.out.println("Speed: "+predictedSpeed);
                 bestScore = Double.MAX_VALUE;
                 iterator = 0;
                 lastupd = 0;
@@ -144,7 +141,8 @@ public class GradientDescent extends Bot {
             }
         }
     }
-    private double evaluate(Vector2 coords, Vector2 speed){
+
+    private double evaluate(Vector2 coords, Vector2 speed) {
         ps.setStateVector(coords.x, coords.y, 0, 0);
         performMove(speed);
         return distanceSquared(ps.x, ps.y);

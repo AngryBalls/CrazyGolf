@@ -12,7 +12,7 @@ public class BotTests {
         // rbb.run(rbb);
         System.out.println("\nGradient Descent");
         Bot gd = new GradientDescent(INFO, new ArrayList<>());
-        // gd.run();
+        gd.run();
 
         System.out.println("\nNewton Raphson");
         Bot nr = new NewtonRaphson(INFO, new ArrayList<>());
@@ -26,7 +26,7 @@ public class BotTests {
         System.out.println("\nSimulated Annealing");
         int total = 0;
         int holeInOnes = 0;
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 1; ++i) {
             Bot sa = new SimulatedAnnealing(INFO, new ArrayList<>());
             int count = sa.run();
 
@@ -36,7 +36,7 @@ public class BotTests {
             total += count;
         }
 
-        float avg = total / 100f;
+        float avg = total / 1;
         System.out.println("Stats for Simulated Annealing over 100 games");
         System.out.printf("Average shots per game: %.8f\n", avg);
         System.out.printf("Number of hole in ones: %d\n", holeInOnes);
