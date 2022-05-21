@@ -14,6 +14,7 @@ import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
 import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -35,24 +36,30 @@ public class GameScreen3D extends ScreenAdapter {
     private final Skybox skybox;
 
     private PerspectiveCamera cam;
-
     private final Environment environment;
-
     private FirstPersonCameraController2 camControls;
 
     private PhysicsEngine physicsSystem;
 
     private LevelInfo levelInfo;
-
     private InputAdapter inputAdapter;
-
     private State state = State.RUN;
     private final SpriteBatch spriteBatch;
     private final BitmapFont font;
 
     private MenuOverlay menuOverlay;
 
+    // USERINPUT:
+    private float pressedTime;
+
+    private static float timeForOne = 0.1f;// power 1 = timeForOne secodns
+    private static final int maxPower = 5;
+
+    private boolean spacePressed;
+
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
+        spacePressed = false;
+
         this.levelInfo = levelInfo;
         generateTrees();
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
@@ -139,6 +146,10 @@ public class GameScreen3D extends ScreenAdapter {
         font.draw(spriteBatch, "Z position = " + (float) Math.round(physicsSystem.y * 100) / 100, 10,
                 Gdx.graphics.getHeight() - 70);
 
+        if (spacePressed)
+            font.draw(spriteBatch, "Power = " + String.format("%.2f", updatePower(delta)), 10,
+                    Gdx.graphics.getHeight() - 90);
+
         spriteBatch.end();
     }
 
@@ -169,42 +180,6 @@ public class GameScreen3D extends ScreenAdapter {
         state = State.RUN;
         Gdx.input.setCursorCatched(true);
         Gdx.input.setInputProcessor(inputAdapter);
-    }
-
-    private class GameScreenInputAdapter extends InputAdapter {
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            if (state == State.RUN)
-                botPerformSwing();
-            return true;
-        }
-
-        @Override
-        public boolean keyDown(int keycode) {
-            camControls.keyDown(keycode);
-
-            if (keycode == 44) {
-                if (state == State.RUN) {
-                    showMenu();
-                } else if (state == State.PAUSE) {
-                    hideMenu();
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-
-            camControls.keyUp(keycode);
-            return true;
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            if (state == State.RUN)
-                camControls.touchDragged(screenX, screenY, 0);
-            return true;
-        }
     }
 
     private void updateBallPos() {
@@ -246,6 +221,19 @@ public class GameScreen3D extends ScreenAdapter {
         physicsSystem.performMove(optimalMove);
     }
 
+    private void shootBall() {
+        var power = updatePower(0);
+        System.out.println("time passed: " + pressedTime);
+        physicsSystem.performMove(new Vector2(power * cam.direction.x, power * -cam.direction.z));
+
+    }
+
+    private float updatePower(float delta) {
+        pressedTime += delta;
+        var power = Math.min(maxPower, (double) pressedTime / timeForOne);
+        return (float) power;
+    }
+
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
@@ -254,8 +242,8 @@ public class GameScreen3D extends ScreenAdapter {
         Random rng = new Random();
         trees.clear();
         for (int i = 0; i < n; ++i) {
-            float x = rng.nextFloat() * rng.nextInt(32) * (rng.nextBoolean() ? -1 : 1);
-            float z = rng.nextFloat() * rng.nextInt(32) * (rng.nextBoolean() ? -1 : 1);
+            float x = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
 
             float y = levelInfo.heightProfile(x, z).floatValue();
 
@@ -265,4 +253,49 @@ public class GameScreen3D extends ScreenAdapter {
         }
     }
 
+    private class GameScreenInputAdapter extends InputAdapter {
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            pressedTime = 0;
+            spacePressed = true;
+
+            return true;
+        }
+
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+            shootBall();
+            spacePressed = false;
+            return true;
+        }
+
+        @Override
+        public boolean keyDown(int keycode) {
+            camControls.keyDown(keycode);
+
+            if (keycode == 44) {
+                if (state == State.RUN) {
+                    showMenu();
+                } else if (state == State.PAUSE) {
+                    hideMenu();
+                }
+            } else if (keycode == 62) {
+                performSwing();
+            } else if (keycode == Input.Keys.B) {
+                botPerformSwing();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean keyUp(int keycode) {
+            camControls.keyUp(keycode);
+            return true;
+        }
+
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+            if (state == State.RUN)
+                camControls.touchDragged(screenX, screenY, 0);
+            return true;
+        }
+    }
 }
