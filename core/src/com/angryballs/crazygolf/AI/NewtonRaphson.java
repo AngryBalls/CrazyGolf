@@ -10,10 +10,10 @@ import com.badlogic.gdx.math.Vector2;
  * Newton-Raphson based bot
  * Update formula:
  * Vnew = Vcurrent - A * F(Vcurrent)/F'(Vcurrent)
- * ^ ^ ^
- * learning rate | |
- * fitness function |
- * erivative of the fitness function
+ *
+ * A            - learning rate
+ * F(Vcurrent)  - fitness function
+ * F'(Vcurrent) - derivative of the fitness function
  *
  * Fintess Function - distance from end position to target point
  * after applying speed from current position
@@ -24,11 +24,25 @@ import com.badlogic.gdx.math.Vector2;
 public class NewtonRaphson extends Bot {
 
     // Specific NR variables
-    private final double dv = 0.00001; // derivative step
-    private final double A = 1; // step size of descent
+    private final double dv = 0.01; // derivative step
+    private final float A = 0.01f; // step size of descent
+    private final int ITERATION_LIMIT = 569;
+    private final int UPDATE_LIMIT = 300;
+    private final double DELTA_DISTANCE = 0.00001;
+    private final double RADIUS;
+    private boolean stop = false;
+
+    // Best data
+    private double bestScore = Double.MAX_VALUE;
+    private Vector2 bestSpeed = new Vector2();
+
+    // Stat info
+    private int lastupd = 0;
+    private int iterator = 0;
 
     public NewtonRaphson(LevelInfo info, List<TreeModel> trees) {
         super(info, trees);
+        RADIUS = ps.getRadius();
     }
 
     @Override
@@ -43,14 +57,24 @@ public class NewtonRaphson extends Bot {
         // Calculate the f(V+dV) = dist(new point, target)
         double distVnew;
         Vector2 newSpeed;
-        if (isX)
-            newSpeed = new Vector2((float) (speed.x + dv), speed.y);
-        else
-            newSpeed = new Vector2(speed.x, (float) (speed.y + dv));
+        double sign = 1;
+        if (isX) {
+            if (speed.x > 0) {
+                newSpeed = new Vector2((float) (speed.x - dv), speed.y);
+                sign = -1;
+            } else
+                newSpeed = new Vector2((float) (speed.x + dv), speed.y);
+        }else {
+            if (speed.y > 0) {
+                newSpeed = new Vector2(speed.x, (float) (speed.y - dv));
+                sign = -1;
+            } else
+                newSpeed = new Vector2(speed.x, (float) (speed.y + dv));
+        }
         distVnew = fitnessFun(coords, newSpeed);
 
         // Calculate the derivative
-        return (distVnew - distV) / dv;
+        return sign*(distVnew - distV) / dv;
     }
 
     public double fitnessFun(Vector2 coords, Vector2 speed) {
@@ -75,21 +99,59 @@ public class NewtonRaphson extends Bot {
         Vector2 coords = new Vector2((float) x, (float) y);
 
         // take target coords as direction + approximate values
-        Vector2 targetSpeed = new Vector2((float) Math.max(Math.min(x - xt, 5), -5),
-                (float) Math.max(Math.min(y - yt, 5), -5));
+        Vector2 curSpeed = new Vector2((float) Math.max(Math.min(xt - x, 5), -5),
+                (float) Math.max(Math.min(yt - y, 5), -5));
 
-        Vector2 predictedSpeed = new Vector2();
-        predictedSpeed.x = targetSpeed.x
-                - (float) (A * fitnessFun(coords, targetSpeed) / derivative(coords, targetSpeed, true));
-        predictedSpeed.y = targetSpeed.y
-                - (float) (A * fitnessFun(coords, targetSpeed) / derivative(coords, targetSpeed, false));
-        predictedSpeed.x = Math.max(Math.min(predictedSpeed.x, 5), -5);
-        predictedSpeed.y = Math.max(Math.min(predictedSpeed.y, 5), -5);
+        bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
+        double curScore;
 
-        if (predictedSpeed.x == predictedSpeed.y && predictedSpeed.x == 0) {
-            predictedSpeed.x = targetSpeed.x;
-            predictedSpeed.y = targetSpeed.y;
+        while(true){
+            curSpeed.x = curSpeed.x
+                    - A*(float) (fitnessFun(coords, curSpeed) / derivative(coords, curSpeed, true));
+            curSpeed.y = curSpeed.y
+                    - A*(float) (fitnessFun(coords, curSpeed) / derivative(coords, curSpeed, false));
+            curSpeed.x = Math.max(Math.min(curSpeed.x, 5), -5);
+            curSpeed.y = Math.max(Math.min(curSpeed.y, 5), -5);
+
+            //System.out.println(curSpeed);
+            curScore = fitnessFun(coords, curSpeed);
+
+            double difference = bestScore - curScore;
+            if (difference > DELTA_DISTANCE){
+                lastupd = iterator;
+                bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
+            }
+            if(curScore < bestScore){
+                bestScore = curScore;
+                bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
+            }
+            if(iterator-lastupd>UPDATE_LIMIT)
+                stop = true;
+            iterator++;
+
+            //System.out.println("Best Score: "+bestScore);
+
+            if (bestScore <= RADIUS || iterator > ITERATION_LIMIT || stop) {
+
+                System.out.println("Iterations: "+iterator);
+                System.out.println("Distance: "+bestScore);
+                System.out.println("Speed: "+bestSpeed);
+
+                if(iterator > ITERATION_LIMIT){
+                    System.out.println("ITERATION_LIMIT");
+                }else if(bestScore <= RADIUS){
+                    System.out.println("CurScore <= R*R");
+                }else{
+                    System.out.println("UPDATE_LIMIT");
+                }
+
+                bestScore = Double.MAX_VALUE;
+                iterator = 0;
+                lastupd = 0;
+                stop = false;
+
+                return bestSpeed;
+            }
         }
-        return predictedSpeed;
     }
 }
