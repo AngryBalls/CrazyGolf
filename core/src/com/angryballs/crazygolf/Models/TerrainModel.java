@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -140,7 +141,8 @@ public class TerrainModel extends ModelInstance {
 
                 var holeMaterial = new Material();
                 var hTex = new Texture("hole.png");
-                holeMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, hTex));
+                holeMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, hTex),
+                                new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
 
                 bPartBuilder = modelbuilder.part("hrect",
                                 GL20.GL_TRIANGLES, Usage.Position | Usage.Normal | Usage.TextureCoordinates,
