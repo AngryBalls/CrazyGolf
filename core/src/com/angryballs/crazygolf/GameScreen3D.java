@@ -12,6 +12,7 @@ import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
 import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -239,6 +240,16 @@ public class GameScreen3D extends ScreenAdapter {
         }
     }
 
+    private void findBall() {
+        cam.position.set((float) physicsSystem.x, 0, (float) -physicsSystem.y);
+        var pPos = levelInfo.endPosition;
+        cam.lookAt(new Vector3(pPos.x, levelInfo.heightProfile(pPos.x, pPos.y).floatValue() - 1f, -pPos.y));
+        var angle = cam.direction;
+        var reverseAngle = new Vector3(angle.x, 0, angle.z).scl(-3);
+
+        cam.position.add(reverseAngle);
+    }
+
     private class GameScreenInputAdapter extends InputAdapter {
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             pressedTime = 0;
@@ -265,6 +276,8 @@ public class GameScreen3D extends ScreenAdapter {
                 }
             } else if (keycode == 62) {
                 performSwing();
+            } else if (keycode == Input.Keys.TAB) {
+                findBall();
             }
             return true;
         }
