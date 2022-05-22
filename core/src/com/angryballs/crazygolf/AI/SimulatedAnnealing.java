@@ -66,11 +66,11 @@ public class SimulatedAnnealing extends Bot {
 
             // We've putted, no need to consider any other options
             if (moveResult == 3) {
-                System.out.println("\nSimulated Annealing");
-                System.out.println("===================");
-                System.out.println("Iterations: " + ite);
-                System.out.println("Distace: " + bestDistance);
-                System.out.println("Speed: " + bestMove);
+//                System.out.println("\nSimulated Annealing");
+//                System.out.println("===================");
+//                System.out.println("Iterations: " + ite);
+                //System.out.println("Distace: " + bestDistance);
+                //System.out.println("Speed: " + bestMove);
                 return newMove;
             }
 
@@ -82,11 +82,11 @@ public class SimulatedAnnealing extends Bot {
             }
         }
 
-        System.out.println("\nSimulated Annealing");
-        System.out.println("===================");
-        System.out.println("Iterations: " + ite);
-        System.out.println("Distace: " + bestDistance);
-        System.out.println("Speed: " + bestMove);
+//        System.out.println("\nSimulated Annealing");
+//        System.out.println("===================");
+//        System.out.println("Iterations: " + ite);
+        //System.out.println("Distace: " + bestDistance);
+        //System.out.println("Speed: " + bestMove);
         return bestMove;
     }
 

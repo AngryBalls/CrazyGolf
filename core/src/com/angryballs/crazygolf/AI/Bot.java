@@ -57,7 +57,7 @@ public abstract class Bot {
 
     public int run() {
         long start = System.currentTimeMillis();
-        System.out.println("Target:             ( " + xt + " , " + yt + " )");
+        //System.out.println("Target:             ( " + xt + " , " + yt + " )");
         Vector2 coords = new Vector2((float) ps.x, (float) ps.y);
         Vector2 speeds = new Vector2();
         int i = 0;
@@ -67,19 +67,19 @@ public abstract class Bot {
         while (Math.abs(Math.sqrt(distance)) > EPSILON) {
             speeds = computeOptimalMove(coords.x, coords.y);
             ps.setStateVector(coords.x, coords.y, 0, 0);
-            System.out.println("The state vector: " + coords + " " + speeds);
+            //System.out.println("The state vector: " + coords + " " + speeds);
             performMove(speeds);
 
             coords.x = (float) ps.x;
             coords.y = (float) ps.y;
             distance = distanceSquared(coords.x, coords.y);
             i++;
-            System.out.println("ShotNr: " + i);
+            //System.out.println("ShotNr: " + i);
         }
 
-        System.out.println("The state vector: " + coords + " " + speeds);
+        //System.out.println("The state vector: " + coords + " " + speeds);
         long end = System.currentTimeMillis();
-        System.out.println("Ran in : " + (end - start) * 0.001 + " s");
+        //System.out.println("Ran in : " + (end - start) * 0.001 + " s");
         return i;
     }
 

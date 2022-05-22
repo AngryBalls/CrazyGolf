@@ -128,18 +128,18 @@ public class GradientDescent extends Bot {
             iterator++;
 
             if (bestScore <= RADIUS || iterator > ITERATION_LIMIT || stop) {
-                System.out.println("\nGradient Descent");
-                System.out.println("================");
-                System.out.println("Iterations: " + iterator);
-                System.out.println("Distance: " + bestScore);
-                System.out.println("Speed: " + bestSpeed);
+//                System.out.println("\nGradient Descent");
+//                System.out.println("================");
+//                System.out.println("Iterations: " + iterator);
+                //System.out.println("Distance: " + bestScore);
+                //System.out.println("Speed: " + bestSpeed);
 
                 if (iterator > ITERATION_LIMIT) {
-                    System.out.println("ITERATION_LIMIT");
+                    //System.out.println("ITERATION_LIMIT");
                 } else if (bestScore <= RADIUS) {
-                    System.out.println("CurScore <= R*R");
+                    //System.out.println("CurScore <= R*R");
                 } else {
-                    System.out.println("UPDATE_LIMIT");
+                    //System.out.println("UPDATE_LIMIT");
                 }
 
                 bestScore = Double.MAX_VALUE;

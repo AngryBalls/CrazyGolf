@@ -236,7 +236,6 @@ public class GameScreen3D extends ScreenAdapter {
     private void botPerformSwing() {
         currentBot.applyPhysicsState(physicsSystem);
         var optimalMove = currentBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
-
         physicsSystem.performMove(optimalMove);
     }
 
@@ -259,13 +258,13 @@ public class GameScreen3D extends ScreenAdapter {
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
-        int n = 128;
+        int n = 25;
 
         Random rng = new Random();
         trees.clear();
         for (int i = 0; i < n; ++i) {
-            float x = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
-            float z = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
+            float x = rng.nextFloat() * rng.nextInt(20) * (rng.nextBoolean() ? -1 : 1);
+            float z = rng.nextFloat() * rng.nextInt(20) * (rng.nextBoolean() ? -1 : 1);
 
             float y = levelInfo.heightProfile(x, z).floatValue();
 
