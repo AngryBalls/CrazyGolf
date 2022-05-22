@@ -249,7 +249,7 @@ public class GameScreen3D extends ScreenAdapter {
             float y = levelInfo.heightProfile(x, z).floatValue();
 
             var tree = new TreeModel();
-            tree.setPosition(new Vector3(x, y, z));
+            tree.setPosition(new Vector3(x, y, -z));
             trees.add(tree);
         }
     }
