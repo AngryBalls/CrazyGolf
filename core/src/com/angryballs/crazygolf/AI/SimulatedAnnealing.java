@@ -48,8 +48,10 @@ public class SimulatedAnnealing extends Bot {
         temperature = maxTemp;
         // bestDistance = Double.MAX_VALUE;
         bestMove = new Vector2();
+        int ite = 0;
 
         while (temperature > 0) {
+            ++ite;
             Vector2 newMove = generateRandomNeighbour(x, y);
 
             applyPhysicsState((float) x, (float) y, 0, 0);
@@ -73,6 +75,10 @@ public class SimulatedAnnealing extends Bot {
                 bestMove = newMove;
             }
         }
+
+        System.out.println("Iterations: " + ite);
+        System.out.println("Distace: " + bestDistance);
+        System.out.println("Speed: " + bestMove);
         return bestMove;
     }
 
