@@ -46,7 +46,7 @@ public class SimulatedAnnealing extends Bot {
     @Override
     public Vector2 computeOptimalMove(double x, double y) {
         temperature = maxTemp;
-        // bestDistance = Double.MAX_VALUE;
+        bestDistance = Double.MAX_VALUE;
         bestMove = new Vector2();
         int ite = 0;
 
