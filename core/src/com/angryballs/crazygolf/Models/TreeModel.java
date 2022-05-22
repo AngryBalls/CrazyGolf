@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 public class TreeModel {
 
     private Vector3 position;
+    private Boolean headless;
 
     private final LogModel logModel;
     private final LeafModel leafModel;
@@ -14,16 +15,28 @@ public class TreeModel {
     public final float treeRadius = 0.25f;
 
     public TreeModel() {
-        logModel = new LogModel();
-        leafModel = new LeafModel();
+        this(false);
+    }
+
+    public TreeModel(boolean headless) {
+        if (!headless) {
+            logModel = new LogModel();
+            leafModel = new LeafModel();
+        } else {
+            logModel = null;
+            leafModel = null;
+        }
 
         setPosition(new Vector3(0, 0, 0));
+        this.headless = headless;
     }
 
     public void setPosition(Vector3 position) {
         this.position = position;
-        logModel.transform.setTranslation(position);
-        leafModel.transform.setTranslation(new Vector3(position).add(new Vector3(0, 5, 0)));
+        if (!headless) {
+            logModel.transform.setTranslation(position);
+            leafModel.transform.setTranslation(new Vector3(position).add(new Vector3(0, 5, 0)));
+        }
     }
 
     public Vector3 getPosition() {
