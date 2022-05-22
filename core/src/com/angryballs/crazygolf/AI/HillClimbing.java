@@ -53,6 +53,8 @@ public class HillClimbing extends Bot {
             if (prevScore - bestScore < EPSILON)
                 return new Vector2((float) current[0], (float) current[1]);
 
+            System.out.println("\nHill Climbing");
+            System.out.println("=============");
             System.out.println("Iterations: " + ite);
             System.out.println("Distance: " + bestScore);
             System.out.println("Speed: " + new Vector2((float) current[0], (float) current[1]));

@@ -76,6 +76,8 @@ public class SimulatedAnnealing extends Bot {
             }
         }
 
+        System.out.println("\nSimulated Annealing");
+        System.out.println("===================");
         System.out.println("Iterations: " + ite);
         System.out.println("Distace: " + bestDistance);
         System.out.println("Speed: " + bestMove);

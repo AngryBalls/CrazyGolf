@@ -236,16 +236,13 @@ public class GameScreen3D extends ScreenAdapter {
     private void botPerformSwing() {
         currentBot.applyPhysicsState(physicsSystem);
         var optimalMove = currentBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
-        System.out.println(optimalMove);
 
         physicsSystem.performMove(optimalMove);
     }
 
     private void shootBall() {
         var power = updatePower(0);
-        System.out.println("time passed: " + pressedTime);
         physicsSystem.performMove(new Vector2(power * cam.direction.x, power * -cam.direction.z));
-
     }
 
     private float updatePower(float delta) {

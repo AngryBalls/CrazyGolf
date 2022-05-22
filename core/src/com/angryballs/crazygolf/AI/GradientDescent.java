@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Update formula:
  * Vnew = Vcurrent - A * F'(Vcurrent)
  *
- * A            - Learning rate
+ * A - Learning rate
  * F'(Vcurrent) - Derivative of a fitness function
  *
  * - Fintess Function - distance from end position to target point
@@ -34,7 +34,6 @@ public class GradientDescent extends Bot {
     private final double DELTA_DISTANCE = 0.00001;
     private final double RADIUS;
     private boolean stop = false;
-
 
     // Best data
     private double bestScore = Double.MAX_VALUE;
@@ -65,7 +64,7 @@ public class GradientDescent extends Bot {
         // Calculate the f(V+dV) = dist(new point, target)
         Vector2 newSpeed;
 
-        if(isX){
+        if (isX) {
             if (speed.x > 0) {
                 newSpeed = new Vector2((float) (speed.x - dv), speed.y);
                 sign = -1;
@@ -114,30 +113,32 @@ public class GradientDescent extends Bot {
             curScore = evaluate(coords, curSpeed);
 
             double difference = bestScore - curScore;
-            if (difference > DELTA_DISTANCE){
+            if (difference > DELTA_DISTANCE) {
                 lastupd = iterator;
                 bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
             }
 
-            if(curScore < bestScore){
+            if (curScore < bestScore) {
                 bestScore = curScore;
                 bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
             }
-            if(iterator-lastupd>UPDATE_LIMIT)
+            if (iterator - lastupd > UPDATE_LIMIT)
                 stop = true;
 
             iterator++;
 
             if (bestScore <= RADIUS || iterator > ITERATION_LIMIT || stop) {
-                 System.out.println("Iterations: "+iterator);
-                 System.out.println("Distance: "+bestScore);
-                 System.out.println("Speed: "+bestSpeed);
+                System.out.println("\nGradient Descent");
+                System.out.println("================");
+                System.out.println("Iterations: " + iterator);
+                System.out.println("Distance: " + bestScore);
+                System.out.println("Speed: " + bestSpeed);
 
-                if(iterator > ITERATION_LIMIT){
+                if (iterator > ITERATION_LIMIT) {
                     System.out.println("ITERATION_LIMIT");
-                }else if(bestScore <= RADIUS){
+                } else if (bestScore <= RADIUS) {
                     System.out.println("CurScore <= R*R");
-                }else{
+                } else {
                     System.out.println("UPDATE_LIMIT");
                 }
 
@@ -153,7 +154,7 @@ public class GradientDescent extends Bot {
     private double evaluate(Vector2 coords, Vector2 speed) {
         ps.setStateVector(coords.x, coords.y, 0, 0);
         int result = performMove(speed);
-        if(result == 3)
+        if (result == 3)
             return 0;
         return distance(ps.x, ps.y);
     }
