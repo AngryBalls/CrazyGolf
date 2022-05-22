@@ -17,6 +17,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -253,6 +254,19 @@ public class GameScreen3D extends ScreenAdapter {
         }
     }
 
+    private void findBall() {
+        var pPos = levelInfo.endPosition;
+
+        cam.position.set(new Vector3((float) physicsSystem.x, 0, -(float) physicsSystem.y));
+        var camDir = new Vector3((float) (pPos.x - physicsSystem.x), 0, (float) -(pPos.y - physicsSystem.y)).nor();
+
+        var reverseAngle = new Vector3(camDir).scl(-4);
+
+        cam.direction.set(camDir);
+
+        cam.position.add(reverseAngle);
+    }
+
     private class GameScreenInputAdapter extends InputAdapter {
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             pressedTime = 0;
@@ -271,16 +285,18 @@ public class GameScreen3D extends ScreenAdapter {
         public boolean keyDown(int keycode) {
             camControls.keyDown(keycode);
 
-            if (keycode == 44) {
+            if (keycode == Input.Keys.ESCAPE) {
                 if (state == State.RUN) {
                     showMenu();
                 } else if (state == State.PAUSE) {
                     hideMenu();
                 }
-            } else if (keycode == 62) {
+            } else if (keycode == Input.Keys.SPACE) {
                 performSwing();
             } else if (keycode == Input.Keys.B) {
                 botPerformSwing();
+            } else if (keycode == Input.Keys.TAB) {
+                findBall();
             }
             return true;
         }
