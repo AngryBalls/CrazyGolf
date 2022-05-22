@@ -26,9 +26,8 @@ public class TreeModel {
             logModel = null;
             leafModel = null;
         }
-
-        setPosition(new Vector3(0, 0, 0));
         this.headless = headless;
+        setPosition(new Vector3(0, 0, 0));
     }
 
     public void setPosition(Vector3 position) {
