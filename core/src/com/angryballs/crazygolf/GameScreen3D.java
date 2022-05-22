@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.angryballs.crazygolf.AI.Bot;
+import com.angryballs.crazygolf.AI.GradientDescent;
+import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.SimulatedAnnealing;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
@@ -68,7 +70,9 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gameplayBot = new SimulatedAnnealing(levelInfo, trees);
+        gdBot = new GradientDescent(levelInfo, trees);
+        hcBot = new HillClimbing(levelInfo, trees);
+        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees);
 
         inputAdapter = new GameScreenInputAdapter();
 
@@ -149,7 +153,19 @@ public class GameScreen3D extends ScreenAdapter {
 
         if (spacePressed)
             font.draw(spriteBatch, "Power = " + String.format("%.2f", updatePower(delta)), 10,
-                    Gdx.graphics.getHeight() - 90);
+                    Gdx.graphics.getHeight() - 120);
+
+        String currBotText = "";
+
+        if (currentBot == gdBot)
+            currBotText = "Gradient Descent";
+        else if (currentBot == hcBot)
+            currBotText = "Hill Climbing";
+        else if (currentBot == saBot)
+            currBotText = "Simulated Annealing";
+
+        font.draw(spriteBatch, "Active Bot = " + currBotText, 10,
+                Gdx.graphics.getHeight() - 90);
 
         spriteBatch.end();
     }
@@ -212,11 +228,14 @@ public class GameScreen3D extends ScreenAdapter {
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
     }
 
-    private Bot gameplayBot;
+    private Bot gdBot;
+    private Bot hcBot;
+    private Bot saBot;
+    private Bot currentBot;
 
     private void botPerformSwing() {
-        gameplayBot.applyPhysicsState(physicsSystem);
-        var optimalMove = gameplayBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
+        currentBot.applyPhysicsState(physicsSystem);
+        var optimalMove = currentBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
         System.out.println(optimalMove);
 
         physicsSystem.performMove(optimalMove);
@@ -297,7 +316,12 @@ public class GameScreen3D extends ScreenAdapter {
                 botPerformSwing();
             } else if (keycode == Input.Keys.TAB) {
                 findBall();
-            }
+            } else if (keycode == Input.Keys.NUM_1)
+                currentBot = gdBot;
+            else if (keycode == Input.Keys.NUM_2)
+                currentBot = hcBot;
+            else if (keycode == Input.Keys.NUM_3)
+                currentBot = saBot;
             return true;
         }
 
