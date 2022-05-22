@@ -254,6 +254,11 @@ public class GameScreen3D extends ScreenAdapter {
         return (float) power;
     }
 
+    private void resetGame() {
+        physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
+        initialVelocitiesInd = 0;
+    }
+
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
@@ -310,18 +315,20 @@ public class GameScreen3D extends ScreenAdapter {
                 } else if (state == State.PAUSE) {
                     hideMenu();
                 }
-            } else if (keycode == Input.Keys.SPACE) {
+            } else if (keycode == Input.Keys.SPACE)
                 performSwing();
-            } else if (keycode == Input.Keys.B) {
+            else if (keycode == Input.Keys.B)
                 botPerformSwing();
-            } else if (keycode == Input.Keys.TAB) {
+            else if (keycode == Input.Keys.TAB)
                 findBall();
-            } else if (keycode == Input.Keys.NUM_1)
+            else if (keycode == Input.Keys.NUM_1)
                 currentBot = gdBot;
             else if (keycode == Input.Keys.NUM_2)
                 currentBot = hcBot;
             else if (keycode == Input.Keys.NUM_3)
                 currentBot = saBot;
+            else if (keycode == Input.Keys.R)
+                resetGame();
             return true;
         }
 
