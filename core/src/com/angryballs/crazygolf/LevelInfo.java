@@ -11,6 +11,7 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
@@ -31,6 +32,8 @@ public class LevelInfo {
 
     public final float sandKineticFrictionCoeff;
     public final float sandStaticFrictionCoeff;
+
+    public final Rectangle[] walls;
 
     private final String heightProfile;
 
@@ -84,6 +87,11 @@ public class LevelInfo {
 
     public LevelInfo(File file) throws FileNotFoundException, IOException {
         Properties props = new Properties();
+
+        walls = new Rectangle[] {
+                new Rectangle(new Rectangle(-5, 0, 10, 0.01f)),
+                new Rectangle(new Rectangle(0, -5, 0.01f, 10)),
+        };
 
         props.load(new FileInputStream(file));
 

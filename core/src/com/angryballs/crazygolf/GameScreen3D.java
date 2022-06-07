@@ -13,6 +13,7 @@ import com.angryballs.crazygolf.Models.FlagpoleModel;
 import com.angryballs.crazygolf.Models.Skybox;
 import com.angryballs.crazygolf.Models.TerrainModel;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
 import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
@@ -60,11 +61,22 @@ public class GameScreen3D extends ScreenAdapter {
 
     private boolean spacePressed;
 
+    private WallModel[] wallModels;
+
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         spacePressed = false;
 
         this.levelInfo = levelInfo;
         generateTrees();
+
+        wallModels = new WallModel[levelInfo.walls.length];
+        for (int i = 0; i < levelInfo.walls.length; ++i) {
+            var rect = levelInfo.walls[i];
+            wallModels[i] = new WallModel(rect);
+            wallModels[i].transform.setTranslation(rect.getX() + rect.width / 2, 0,
+                    -(rect.getY() + rect.height / 2));
+        }
+
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
@@ -121,8 +133,13 @@ public class GameScreen3D extends ScreenAdapter {
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
         modelBatch.render(poleModel, environment);
+
         for (var tree : trees)
             tree.Render(modelBatch, environment);
+
+        for (var wall : wallModels)
+            modelBatch.render(wall, environment);
+
         modelBatch.end();
 
         if (state == State.PAUSE) {
@@ -278,14 +295,14 @@ public class GameScreen3D extends ScreenAdapter {
     private void findBall() {
         var pPos = levelInfo.endPosition;
 
-        cam.position.set(new Vector3((float) physicsSystem.x, 0, -(float) physicsSystem.y));
+        cam.position.set(new Vector3((float) 0, 0, -(float) 0));
         var camDir = new Vector3((float) (pPos.x - physicsSystem.x), 0, (float) -(pPos.y - physicsSystem.y)).nor();
 
         var reverseAngle = new Vector3(camDir).scl(-4);
 
         cam.direction.set(camDir);
 
-        cam.position.add(reverseAngle);
+        // cam.position.add(reverseAngle);
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
