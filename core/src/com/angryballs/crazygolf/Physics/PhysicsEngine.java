@@ -5,7 +5,9 @@ import java.util.List;
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Rectangle;
 
 /**
  * The base PhysicsEngine class which contains components that will be used by
@@ -121,6 +123,10 @@ public abstract class PhysicsEngine {
 
         if (collidesWithTree()) {
             ballMoving = false;
+            return 2;
+        }
+        if (collidesWithWall()) {
+            //ballMoving = false;
             return 2;
         }
 
@@ -273,7 +279,6 @@ public abstract class PhysicsEngine {
 
         if (distanceSquared < ballRadius + model.treeRadius)
             return true;
-
         return false;
     }
 
@@ -284,4 +289,45 @@ public abstract class PhysicsEngine {
 
         return false;
     }
+
+    private boolean collidesWithWall() {
+        for (int i = 0; i < levelInfo.walls.length; i++) {
+            if (isIntersectingWall(levelInfo.walls[i]))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isIntersectingWall(Rectangle rectangle) {
+        var ballRadius = BallModel.ballRadius;
+        var xpos = rectangle.x;
+        var ypos = rectangle.y;
+        boolean xPointing = true;
+
+        if (rectangle.width == 0.01f)
+            xPointing = false;
+        if (xPointing) {
+            var width = rectangle.width;
+            if (x >= xpos && x <= (xpos + width)) {
+                var dist = Math.abs(y - ypos);
+                if (dist < ballRadius) {
+                    vy = -vy;
+                    return true;
+                }
+            }
+        }
+        else  {
+            var width = rectangle.height;
+            if (y >= ypos && y <= (ypos  + width)) {
+                var dist = Math.abs(x - xpos);
+                if (dist < ballRadius) {
+                    vx = -vx;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
 }

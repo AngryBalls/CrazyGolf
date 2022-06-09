@@ -8,10 +8,13 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Rectangle;
+import org.w3c.dom.css.Rect;
 
 public class WallModel extends ModelInstance {
+
     public WallModel(Rectangle rectangle) {
         super(createWallModel(rectangle));
+
     }
 
     private static Model createWallModel(Rectangle rectangle) {
@@ -20,4 +23,5 @@ public class WallModel extends ModelInstance {
         return new ModelBuilder().createBox(rectangle.width, 1, rectangle.height, mat,
                 Usage.Position | Usage.Normal | Usage.TextureCoordinates);
     }
+
 }

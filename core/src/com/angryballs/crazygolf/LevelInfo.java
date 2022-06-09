@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.annotation.Retention;
 import java.util.Properties;
 
 import javax.script.Bindings;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.w3c.dom.css.Rect;
 
 public class LevelInfo {
     public static final LevelInfo exampleInput;
@@ -89,8 +91,10 @@ public class LevelInfo {
         Properties props = new Properties();
 
         walls = new Rectangle[] {
-                new Rectangle(new Rectangle(-5, 0, 10, 0.01f)),
-                new Rectangle(new Rectangle(0, -5, 0.01f, 10)),
+                new Rectangle(new Rectangle(0, 1, 1, 0.01f)),
+                new Rectangle(new Rectangle(-1,-1,0.01f,3)),
+                new Rectangle(new Rectangle(-1, -1, 2, 0.01f)),
+                new Rectangle(new Rectangle(1, -1, 0.01f, 2))
         };
 
         props.load(new FileInputStream(file));

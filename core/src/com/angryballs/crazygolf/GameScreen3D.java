@@ -276,7 +276,7 @@ public class GameScreen3D extends ScreenAdapter {
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
-        int n = 128;
+        int n = 0;
 
         Random rng = new Random();
         trees.clear();
