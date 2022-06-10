@@ -8,6 +8,7 @@ import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
 import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.SimulatedAnnealing;
+import com.angryballs.crazygolf.Editor.EditorOverlay;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
 import com.angryballs.crazygolf.Models.Skybox;
@@ -30,6 +31,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
@@ -60,11 +62,15 @@ public class GameScreen3D extends ScreenAdapter {
 
     private boolean spacePressed;
 
+    private EditorOverlay editorOverlay;
+
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
+        levelInfo.beginUse();
+        editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
         spacePressed = false;
 
         this.levelInfo = levelInfo;
-        generateTrees();
+        loadLevel();
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         terrainModel = new TerrainModel(LevelInfo.exampleInput);
         ballModel = new BallModel();
@@ -82,7 +88,7 @@ public class GameScreen3D extends ScreenAdapter {
         cam.far = 256f;
         cam.update();
 
-        camControls = new FirstPersonCameraController2(cam, levelInfo, false);
+        camControls = new FirstPersonCameraController2(cam, levelInfo, true);
         camControls.setDegreesPerPixel(0.5f);
         camControls.setVelocity(5);
 
@@ -110,17 +116,24 @@ public class GameScreen3D extends ScreenAdapter {
         });
     }
 
+    public void loadLevel() {
+        generateTrees();
+    }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
+        editorOverlay.update(cam);
+
         modelBatch.begin(cam);
         modelBatch.render(skybox);
         modelBatch.render(terrainModel, environment);
         modelBatch.render(ballModel, environment);
         modelBatch.render(poleModel, environment);
+        editorOverlay.draw(modelBatch);
         for (var tree : trees)
             tree.Render(modelBatch, environment);
         modelBatch.end();
@@ -263,15 +276,10 @@ public class GameScreen3D extends ScreenAdapter {
 
         Random rng = new Random();
         trees.clear();
-        for (int i = 0; i < n; ++i) {
-            float x = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
-            float z = rng.nextFloat() * rng.nextInt(128) * (rng.nextBoolean() ? -1 : 1);
-
-            float y = levelInfo.heightProfile(x, z).floatValue();
-
-            var tree = new TreeModel();
-            tree.setPosition(new Vector3(x, y, -z));
-            trees.add(tree);
+        for (var tree : levelInfo.tree) {
+            var treeModel = new TreeModel();
+            treeModel.setPosition(new Vector3(tree.x, levelInfo.heightProfile(tree.x, tree.y).floatValue(), -tree.y));
+            trees.add(treeModel);
         }
     }
 
@@ -305,6 +313,8 @@ public class GameScreen3D extends ScreenAdapter {
         @Override
         public boolean keyDown(int keycode) {
             camControls.keyDown(keycode);
+            if (editorOverlay.handleKey(keycode))
+                return true;
 
             if (keycode == Input.Keys.ESCAPE) {
                 if (state == State.RUN) {
@@ -326,6 +336,7 @@ public class GameScreen3D extends ScreenAdapter {
                 currentBot = saBot;
             else if (keycode == Input.Keys.R)
                 resetGame();
+
             return true;
         }
 

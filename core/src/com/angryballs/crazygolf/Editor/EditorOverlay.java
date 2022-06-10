@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TerrainModel;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Intersector;
@@ -25,13 +26,16 @@ public class EditorOverlay {
     private TerrainModel gridModel;
     private BallModel ballModel;
 
-    public EditorOverlay(LevelInfo levelInfo) {
+    private Vector2 cursorPos = new Vector2();
+
+    public EditorOverlay(LevelInfo levelInfo, Runnable updateAction) {
         this.levelInfo = levelInfo;
         gridModel = new TerrainModel(levelInfo, true);
         gridModel.transform.trn(0, 0.5f, 0);
 
         ballModel = new BallModel();
         ballModel.transform.scl(5);
+        terrainModifiedEvent = updateAction;
     }
 
     private Vector2 currentlyTargetedNode(Vector3 origin, Vector3 direction) {
@@ -61,7 +65,7 @@ public class EditorOverlay {
     }
 
     public void update(Camera cam) {
-        var pos = currentlyTargetedNode(cam.position, cam.direction);
+        var pos = cursorPos = currentlyTargetedNode(cam.position, cam.direction);
 
         var height = levelInfo.heightProfile(pos.x, pos.y);
 
@@ -71,12 +75,27 @@ public class EditorOverlay {
     }
 
     public void draw(ModelBatch modelBatch) {
+        if (!enabled)
+            return;
+
         modelBatch.render(gridModel);
         modelBatch.render(ballModel);
     }
 
     public boolean handleKey(int keycode) {
         // Stuff to raise or lower a node
+        if (keycode == Keys.E) {
+            enabled = !enabled;
+            return true;
+        }
+
+        if (!enabled)
+            return false;
+        if (keycode == Keys.T) {
+            levelInfo.tree.add(cursorPos);
+            terrainModifiedEvent.run();
+            return true;
+        }
         return false;
     }
 

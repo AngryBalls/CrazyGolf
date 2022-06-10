@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Properties;
 
 import javax.script.Bindings;
@@ -11,6 +13,7 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
@@ -33,6 +36,8 @@ public class LevelInfo {
     public final float sandStaticFrictionCoeff;
 
     private final String heightProfile;
+
+    public final ArrayList<Vector2> tree = new ArrayList<>();
 
     // Older usage of the script engine, which always interpreted the heightProfile
     // Discontinued in favor of the new method, which uses a precompiled profile
@@ -114,6 +119,10 @@ public class LevelInfo {
         } catch (Exception e) {
             throw new IOException("Malformed input file");
         }
+    }
+
+    public void beginUse() {
+        tree.clear();
     }
 
     static {
