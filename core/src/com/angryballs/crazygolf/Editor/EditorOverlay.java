@@ -3,6 +3,8 @@ package com.angryballs.crazygolf.Editor;
 import java.util.HashMap;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -42,6 +44,14 @@ public class EditorOverlay {
         float y = Math.round(-currentPosition.z);
 
         return new Vector2(x, y);
+    }
+
+    public void update(Camera cam) {
+
+    }
+
+    public void draw(ModelBatch modelBatch) {
+
     }
 
     public boolean handleKey(int keycode) {
