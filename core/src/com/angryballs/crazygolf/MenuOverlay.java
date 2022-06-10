@@ -11,16 +11,19 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class MenuOverlay extends Stage {
-    private static final int EXIT_BUTTON_WIDTH = 250;
-    private static final int EXIT_BUTTON_HEIGHT = 100;
-    private static final int PLAY_BUTTON_WIDTH = 280;
-    private static final int PLAY_BUTTON_HEIGHT = 100;
-    private static final int EXIT_BUTTON_Y = 70;
-    private static final int PLAY_BUTTON_Y = 220;
+    public static int MENU_SCREEN_WIDTH = 240;
+    public static int MENU_SCREEN_HEIGHT = 200;
 
-    private static final int LOGO_WIDTH = 300;
-    private static final int LOGO_HEIGHT = 150;
-    private static final int LOGO_Y = 530;
+    private static int EXIT_BUTTON_WIDTH = 250;
+    private static int EXIT_BUTTON_HEIGHT = 100;
+    private static int PLAY_BUTTON_WIDTH = 280;
+    private static int PLAY_BUTTON_HEIGHT = 100;
+    private static int EXIT_BUTTON_Y = 70;
+    private static int PLAY_BUTTON_Y = 220;
+
+    private static int LOGO_WIDTH = 300;
+    private static int LOGO_HEIGHT = 150;
+    private static int LOGO_Y = 550;
 
     private Texture logo;
 
@@ -48,7 +51,7 @@ public class MenuOverlay extends Stage {
         var exitButtonActive = new TextureRegionDrawable(new Texture("exit_button_active.png"));
         var exitButtonInactive = new TextureRegionDrawable(new Texture("exit_button_inactive.png"));
 
-        int x = GrazyGolf.MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
+        int x = MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
 
         playButton = new ImageButton(createButtonStyleWith(playButtonInactive, playButtonActive, playButtonActive));
         playButton.setBounds(x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
@@ -86,14 +89,15 @@ public class MenuOverlay extends Stage {
         batch.begin();
 
         if (showLogo) {
-            int x_L = GrazyGolf.MENU_SCREEN_WIDTH / 2 - LOGO_WIDTH / 2;
-            font.draw(batch, "Welcome to GG!!! ", 100, 490);
-            batch.draw(logo, x_L, LOGO_Y, LOGO_WIDTH, LOGO_HEIGHT);
+            int x_L = MENU_SCREEN_WIDTH / 2 - LOGO_WIDTH / 2;
+            font.draw(batch, "Welcome to GG!!! ", 100, 500);
+            batch.draw(logo, 10, LOGO_Y, LOGO_WIDTH, LOGO_HEIGHT);
         }
 
         batch.end();
         super.draw();
     }
+
 
     @Override
     public void dispose() {
@@ -112,5 +116,13 @@ public class MenuOverlay extends Stage {
         ButtonStyle.imageOver = down;
         ButtonStyle.imageDown = down;
         return ButtonStyle;
+    }
+    public void resize(int width, int height) {
+        getViewport().update(width, height,true);
+        MENU_SCREEN_WIDTH = width;
+        MENU_SCREEN_HEIGHT = height;
+
+        playButton.setBounds(10, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
+        exitButton.setBounds(10, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
     }
 }

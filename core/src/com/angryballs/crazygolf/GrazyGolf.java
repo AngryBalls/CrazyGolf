@@ -4,10 +4,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Game;
 
 public class GrazyGolf extends Game {
-	public static final int MENU_SCREEN_WIDTH = 480;
-	public static final int MENU_SCREEN_HEIGHT = 720;
-	public static final int SCREEN_WIDTH = 32;
-	public static final int SCREEN_HEIGHT = 32;
 
 	private Screen currentScreen;
 

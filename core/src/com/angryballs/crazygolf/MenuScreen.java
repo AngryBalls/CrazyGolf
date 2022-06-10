@@ -29,4 +29,10 @@ public class MenuScreen extends ScreenAdapter {
     public void dispose() {
         menuOverlay.dispose();
     }
+
+    @Override
+    public void resize(int width, int height) {
+        menuOverlay.resize(width, height);
+        super.resize(width, height);
+    }
 }
