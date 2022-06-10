@@ -127,7 +127,7 @@ public abstract class PhysicsEngine {
         }
         if (collidesWithWall()) {
             //ballMoving = false;
-            return 2;
+            return 0;
         }
 
         // (x-targetX)^2 + (y-targetY)^2 <= radius^2
