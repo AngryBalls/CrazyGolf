@@ -29,7 +29,7 @@ public class Splines extends JFrame{
     //reference
     //https://andrewhungblog.wordpress.com/2017/03/03/catmull-rom-splines-in-plain-english/
     public static ArrayList<Vector2> drawSpline(List<Vector2> points){
-        int stepsFreq = 10; float tension = 1;
+        int stepsFreq = 3; float tension = 1;
         ArrayList<Vector2> curve = new ArrayList<Vector2>();
         for(int i = 0; i < points.size() - 1; i++){
             Vector2 prev, next, start, end;
@@ -139,8 +139,6 @@ public class Splines extends JFrame{
                 list.add((Vector2) v);
             }
             System.out.println(list);
-            clean();
-            g.fillRect(0,0,100,100);
             splineList = (ArrayList<Vector2>) drawSpline(list);
             drawPoints(splineList);
         }
