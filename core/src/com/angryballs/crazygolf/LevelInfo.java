@@ -69,6 +69,14 @@ public class LevelInfo {
         return false;
     }
 
+    public SplineInfo getContainingSpline(Vector2 point) {
+        for (var spline : splines)
+            if (spline.isInSpline(point.x, point.y))
+                return spline;
+
+        return null;
+    }
+
     // Storage to avoid updating bindings for the same (x,y) pair
     private Double lastX = null;
     private Double lastY = null;

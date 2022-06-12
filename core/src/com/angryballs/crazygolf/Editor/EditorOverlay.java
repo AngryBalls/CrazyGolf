@@ -68,16 +68,16 @@ public class EditorOverlay {
         if (!found)
             return new Vector2();
 
-        float x = 0;
-        float y = 0;
-
         if (currentMode == EditorMode.terrain) {
-            x = Math.round(currentPosition.x / 2) * 2;
-            y = -Math.round(currentPosition.z / 2) * 2;
-        } else {
-            x = Math.round(currentPosition.x);
-            y = -Math.round(currentPosition.z);
+            var spline = levelInfo.getContainingSpline(new Vector2(currentPosition.x, -currentPosition.z));
+            if (spline != null) {
+                float x = Math.round((currentPosition.x - spline.x) / 2) * 2 + spline.x;
+                float y = Math.round((-currentPosition.z - spline.y) / 2) * 2 + spline.y;
+                return new Vector2(x, y);
+            }
         }
+        float x = Math.round(currentPosition.x);
+        float y = -Math.round(currentPosition.z);
 
         return new Vector2(x, y);
     }
