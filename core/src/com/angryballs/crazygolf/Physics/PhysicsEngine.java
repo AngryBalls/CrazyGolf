@@ -92,10 +92,10 @@ public abstract class PhysicsEngine {
      * Method to update the state vector
      *
      * @return the reason why the ball should stop or not
-     *         0: no stop
-     *         1: the ball has no speed and acceleration
-     *         2: the ball is in the water (or tree)
-     *         3: the ball is in the hole
+     * 0: no stop
+     * 1: the ball has no speed and acceleration
+     * 2: the ball is in the water (or tree)
+     * 3: the ball is in the hole
      */
 
     public final int iterate() {
@@ -185,45 +185,56 @@ public abstract class PhysicsEngine {
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
     }
 
-    public final double derivativeX(double v1, double v2) {
-        return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
-
-    }
-    public final double derivativeY(double v1, double v2) {
-        return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
-    }
-
-    public final double accelerationX(double offset, double dx) {
+    public final double accelerationX(double offset, Vector2 dh) {
         var u = isInSand() ? usk : uk;
 
-        double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
-
-        return -g * dx - u * g * (vx + offset) / sqrt;
+        if (isSteep(dh)) {
+            double vx = this.vx + offset;
+            return -g * dh.x / (1 + dh.x * dh.x + dh.y * dh.y) - u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.x * vy) * (dh.x * vx + dh.y * vy));
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
+            return -g * dh.x - u * g * (vx + offset) / sqrt;
+        }
     }
 
-    public final double accelerationY(double offset, double dy) {
+    public final double accelerationY(double offset, Vector2 dh) {
         var u = isInSand() ? usk : uk;
-
-        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
-
-        return -g * dy - u * g * (vy + offset) / sqrt;
+        if (isSteep(dh)) {
+            double vy = this.vy + offset;
+            return -g * dh.y / (1 + dh.x * dh.x + dh.y * dh.y) - u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.y * vy) * (dh.x * vx + dh.y * vy));
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
+            return -g * dh.y - u * g * (vy + offset) / sqrt;
+        }
     }
 
     /**
      * Method to calculate the acceleration for a specific state vector in X or Y
      * axis
      *
-     * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
     public final Vector2 acceleration(Vector2 dh) {
         var u = isInSand() ? usk : uk;
-        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
 
-        var x = -g * dh.x - u * g * (vx) / sqrt;
-        var y = -g * dh.y - u * g * (vy) / sqrt;
+        if (isSteep(dh)) {
+            var x = -g * dh.x / (1 + dh.x * dh.x + dh.y * dh.y) -
+                    u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.x * vy) * (dh.x * vx + dh.y * vy));
+            var y = -g * dh.y / (1 + dh.x * dh.x + dh.y * dh.y) -
+                    u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.y * vy) * (dh.x * vx + dh.y * vy));
+            return new Vector2((float) x, (float) y);
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+            var x = -g * dh.x - u * g * (vx) / sqrt;
+            var y = -g * dh.y - u * g * (vy) / sqrt;
+            return new Vector2((float) x, (float) y);
+        }
+    }
 
-        return new Vector2((float) x, (float) y);
+    private final boolean isSteep(Vector2 dh) {
+        //TODO: Test with map which has very steep hills.
+        // New motion equations cause larger errors in normal case.
+        return (Math.abs(1 - dh.x * dh.x) < this.dh || Math.abs(1 - dh.y * dh.y) < this.dh);
     }
 
     public final double getX() {
