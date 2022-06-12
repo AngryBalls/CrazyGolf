@@ -26,13 +26,4 @@ public class EulersPhysicsEngine extends PhysicsEngine {
         this.vy += h * a.y;
     }
 
-    public static void main(String[] args) {
-        EulersPhysicsEngine sv = new EulersPhysicsEngine(LevelInfo.exampleInput, new ArrayList<>());
-        sv.performMove(new Vector2(3, 0));
-        int code = sv.iterate();
-        while (code == 0) {
-            System.out.println("X: " + sv.getX() + ", Y: " + sv.getY() + ", Vx: " + sv.getVx() + ", Vy: " + sv.getVy());
-            code = sv.iterate();
-        }
-    }
 }
