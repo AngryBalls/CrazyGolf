@@ -1,7 +1,6 @@
 package com.angryballs.crazygolf.Models;
 
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.SplineInfo;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -11,8 +10,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -30,12 +29,6 @@ public class TerrainModel extends ModelInstance {
         }
 
         private static Model createTerrainModel(LevelInfo levelInfo, boolean wireframe) {
-
-                SplineInfo s = new SplineInfo(-5, 5, 5, 5);
-                // s.nodes[2][2] = 0.3; s.nodes[0][0] = 0.3;
-                // s.test();
-                s.setZ(1);
-
                 var grassMaterial = new Material();
                 grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse,
                                 new Texture(wireframe ? "bloomGrid.png" : "grass.png")),
@@ -50,7 +43,8 @@ public class TerrainModel extends ModelInstance {
                                 boolean OOB = x == 0 || x == divisions - 1 || y == 0 || y == divisions - 1;
 
                                 heightMap[x][y] = OOB ? -50
-                                                : (float) s.heightAt(x * divSize - halfRes, y * divSize - halfRes);
+                                                : (float) heightAt(x * divSize - halfRes, y * divSize - halfRes,
+                                                                levelInfo);
                         }
                 }
 
@@ -189,8 +183,6 @@ public class TerrainModel extends ModelInstance {
         }
 
         private static float heightAt(float x, float y, LevelInfo levelInfo) {
-                SplineInfo s = new SplineInfo(6, 6, 3, 3);
-                s.setZ(1);
-                return (float) s.heightAt(x, y);
+                return levelInfo.heightProfile(x, y).floatValue();
         }
 }

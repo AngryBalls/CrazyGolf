@@ -44,6 +44,8 @@ public class LevelInfo {
     public final ArrayList<Vector2> trees = new ArrayList<>();
     public final ArrayList<Vector2> originalTrees = new ArrayList<>();
 
+    public final ArrayList<SplineInfo> splines = new ArrayList<>();
+
     // Older usage of the script engine, which always interpreted the heightProfile
     // Discontinued in favor of the new method, which uses a precompiled profile
     private Double heightProfileOld(double x, double y) {
@@ -64,6 +66,11 @@ public class LevelInfo {
     private Double lastY = null;
 
     public Double heightProfile(double x, double y) {
+        for (var spline : splines) {
+            if (spline.isInSpline(x, y))
+                return spline.heightAt(x, y);
+        }
+
         if (lastX == null || lastX != x) {
             bindings.put("x", x);
             lastX = x;
@@ -135,6 +142,11 @@ public class LevelInfo {
             heightProfile = props.getProperty("heightProfile", "0");
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
+
+            SplineInfo s = new SplineInfo(-5, 5, 5, 5, this);
+            s.setZ(1);
+            splines.add(s);
+
             return;
         } catch (Exception e) {
             e.printStackTrace();
