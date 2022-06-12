@@ -206,7 +206,7 @@ public class LevelInfo {
         for (Rectangle wall : walls) {
             wallString = String.format("%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width, wall.height);
         }
-        props.put("trees", treeString);
+        props.put("walls", wallString);
 
         try {
             var time = new Timestamp(System.currentTimeMillis());
