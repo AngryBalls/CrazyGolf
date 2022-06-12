@@ -101,8 +101,7 @@ public class EditorOverlay {
     }
 
     public boolean handleKeyPress(int keycode) {
-        // Stuff to raise or lower a node
-        if (keycode == Keys.E) {
+        if (keycode == Keys.GRAVE) {
             enabled = !enabled;
             return true;
         }
