@@ -185,6 +185,17 @@ public abstract class PhysicsEngine {
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
     }
 
+    /**
+     * Second order for derivative calculation. But not necessary. No obvious improvement.
+     */
+    public final Vector2 fivePointDer(double v1, double v2) {
+        double x = (getHeight(v1 - 2 * dh, v2) - 8 * getHeight(v1 - dh, v2)
+                + 8 * getHeight(v1 + dh, v2) - getHeight(v1 + 2 * dh, v2)) / (12 * dh);
+        double y = (getHeight(v1, v2 - 2 * dh) - 8 * getHeight(v1, v2 - dh)
+                + 8 * getHeight(v1, v2 + dh) - getHeight(v1, v2 + 2 * dh)) / (12 * dh);
+        return new Vector2((float) (x), (float) (y));
+    }
+
     public final double accelerationX(double offset, Vector2 dh) {
         var u = isInSand() ? usk : uk;
 
