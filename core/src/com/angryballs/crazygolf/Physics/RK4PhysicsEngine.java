@@ -28,24 +28,23 @@ public class RK4PhysicsEngine extends PhysicsEngine {
 
     private Vector2 rkKForPos(float h) {
         double x = 0;
-        {
-            var k1 = h * vx;
-
-            var k2 = h * (vx + accelerationX(0, derivativeX(x + 0.5 * k1, y)) * h / 2);
-            var k3 = h * (vx + accelerationX(0, derivativeX(x + 0.5 * k2, y)) * h / 2);
-            var k4 = h * (vx + accelerationX(0, derivativeX(x + k3, y)) * h);
-            x = 1f / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
-        }
-
         double y = 0;
-        {
-            var k1 = h * vy;
 
-            var k2 = h * (vy + accelerationY(0, derivativeY(x, y + 0.5 * k1)) * h / 2);
-            var k3 = h * (vy + accelerationY(0, derivativeY(x, y + 0.5 * k2)) * h / 2);
-            var k4 = h * (vy + accelerationY(0, derivativeY(x, y + k3)) * h);
-            y = 1f / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
-        }
+        var k1x = h * vx;
+        var k1y = h * vy;
+
+        var k2x = h * (vx + accelerationX(0, derivativeX(x + 0.5 * k1x, y + 0.5 * k1y)) * h / 2);
+        var k2y = h * (vy + accelerationY(0, derivativeY(x + 0.5 * k1x, y + 0.5 * k1y)) * h / 2);
+
+        var k3x = h * (vx + accelerationX(0, derivativeX(x + 0.5 * k2x, y + 0.5 * k2y)) * h / 2);
+        var k3y = h * (vy + accelerationY(0, derivativeY(x + 0.5 * k2x, y + 0.5 * k2y)) * h / 2);
+
+        var k4x = h * (vx + accelerationX(0, derivativeX(x + k3x, y + k3y)) * h);
+        var k4y = h * (vy + accelerationY(0, derivativeY(x + k3x, y + k3y)) * h);
+
+        x = 1f / 6 * (k1x + 2 * k2x + 2 * k3x + k4x);
+        y = 1f / 6 * (k1y + 2 * k2y + 2 * k3y + k4y);
+
 
         return new Vector2((float) x, (float) y);
     }
