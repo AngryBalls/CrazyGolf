@@ -37,7 +37,7 @@ public class FirstPersonCameraController2 extends InputAdapter {
     private int STRAFE_RIGHT = Keys.D;
     private int FORWARD = Keys.W;
     private int BACKWARD = Keys.S;
-    private float velocity = 50;
+    private float velocity = 5;
     private float degreesPerPixel = 0.5f;
     private final Vector3 tmp = new Vector3();
     private final Vector3 tmp2 = new Vector3();
@@ -104,6 +104,7 @@ public class FirstPersonCameraController2 extends InputAdapter {
     }
 
     public void update(float deltaTime) {
+        var velocity = noclip ? 50 : this.velocity;
         if (keys.containsKey(FORWARD)) {
             tmp.set(camera.direction).nor().scl(deltaTime * velocity);
             camera.position.add(tmp);
