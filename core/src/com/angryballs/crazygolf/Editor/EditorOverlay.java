@@ -121,6 +121,13 @@ public class EditorOverlay {
             terrainModifiedEvent.run();
             return true;
         }
+        if (keycode == Keys.FORWARD_DEL) {
+            if (currentMode == EditorMode.tree) {
+                if (levelInfo.trees.remove(cursorPos))
+                    terrainModifiedEvent.run();
+            }
+            return true;
+        }
 
         if (keycode == Keys.SPACE) {
             levelInfo.save();
