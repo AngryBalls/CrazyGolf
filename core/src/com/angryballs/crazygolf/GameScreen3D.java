@@ -65,14 +65,14 @@ public class GameScreen3D extends ScreenAdapter {
     private EditorOverlay editorOverlay;
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
-        levelInfo.beginUse();
+        levelInfo.reload();
         editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
         spacePressed = false;
 
         this.levelInfo = levelInfo;
         loadLevel();
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
-        terrainModel = new TerrainModel(LevelInfo.exampleInput);
+        terrainModel = new TerrainModel(levelInfo);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
@@ -281,7 +281,7 @@ public class GameScreen3D extends ScreenAdapter {
 
         Random rng = new Random();
         trees.clear();
-        for (var tree : levelInfo.tree) {
+        for (var tree : levelInfo.trees) {
             var treeModel = new TreeModel();
             treeModel.setPosition(new Vector3(tree.x, levelInfo.heightProfile(tree.x, tree.y).floatValue(), -tree.y));
             trees.add(treeModel);

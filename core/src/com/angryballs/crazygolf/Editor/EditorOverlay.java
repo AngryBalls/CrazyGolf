@@ -116,6 +116,17 @@ public class EditorOverlay {
             return true;
         }
 
+        if (keycode == Keys.R) {
+            levelInfo.reload();
+            terrainModifiedEvent.run();
+            return true;
+        }
+
+        if (keycode == Keys.SPACE) {
+            levelInfo.save();
+            return true;
+        }
+
         return false;
     }
 
@@ -126,7 +137,7 @@ public class EditorOverlay {
             return false;
 
         if (currentMode == EditorMode.tree) {
-            levelInfo.tree.add(cursorPos);
+            levelInfo.trees.add(cursorPos);
             terrainModifiedEvent.run();
         }
 
