@@ -1,5 +1,6 @@
 package com.angryballs.crazygolf.Physics;
 
+import java.security.cert.Extension;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
@@ -299,31 +300,26 @@ public abstract class PhysicsEngine {
     }
 
     private boolean isIntersectingWall(Rectangle rectangle) {
-        var ballRadius = BallModel.ballRadius;
         var xpos = rectangle.x;
         var ypos = rectangle.y;
-        boolean xPointing = true;
+        var xSize = rectangle.width;
+        var ySize = rectangle.height;
 
-        if (rectangle.width == 0.01f)
-            xPointing = false;
-        if (xPointing) {
-            var width = rectangle.width;
-            if (x >= xpos && x <= (xpos + width)) {
-                var dist = Math.abs(y - ypos);
-                if (dist < ballRadius) {
-                    vy = -vy;
-                    return true;
-                }
+        if (x >= xpos && x <= (xpos + xSize) && y >= ypos && y <= (ypos + ySize)) {
+
+            int roundedX = (int) Math.round(x);
+            int roundedY = (int) Math.round(y);
+
+            float xAbs =(float) Math.abs(x - roundedX);
+            float yAbs = (float) Math.abs(y - roundedY);
+
+            if (xAbs < yAbs) {
+                vx = -vx;
             }
-        } else {
-            var width = rectangle.height;
-            if (y >= ypos && y <= (ypos + width)) {
-                var dist = Math.abs(x - xpos);
-                if (dist < ballRadius) {
-                    vx = -vx;
-                    return true;
-                }
+            else {
+                vy = -vy;
             }
+            return true;
         }
         return false;
     }
