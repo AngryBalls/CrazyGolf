@@ -21,12 +21,18 @@ public class TerrainModel extends ModelInstance {
         private static final float divSize = dimension / (float) divisions;
 
         public TerrainModel(LevelInfo levelInfo) {
-                super(createTerrainModel(levelInfo));
+                this(levelInfo, false);
         }
 
-        private static Model createTerrainModel(LevelInfo levelInfo) {
+        public TerrainModel(LevelInfo levelInfo, boolean wireframe) {
+                super(createTerrainModel(levelInfo, wireframe));
+        }
+
+        private static Model createTerrainModel(LevelInfo levelInfo, boolean wireframe) {
                 var grassMaterial = new Material();
-                grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.png")));
+                grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse,
+                                new Texture(wireframe ? "bloomGrid.png" : "grass.png")),
+                                new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
 
                 float halfRes = dimension / 2;
 
@@ -74,6 +80,8 @@ public class TerrainModel extends ModelInstance {
                                 bPartBuilder.rect(v00, v10, v11, v01);
                         }
                 }
+                if (wireframe)
+                        return modelbuilder.end();
 
                 var waterMaterial = new Material();
                 var wTex = new Texture("water.jpg");
