@@ -111,7 +111,6 @@ public abstract class PhysicsEngine {
             return 1;
         }
 
-
         var derivative = derivative(x, y);
 
         performCalculations(derivative, h);
@@ -126,7 +125,7 @@ public abstract class PhysicsEngine {
             return 2;
         }
         if (collidesWithWall()) {
-            //ballMoving = false;
+            // ballMoving = false;
             return 0;
         }
 
@@ -195,6 +194,7 @@ public abstract class PhysicsEngine {
         return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
 
     }
+
     public final double derivativeY(double v1, double v2) {
         return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
@@ -291,8 +291,8 @@ public abstract class PhysicsEngine {
     }
 
     private boolean collidesWithWall() {
-        for (int i = 0; i < levelInfo.walls.length; i++) {
-            if (isIntersectingWall(levelInfo.walls[i]))
+        for (int i = 0; i < levelInfo.walls.size(); i++) {
+            if (isIntersectingWall(levelInfo.walls.get(i)))
                 return true;
         }
         return false;
@@ -315,10 +315,9 @@ public abstract class PhysicsEngine {
                     return true;
                 }
             }
-        }
-        else  {
+        } else {
             var width = rectangle.height;
-            if (y >= ypos && y <= (ypos  + width)) {
+            if (y >= ypos && y <= (ypos + width)) {
                 var dist = Math.abs(x - xpos);
                 if (dist < ballRadius) {
                     vx = -vx;
@@ -328,6 +327,5 @@ public abstract class PhysicsEngine {
         }
         return false;
     }
-
 
 }

@@ -1,10 +1,15 @@
 package com.angryballs.crazygolf;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.annotation.Retention;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Properties;
 
 import javax.script.Bindings;
@@ -35,9 +40,13 @@ public class LevelInfo {
     public final float sandKineticFrictionCoeff;
     public final float sandStaticFrictionCoeff;
 
-    public final Rectangle[] walls;
+    public final ArrayList<Rectangle> walls = new ArrayList<>();
+    public final ArrayList<Rectangle> originalWalls = new ArrayList<>();
 
     private final String heightProfile;
+
+    public final ArrayList<Vector2> trees = new ArrayList<>();
+    public final ArrayList<Vector2> originalTrees = new ArrayList<>();
 
     // Older usage of the script engine, which always interpreted the heightProfile
     // Discontinued in favor of the new method, which uses a precompiled profile
@@ -90,13 +99,6 @@ public class LevelInfo {
     public LevelInfo(File file) throws FileNotFoundException, IOException {
         Properties props = new Properties();
 
-        walls = new Rectangle[] {
-                new Rectangle(new Rectangle(0, 1, 1, 0.01f)),
-                new Rectangle(new Rectangle(-1,-1,0.01f,3)),
-                new Rectangle(new Rectangle(-1, -1, 2, 0.01f)),
-                new Rectangle(new Rectangle(1, -1, 0.01f, 2))
-        };
-
         props.load(new FileInputStream(file));
 
         try {
@@ -119,12 +121,104 @@ public class LevelInfo {
             sandPitBounds[0] = new Vector2(Float.parseFloat(sandPitX[0]), Float.parseFloat(sandPitY[0]));
             sandPitBounds[1] = new Vector2(Float.parseFloat(sandPitX[1]), Float.parseFloat(sandPitY[1]));
 
+            var treeString = props.getProperty("trees", "");
+
+            if (!treeString.equals("")) {
+                var treesSplit = treeString.split(";");
+
+                for (String treePos : treesSplit) {
+                    var posArr = treePos.substring(1, treePos.length() - 1).split(",");
+
+                    var treeVec = new Vector2(Float.parseFloat(posArr[0]), Float.parseFloat(posArr[1]));
+
+                    trees.add(treeVec);
+                    originalTrees.add(treeVec);
+                }
+            }
+
+            var wallString = props.getProperty("walls", "");
+
+            if (!wallString.equals("")) {
+                var wallsSplit = wallString.split(";");
+
+                for (String wallRectString : wallsSplit) {
+                    var rectInfo = wallRectString.substring(1, wallRectString.length() - 1).split(",");
+
+                    float x = Float.parseFloat(rectInfo[0]);
+                    float y = Float.parseFloat(rectInfo[1]);
+                    float w = Float.parseFloat(rectInfo[2]);
+                    float h = Float.parseFloat(rectInfo[3]);
+
+                    var wallRect = new Rectangle(x, y, w, h);
+                    walls.add(wallRect);
+                    originalWalls.add(wallRect);
+                }
+            }
+
             heightProfile = props.getProperty("heightProfile", "0");
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
             return;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IOException("Malformed input file");
+        }
+    }
+
+    public void reload() {
+        trees.clear();
+        for (var tree : originalTrees)
+            trees.add(tree);
+
+        walls.clear();
+        for (var wall : originalWalls)
+            walls.add(wall);
+    }
+
+    public void save() {
+        Properties props = new Properties();
+
+        props.put("x0", Float.toString(startPosition.x));
+        props.put("y0", Float.toString(startPosition.y));
+
+        props.put("xt", Float.toString(endPosition.x));
+        props.put("yt", Float.toString(endPosition.y));
+
+        props.put("r", Float.toString(holeRadius));
+
+        props.put("muk", Float.toString(grassKineticFrictionCoeff));
+        props.put("mus", Float.toString(grassStaticFrictionCoeff));
+
+        props.put("muks", Float.toString(sandKineticFrictionCoeff));
+        props.put("muss", Float.toString(sandStaticFrictionCoeff));
+
+        props.put("sandPitX", String.format("%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
+        props.put("sandPitY", String.format("%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
+
+        props.put("heightProfile", heightProfile);
+
+        String treeString = "";
+        for (Vector2 tree : trees) {
+            treeString = String.format("%s(%f,%f);", treeString, tree.x, tree.y);
+        }
+
+        String wallString = "";
+        for (Rectangle wall : walls) {
+            wallString = String.format("%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width, wall.height);
+        }
+        props.put("trees", treeString);
+
+        try {
+            var time = new Timestamp(System.currentTimeMillis());
+            var writer = new FileWriter(
+                    new File(String.format("LevelInfoSave %s.txt",
+                            time.toString().replace(':', ' ').substring(0, 16))));
+
+            props.store(writer, "This is automatically generated by CrazyGolf. Manual modification may cause problems");
+        } catch (Exception e) {
+            System.out
+                    .println("[ERROR] Can't save levelinfo. This is likely due to not being able to create the file.");
+            e.printStackTrace();
         }
     }
 
@@ -206,6 +300,5 @@ public class LevelInfo {
         System.out.println(
                 "(Native)   Avg Running time over " + 100000 + " runs : "
                         + String.format("%.8f", avgNative / 1000) + "s");
-
     }
 }
