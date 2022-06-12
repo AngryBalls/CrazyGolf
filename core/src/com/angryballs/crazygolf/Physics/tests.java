@@ -5,10 +5,15 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
+/**
+ * Test data: height function: 0.1*x+1
+ * x0 = 0, y0 = 0, muk = 0.05
+ */
 public class tests {
     public static void main(String[] args) {
+
         Vector2 initV = new Vector2(2,0);
-        int iteCount = 1;
+        int iteCount = 100;
         long totalMS = 0;
         double exact = 1.35915732;
 
