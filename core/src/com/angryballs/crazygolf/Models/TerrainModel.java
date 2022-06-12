@@ -60,22 +60,37 @@ public class TerrainModel extends ModelInstance {
 
                 for (int x = 0; x < divisions - 1; ++x) {
                         for (int y = 0; y < divisions - 1; ++y) {
+                                boolean isInSpline = levelInfo
+                                                .isInSpline(new Vector2(x * divSize - halfRes, y * divSize - halfRes))
+                                                && levelInfo.isInSpline(new Vector2((x + 1) * divSize - halfRes,
+                                                                y * divSize - halfRes))
+                                                && levelInfo.isInSpline(new Vector2((x + 1) * divSize - halfRes,
+                                                                (y + 1) * divSize - halfRes))
+                                                && levelInfo.isInSpline(new Vector2(x * divSize - halfRes,
+                                                                (y + 1) * divSize - halfRes));
+
                                 VertexInfo v00 = new VertexInfo().set(
                                                 new Vector3(x * divSize - halfRes, heightMap[x][y],
                                                                 y * -divSize + halfRes),
-                                                null, null, new Vector2(0, 1f));
+                                                null, null, wireframe ? new Vector2(0, 1).add(isInSpline ? .5f : 0, 0)
+                                                                : new Vector2(0, 1f));
                                 VertexInfo v10 = new VertexInfo().set(
                                                 new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y],
                                                                 y * -divSize + halfRes),
-                                                null, null, new Vector2(1, 1));
+                                                null, null,
+                                                wireframe ? new Vector2(0.5f, 1).add(isInSpline ? .5f : 0, 0)
+                                                                : new Vector2(1, 1));
                                 VertexInfo v11 = new VertexInfo().set(
                                                 new Vector3((x + 1) * divSize - halfRes, heightMap[x + 1][y + 1],
                                                                 (y + 1) * -divSize + halfRes),
-                                                null, null, new Vector2(1, 0));
+                                                null, null,
+                                                wireframe ? new Vector2(0.5f, 0).add(isInSpline ? .5f : 0, 0)
+                                                                : new Vector2(1, 0));
                                 VertexInfo v01 = new VertexInfo().set(
                                                 new Vector3(x * divSize - halfRes, heightMap[x][y + 1],
                                                                 (y + 1) * -divSize + halfRes),
-                                                null, null, new Vector2(0, 0));
+                                                null, null, wireframe ? new Vector2(0f, 0).add(isInSpline ? .5f : 0, 0)
+                                                                : new Vector2(0, 0));
 
                                 bPartBuilder.rect(v00, v10, v11, v01);
                         }
