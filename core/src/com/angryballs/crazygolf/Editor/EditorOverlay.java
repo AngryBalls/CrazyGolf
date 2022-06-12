@@ -154,6 +154,17 @@ public class EditorOverlay {
                 if (levelInfo.trees.remove(cursorPos))
                     terrainModifiedEvent.run();
             }
+
+            if (currentMode == EditorMode.wall) {
+                for (int i = 0; i < levelInfo.walls.size(); i++) {
+                    var reverseIndex = levelInfo.walls.size() - 1 - i;
+                    if (levelInfo.walls.get(reverseIndex).contains(cursorPos)) {
+                        levelInfo.walls.remove(reverseIndex);
+                        terrainModifiedEvent.run();
+                        break;
+                    }
+                }
+            }
             return true;
         }
 
