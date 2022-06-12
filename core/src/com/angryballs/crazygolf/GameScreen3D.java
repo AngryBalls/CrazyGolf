@@ -315,7 +315,7 @@ public class GameScreen3D extends ScreenAdapter {
 
         var reverseAngle = new Vector3(camDir).scl(-4);
 
-        cam.direction.set(camDir);
+        cam.direction.set(camDir.add(reverseAngle));
 
         // cam.position.add(reverseAngle);
     }
@@ -378,6 +378,13 @@ public class GameScreen3D extends ScreenAdapter {
 
         @Override
         public boolean mouseMoved(int screenX, int screenY) {
+            if (state == State.RUN)
+                camControls.touchDragged(screenX, screenY, 0);
+            return true;
+        }
+
+        @Override
+        public boolean touchDragged(int screenX, int screenY, int pointer) {
             if (state == State.RUN)
                 camControls.touchDragged(screenX, screenY, 0);
             return true;
