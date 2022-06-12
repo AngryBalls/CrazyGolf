@@ -2,6 +2,7 @@ package com.angryballs.crazygolf;
 
 import com.badlogic.gdx.math.Vector2;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -24,6 +25,7 @@ public class SplineInfo {
 
     private static final int tension = 1;
 
+    //TODO: Now splines might produce unexpected behaviour for negative/combined areas
     public SplineInfo(int x, int y, int w, int h) {
         nodes = new double[w][h];
         this.x = x;
@@ -35,11 +37,24 @@ public class SplineInfo {
         bounds[0] = new Vector2(this.x - w/2*unit,this.y - h/2*unit);
         bounds[1] = new Vector2(this.x + w/2*unit,this.y + h/2*unit);
 
+        fill();
+    }
+    public SplineInfo(int x, int y, int w, int h, int unit) {
+        nodes = new double[w][h];
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h=h;
+        this.unit = unit;
 
+        bounds[0] = new Vector2(this.x - w/2*unit,this.y - h/2*unit);
+        bounds[1] = new Vector2(this.x + w/2*unit,this.y + h/2*unit);
         fill();
     }
 
+
     public double heightAt(double x, double y) {
+        //System.out.println("("+x+","+y+")");
         if(!isInSpline(x,y)){
             //TODO: merge with height profile
             return levelInfo.heightProfile(x,y);}
@@ -56,20 +71,24 @@ public class SplineInfo {
 
         // start/end nodes
         Vector2 startNode = new Vector2((int)(x-x%unit),(int) (y-y%unit));
-        if((x-x%unit)%unit==0&&((y-y%unit)%unit==0))
-            return nodes[(int)((x-x%unit)-bounds[0].x)/unit][(int)((y-y%unit)-bounds[0].y)/unit];
         Vector2 endNode = new Vector2((int)(x-x%unit+unit),(int) (y-y%unit+unit));
 
-        //calculate 4 horizontal points using 4 points for each
+        if(!isInSpline(endNode.x,endNode.y)){
+            return nodes[(int)((x-x%unit)-bounds[0].x)/unit][(int)((y-y%unit)-bounds[0].y)/unit];
+        }
 
+        //calculate 4 horizontal points using 4 points for each
+        // work out middle points along Y axis, combine along X axis
         for(int i = 0; i < 4; i++){
             shift = unit*(i-1);
+
             if(startNode.x - bounds[0].x+shift<0)
                 ix = (int)((startNode.x - bounds[0].x)/unit);
             else if(startNode.x+shift>bounds[1].x)
                 ix = (int)((endNode.x - bounds[0].x)/unit);
             else
                 ix = (int)((startNode.x - bounds[0].x+shift)/unit);
+
             iy = (startNode.y-unit-bounds[0].y)/unit>=0?
                     (int)(startNode.y-unit-bounds[0].y)/unit:
                     (int)(startNode.y-bounds[0].y)/unit;
@@ -143,10 +162,24 @@ public class SplineInfo {
     public void test(){
         nodes = new double[][]
                        {{0.1, 0.1, 0.1, 0.1, 0.1},
-                        {0.1, 0.5, 0.5, 0.5, 0.1},
-                        {0.1, 0.5, 1  , 0.5, 0.1},
-                        {0.1, 0.5, 0.5, 0.5, 0.1},
+                        {0.1, -1.0, 0.5, -1.0, 0.1},
+                        {0.1, 0.5, 1.0, 0.5, 0.1},
+                        {0.1, -1.0, 0.5, -1.0, 0.1},
                         {0.1, 0.1, 0.1, 0.1, 0.1}};
+        System.out.println("Map:");
+        print();
+        double[][] map = new double[2* w-1][2*h-1];
+        double step = unit*1f/2;
+        System.out.println("Detailed");
+        for(int xx = 0; xx < map.length ;xx++){
+            for(int yy = 0; yy < map[0].length;yy++){
+                map[xx][yy] = heightAt(bounds[0].x+xx*unit*step,bounds[0].y+yy*unit*step);
+
+                DecimalFormat df = new DecimalFormat("#.####");
+                System.out.print(df.format(map[xx][yy])+" ");
+            }
+            System.out.println();
+        }
     }
 
     public static void main(String[] args) {
@@ -154,6 +187,7 @@ public class SplineInfo {
         s.setZ(10);
         System.out.println("Matrix:");
         s.print();
-        System.out.println(s.heightAt(3.3,-3));
+        s.test();
+
     }
 }

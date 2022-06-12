@@ -26,10 +26,10 @@ public class TerrainModel extends ModelInstance {
         }
 
         private static Model createTerrainModel(LevelInfo levelInfo) {
-                SplineInfo s = new SplineInfo(10,10,5,5);
+                SplineInfo s = new SplineInfo(-5,5,5,5);
                // s.nodes[2][2] = 0.3; s.nodes[0][0] = 0.3;
-                s.test();
-                s.setZ(-1);
+                //s.test();
+                s.setZ(1);
                 var grassMaterial = new Material();
                 grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.png")));
 

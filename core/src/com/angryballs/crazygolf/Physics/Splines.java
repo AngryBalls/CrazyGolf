@@ -1,5 +1,6 @@
 package com.angryballs.crazygolf.Physics;
 
+import com.angryballs.crazygolf.SplineInfo;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -110,7 +111,8 @@ public class Splines extends JFrame{
                 drawPoints(list);
                 splineList = (ArrayList<Vector2>) drawSpline(list);
                 drawPoints(splineList);
-                stop = true;
+                //stop = true;
+                list.clear();
             }
             if(e.getKeyChar() == KeyEvent.VK_SPACE){
                 clean();

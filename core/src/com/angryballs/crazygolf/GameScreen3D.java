@@ -82,7 +82,7 @@ public class GameScreen3D extends ScreenAdapter {
         cam.far = 256f;
         cam.update();
 
-        camControls = new FirstPersonCameraController2(cam, levelInfo, false);
+        camControls = new FirstPersonCameraController2(cam, levelInfo, true);
         camControls.setDegreesPerPixel(0.5f);
         camControls.setVelocity(5);
 
