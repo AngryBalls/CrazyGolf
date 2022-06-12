@@ -18,9 +18,9 @@ public class SplineInfo {
 
     Vector2[] bounds = new Vector2[2];
 
-    public int unit = 2;
+    public int unit = 1;
 
-    public final double[][] nodes;
+    public  double[][] nodes;
 
     private static final int tension = 1;
 
@@ -35,49 +35,15 @@ public class SplineInfo {
         bounds[0] = new Vector2(this.x - w/2*unit,this.y - h/2*unit);
         bounds[1] = new Vector2(this.x + w/2*unit,this.y + h/2*unit);
 
-        System.out.println(bounds[0]);
-        System.out.println(bounds[1]);
 
         fill();
     }
 
-    public static ArrayList<Vector2> drawSpline(List<Vector2> points){
-        int stepsFreq = 3; float tension = 1;
-        ArrayList<Vector2> curve = new ArrayList<Vector2>();
-        for(int i = 0; i < points.size() - 1; i++){
-            Vector2 prev, next, start, end;
-            prev = i == 0 ? points.get(i) : points.get(i-1);
-            next = i == points.size()-2 ? points.get(i+1) : points.get(i+2);
-            start = points.get(i);
-            end = points.get(i+1);
-
-            for(int step = 0; step <= stepsFreq; step++){
-                float t = (float) step / stepsFreq;
-                float tSquared = t * t;
-                float tCubed = tSquared * t;
-
-                Vector2 interpolatedPoint =
-                        new Vector2(
-                                (-.5f * tension * tCubed + tension * tSquared - .5f * tension * t) * prev.x +
-                                        (1 + .5f * tSquared * (tension - 6) + .5f * tCubed * (4 - tension)) * start.x +
-                                        (.5f * tCubed * (tension - 4) + .5f * tension * t - (tension - 3) * tSquared) * end.x +
-                                        (-.5f * tension * tSquared + .5f * tension * tCubed) * next.x,
-                                (-.5f * tension * tCubed + tension * tSquared - .5f * tension * t) * prev.y +
-                                        (1 + .5f * tSquared * (tension - 6) + .5f * tCubed * (4 - tension)) * start.y +
-                                        (.5f * tCubed * (tension - 4) + .5f * tension * t - (tension - 3) * tSquared) * end.y +
-                                        (-.5f * tension * tSquared + .5f * tension * tCubed) * next.y);
-
-                curve.add(interpolatedPoint);
-            }
-
-        }
-        return curve;
-    }
-
     public double heightAt(double x, double y) {
         if(!isInSpline(x,y)){
-            System.out.println("Not in Spline");
+            //TODO: merge with height profile
             return levelInfo.heightProfile(x,y);}
+
         double result;
         float ty, tx, shift;
         int ix, iy;
@@ -90,12 +56,13 @@ public class SplineInfo {
 
         // start/end nodes
         Vector2 startNode = new Vector2((int)(x-x%unit),(int) (y-y%unit));
+        if((x-x%unit)%unit==0&&((y-y%unit)%unit==0))
+            return nodes[(int)((x-x%unit)-bounds[0].x)/unit][(int)((y-y%unit)-bounds[0].y)/unit];
         Vector2 endNode = new Vector2((int)(x-x%unit+unit),(int) (y-y%unit+unit));
 
         //calculate 4 horizontal points using 4 points for each
 
         for(int i = 0; i < 4; i++){
-            System.out.println("PointNr: "+i);
             shift = unit*(i-1);
             if(startNode.x - bounds[0].x+shift<0)
                 ix = (int)((startNode.x - bounds[0].x)/unit);
@@ -115,13 +82,7 @@ public class SplineInfo {
                     (int)(endNode.y+unit-bounds[0].y)/unit:
                     (int)(endNode.y-bounds[0].y)/unit;
             next = nodes [ix][iy];
-            System.out.println(prev);
-            System.out.println(start);
-            System.out.println(end);
-            System.out.println(next);
-
             point[i] = splineAt(prev,start,end,next,ty);
-            System.out.println("Point: "+point[i]);
         }
         result = splineAt(point[0],point[1],point[2],point[3],tx);
         return result;
@@ -172,11 +133,20 @@ public class SplineInfo {
     }
 
     public boolean isInSpline(double x, double y) {
-        return this.x-2*unit<x && this.x+2*unit>x && this.y-2*unit<y && this.y+2*unit>y;
+        return bounds[0].x<=x && bounds[1].x>=x && bounds[0].y<=y && bounds[1].y>=y;
     }
 
     public void setZ(double height){
         nodes[w/2][h/2] = height;
+    }
+
+    public void test(){
+        nodes = new double[][]
+                       {{0.1, 0.1, 0.1, 0.1, 0.1},
+                        {0.1, 0.5, 0.5, 0.5, 0.1},
+                        {0.1, 0.5, 1  , 0.5, 0.1},
+                        {0.1, 0.5, 0.5, 0.5, 0.1},
+                        {0.1, 0.1, 0.1, 0.1, 0.1}};
     }
 
     public static void main(String[] args) {

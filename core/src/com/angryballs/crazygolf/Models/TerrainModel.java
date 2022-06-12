@@ -1,6 +1,7 @@
 package com.angryballs.crazygolf.Models;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.SplineInfo;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -25,6 +26,10 @@ public class TerrainModel extends ModelInstance {
         }
 
         private static Model createTerrainModel(LevelInfo levelInfo) {
+                SplineInfo s = new SplineInfo(10,10,5,5);
+               // s.nodes[2][2] = 0.3; s.nodes[0][0] = 0.3;
+                s.test();
+                s.setZ(-1);
                 var grassMaterial = new Material();
                 grassMaterial.set(new TextureAttribute(TextureAttribute.Diffuse, new Texture("grass.png")));
 
@@ -37,8 +42,7 @@ public class TerrainModel extends ModelInstance {
                                 boolean OOB = x == 0 || x == divisions - 1 || y == 0 || y == divisions - 1;
 
                                 heightMap[x][y] = OOB ? -50
-                                                : levelInfo.heightProfile(x * divSize - halfRes, y * divSize - halfRes)
-                                                                .floatValue();
+                                                : (float)s.heightAt(x * divSize - halfRes, y * divSize - halfRes);
                         }
                 }
 
@@ -175,6 +179,8 @@ public class TerrainModel extends ModelInstance {
         }
 
         private static float heightAt(float x, float y, LevelInfo levelInfo) {
-                return levelInfo.heightProfile(x, y).floatValue();
+            SplineInfo s = new SplineInfo(6,6,3,3);
+            s.setZ(1);
+            return (float)s.heightAt(x, y);
         }
 }
