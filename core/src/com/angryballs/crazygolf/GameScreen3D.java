@@ -168,6 +168,11 @@ public class GameScreen3D extends ScreenAdapter {
             font.draw(spriteBatch, "Power = " + String.format("%.2f", updatePower(delta)), 10,
                     Gdx.graphics.getHeight() - 120);
 
+        if (editorOverlay.isEnabled())
+            font.draw(spriteBatch, String.format("Editor mode = %s (Tab to change)", editorOverlay.getCurrentMode()),
+                    10,
+                    Gdx.graphics.getHeight() - 140);
+
         String currBotText = "";
 
         if (currentBot == gdBot)
@@ -286,7 +291,9 @@ public class GameScreen3D extends ScreenAdapter {
     private void findBall() {
         var pPos = levelInfo.endPosition;
 
-        cam.position.set(new Vector3((float) physicsSystem.x, 0, -(float) physicsSystem.y));
+        cam.position.set(new Vector3((float) physicsSystem.x,
+                levelInfo.heightProfile(physicsSystem.x, physicsSystem.y).floatValue() + 1.7f,
+                -(float) physicsSystem.y));
         var camDir = new Vector3((float) (pPos.x - physicsSystem.x), 0, (float) -(pPos.y - physicsSystem.y)).nor();
 
         var reverseAngle = new Vector3(camDir).scl(-4);
@@ -298,6 +305,9 @@ public class GameScreen3D extends ScreenAdapter {
 
     private class GameScreenInputAdapter extends InputAdapter {
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            if (editorOverlay.onMouseDown())
+                return true;
+
             pressedTime = 0;
             spacePressed = true;
 
@@ -305,6 +315,9 @@ public class GameScreen3D extends ScreenAdapter {
         }
 
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+            if (editorOverlay.onMouseUp())
+                return true;
+
             shootBall();
             spacePressed = false;
             return true;
@@ -313,7 +326,7 @@ public class GameScreen3D extends ScreenAdapter {
         @Override
         public boolean keyDown(int keycode) {
             camControls.keyDown(keycode);
-            if (editorOverlay.handleKey(keycode))
+            if (editorOverlay.handleKeyPress(keycode))
                 return true;
 
             if (keycode == Input.Keys.ESCAPE) {

@@ -1,21 +1,23 @@
 package com.angryballs.crazygolf.Editor;
 
-import java.util.HashMap;
-
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TerrainModel;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public class EditorOverlay {
-    private static int resolutionX;
-    private static int resolutionY;
+
+    private enum EditorMode {
+        tree,
+        wall,
+        terrain
+    };
+
+    private EditorMode currentMode = EditorMode.tree;
 
     private boolean enabled = false;
 
@@ -38,6 +40,14 @@ public class EditorOverlay {
         terrainModifiedEvent = updateAction;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public String getCurrentMode() {
+        return currentMode.toString();
+    }
+
     private Vector2 currentlyTargetedNode(Vector3 origin, Vector3 direction) {
         Vector3 sclDirection = new Vector3(direction).scl(0.5f);
         Vector3 currentPosition = new Vector3(origin);
@@ -58,8 +68,16 @@ public class EditorOverlay {
         if (!found)
             return new Vector2();
 
-        float x = Math.round(currentPosition.x / 2) * 2;
-        float y = -Math.round(currentPosition.z / 2) * 2;
+        float x = 0;
+        float y = 0;
+
+        if (currentMode == EditorMode.terrain) {
+            x = Math.round(currentPosition.x / 2) * 2;
+            y = -Math.round(currentPosition.z / 2) * 2;
+        } else {
+            x = Math.round(currentPosition.x);
+            y = -Math.round(currentPosition.z);
+        }
 
         return new Vector2(x, y);
     }
@@ -82,7 +100,7 @@ public class EditorOverlay {
         modelBatch.render(ballModel);
     }
 
-    public boolean handleKey(int keycode) {
+    public boolean handleKeyPress(int keycode) {
         // Stuff to raise or lower a node
         if (keycode == Keys.E) {
             enabled = !enabled;
@@ -91,12 +109,49 @@ public class EditorOverlay {
 
         if (!enabled)
             return false;
-        if (keycode == Keys.T) {
-            levelInfo.tree.add(cursorPos);
-            terrainModifiedEvent.run();
+
+        // Switch editor modes
+        if (keycode == Keys.TAB) {
+            switchMode();
             return true;
         }
+
         return false;
+    }
+
+    private boolean isHoldingMouse = false;
+
+    public boolean onMouseDown() {
+        if (!enabled)
+            return false;
+
+        if (currentMode == EditorMode.tree) {
+            levelInfo.tree.add(cursorPos);
+            terrainModifiedEvent.run();
+        }
+
+        return true;
+    }
+
+    public boolean onMouseUp() {
+        if (!enabled)
+            return false;
+
+        return true;
+    }
+
+    private void switchMode() {
+        switch (currentMode) {
+            case tree:
+                currentMode = EditorMode.wall;
+                break;
+            case wall:
+                currentMode = EditorMode.terrain;
+                break;
+            case terrain:
+                currentMode = EditorMode.tree;
+                break;
+        }
     }
 
 }
