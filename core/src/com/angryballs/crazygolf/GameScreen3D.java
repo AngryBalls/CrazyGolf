@@ -88,7 +88,7 @@ public class GameScreen3D extends ScreenAdapter {
         cam.far = 256f;
         cam.update();
 
-        camControls = new FirstPersonCameraController2(cam, levelInfo, true);
+        camControls = new FirstPersonCameraController2(cam, levelInfo);
         camControls.setDegreesPerPixel(0.5f);
         camControls.setVelocity(5);
 
@@ -127,6 +127,8 @@ public class GameScreen3D extends ScreenAdapter {
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
         editorOverlay.update(cam);
+
+        camControls.noclip = editorOverlay.isEnabled();
 
         modelBatch.begin(cam);
         modelBatch.render(skybox);
