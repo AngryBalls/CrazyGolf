@@ -47,12 +47,11 @@ public class FirstPersonCameraController2 extends InputAdapter {
 
     private final LevelInfo levelInfo;
 
-    private final boolean noclip;
+    public boolean noclip;
 
-    public FirstPersonCameraController2(Camera camera, LevelInfo levelInfo, boolean noclip) {
+    public FirstPersonCameraController2(Camera camera, LevelInfo levelInfo) {
         this.camera = camera;
         this.levelInfo = levelInfo;
-        this.noclip = noclip;
     }
 
     @Override
