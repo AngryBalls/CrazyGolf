@@ -8,6 +8,8 @@ import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 
 /**
@@ -300,28 +302,24 @@ public abstract class PhysicsEngine {
     }
 
     private boolean isIntersectingWall(Rectangle rectangle) {
-        var xpos = rectangle.x;
-        var ypos = rectangle.y;
-        var xSize = rectangle.width;
-        var ySize = rectangle.height;
+        var ball = new Circle((float) x, (float) y, BallModel.ballRadius);
 
-        if (x >= xpos && x <= (xpos + xSize) && y >= ypos && y <= (ypos + ySize)) {
+        // Ball doesn't intersect wall
+        if (!Intersector.overlaps(ball, rectangle))
+            return false;
 
-            int roundedX = (int) Math.round(x);
-            int roundedY = (int) Math.round(y);
+        int roundedX = (int) Math.round(x);
+        int roundedY = (int) Math.round(y);
 
-            float xAbs =(float) Math.abs(x - roundedX);
-            float yAbs = (float) Math.abs(y - roundedY);
+        float xAbs = (float) Math.abs(x - roundedX);
+        float yAbs = (float) Math.abs(y - roundedY);
 
-            if (xAbs < yAbs) {
-                vx = -vx;
-            }
-            else {
-                vy = -vy;
-            }
-            return true;
+        if (xAbs < yAbs) {
+            vx = -vx;
+        } else {
+            vy = -vy;
         }
-        return false;
+        return true;
     }
 
 }
