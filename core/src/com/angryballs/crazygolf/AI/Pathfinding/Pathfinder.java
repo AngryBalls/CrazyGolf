@@ -24,8 +24,8 @@ public class Pathfinder {
 
                 var topLeft = levelInfo.heightProfile(x2, y2) < 0 ? 1 : 0;
                 var topRight = levelInfo.heightProfile(x2 + 1, y2) < 0 ? 1 : 0;
-                var bottomLeft = levelInfo.heightProfile(x2, y2) < 0 ? 1 : 0;
-                var bottomRight = levelInfo.heightProfile(x2, y2) < 0 ? 1 : 0;
+                var bottomLeft = levelInfo.heightProfile(x2, y2 + 1) < 0 ? 1 : 0;
+                var bottomRight = levelInfo.heightProfile(x2 + 1, y2 + 1) < 0 ? 1 : 0;
                 var centre = levelInfo.heightProfile(x2 + 0.5, y2 + 0.5) < 0 ? 1 : 0;
 
                 var mostlyWater = (topLeft + topRight + bottomLeft + bottomRight + centre) > 2;
