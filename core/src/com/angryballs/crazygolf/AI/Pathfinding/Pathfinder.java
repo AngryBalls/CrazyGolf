@@ -45,12 +45,12 @@ public class Pathfinder {
 
     public static Path findPath(LevelInfo levelInfo) {
         var searchSpace = createSearchSpace(levelInfo);
-        int xs = Math.round(levelInfo.startPosition.x);
-        int ys = Math.round(levelInfo.startPosition.y);
+        int xs = (int) (levelInfo.startPosition.x);
+        int ys = (int) (levelInfo.startPosition.y);
         var start = new Vector2(xs + 64, ys + 64);
 
-        int xt = Math.round(levelInfo.endPosition.x);
-        int yt = Math.round(levelInfo.endPosition.y);
+        int xt = (int) (levelInfo.endPosition.x);
+        int yt = (int) (levelInfo.endPosition.y);
         var goal = new Vector2(xt + 64, yt + 64);
 
         var frontier = new LinkedList<Vector2>();
