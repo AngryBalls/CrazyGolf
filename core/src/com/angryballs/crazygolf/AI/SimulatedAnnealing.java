@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class SimulatedAnnealing extends Bot {
-    public SimulatedAnnealing(LevelInfo info, List<TreeModel> trees) {
-        super(info, trees);
+    public SimulatedAnnealing(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
+        super(info, trees, optimalPath);
     }
 
     private Random rng = new Random();

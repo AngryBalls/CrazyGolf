@@ -78,9 +78,9 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gdBot = new GradientDescent(levelInfo, trees);
-        hcBot = new HillClimbing(levelInfo, trees);
-        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees);
+        gdBot = new GradientDescent(levelInfo, trees, null);
+        hcBot = new HillClimbing(levelInfo, trees, null);
+        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees, null);
 
         inputAdapter = new GameScreenInputAdapter();
 

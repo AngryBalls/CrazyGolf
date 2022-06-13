@@ -1,12 +1,10 @@
 package com.angryballs.crazygolf.AI.Pathfinding;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
-import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -28,9 +26,14 @@ public class Path {
 
     private int distance;
 
-    private ArrayList<Vector2> path;
+    private List<Vector2> path;
 
-    private LevelInfo levelInfo;
+    private final LevelInfo levelInfo;
+
+    public Path(List<Vector2> path, LevelInfo levelInfo) {
+        this.levelInfo = levelInfo;
+        this.path = path;
+    }
 
     public float distanceToEnd(float progress) {
         return 1 - progress * distance;
@@ -52,16 +55,15 @@ public class Path {
 
             boolean intersectingWall = false;
 
-            // This is commented until walls are merged into master
-            /*
-             * while (!currentPosition.epsilonEquals(pathNode))
-             * for (Rectangle wall : levelInfo.walls)
-             * if (Intersector.overlaps(new Circle(currentPosition, BallModel.ballRadius),
-             * wall)) {
-             * intersectingWall = true;
-             * break;
-             * }
-             */
+            while (!currentPosition.epsilonEquals(pathNode)) {
+                currentPosition.add(deltaVector);
+                var ballCirc = new Circle(currentPosition, BallModel.ballRadius);
+                for (Rectangle wall : levelInfo.walls)
+                    if (Intersector.overlaps(ballCirc, wall)) {
+                        intersectingWall = true;
+                        break;
+                    }
+            }
 
             // This is an optimization step
             // If the current position behind a wall, we assume all future points on the

@@ -3,6 +3,7 @@ package com.angryballs.crazygolf.AI;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Models.WallModel;
 import com.angryballs.crazygolf.Physics.*;
@@ -24,11 +25,14 @@ public abstract class Bot {
     protected double vxb;
     protected double vyb;
 
-    public Bot(LevelInfo info, List<TreeModel> trees) {
+    private final Path optimalPath;
+
+    public Bot(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
         this.ps = new GRK2PhysicsEngine(info, trees);
         this.EPSILON = ps.getRadius();
         this.xt = ps.getXt();
         this.yt = ps.getYt();
+        this.optimalPath = optimalPath;
     }
 
     public abstract Vector2 computeOptimalMove(double x, double y);
@@ -42,18 +46,16 @@ public abstract class Bot {
      * @return estimated distance
      */
     public double distanceSquared(double x, double y) {
-        return (x - xt) * (x - xt) + (y - yt) * (y - yt);
-    }
+        // We don't have a precomputed path, use direct path
+        if (optimalPath == null)
+            return (x - xt) * (x - xt) + (y - yt) * (y - yt);
 
-    /**
-     * Calculates the distance between point ( x,y ) and target point
-     *
-     * @param x x coordinate of the point ( x,y )
-     * @param y y coordinate of the point ( x,y )
-     * @return estimated distance
-     */
-    public double distance(double x, double y) {
-        return Math.sqrt((x - xt) * (x - xt) + (y - yt) * (y - yt));
+        var ballPosition = new Vector2((float) x, (float) y);
+
+        var closestIntersectPoint = optimalPath.closestIntersectPoint(ballPosition);
+        var ballDistanceToIntersect = ballPosition.dst2(closestIntersectPoint.position);
+
+        return (float) (closestIntersectPoint.distanceToEnd + ballDistanceToIntersect);
     }
 
     public int run() {
