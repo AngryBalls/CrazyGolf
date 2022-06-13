@@ -68,12 +68,13 @@ public class GameScreen3D extends ScreenAdapter {
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         levelInfo.reload();
-        editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
-        spacePressed = false;
 
         this.levelInfo = levelInfo;
 
         loadLevel();
+
+        editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
+        spacePressed = false;
 
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         terrainModel = new TerrainModel(levelInfo);
@@ -130,6 +131,8 @@ public class GameScreen3D extends ScreenAdapter {
         }
 
         Path path = Pathfinder.findPath(levelInfo);
+
+        levelInfo.optimalPath = path;
 
         gdBot = new GradientDescent(levelInfo, trees, path);
         hcBot = new HillClimbing(levelInfo, trees, path);

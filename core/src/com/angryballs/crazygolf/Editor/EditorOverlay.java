@@ -244,7 +244,7 @@ public class EditorOverlay {
     }
 
     private void updatePathIndicators() {
-        var thing = Pathfinder.findPath(levelInfo);
+        var thing = levelInfo.optimalPath;
 
         for (BallModel ballModel : pathFindIndicator) {
             ballModelPool.add(ballModel);

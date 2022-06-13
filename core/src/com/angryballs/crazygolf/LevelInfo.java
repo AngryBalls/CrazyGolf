@@ -17,6 +17,7 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -47,6 +48,8 @@ public class LevelInfo {
 
     public final ArrayList<Vector2> trees = new ArrayList<>();
     public final ArrayList<Vector2> originalTrees = new ArrayList<>();
+
+    public Path optimalPath = null;
 
     // Older usage of the script engine, which always interpreted the heightProfile
     // Discontinued in favor of the new method, which uses a precompiled profile
