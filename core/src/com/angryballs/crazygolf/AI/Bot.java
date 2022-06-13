@@ -53,9 +53,14 @@ public abstract class Bot {
         var ballPosition = new Vector2((float) x, (float) y);
 
         var closestIntersectPoint = optimalPath.closestIntersectPoint(ballPosition);
-        var ballDistanceToIntersect = ballPosition.dst2(closestIntersectPoint.position);
 
-        return (float) (closestIntersectPoint.distanceToEnd + ballDistanceToIntersect);
+        // If the last node is within view, then we can revert back to regular distance
+        // check
+        if (closestIntersectPoint.progress == 1)
+            return (x - xt) * (x - xt) + (y - yt) * (y - yt);
+
+        var ballDistanceToIntersect = ballPosition.dst2(closestIntersectPoint.position);
+        return closestIntersectPoint.distanceToEnd + ballDistanceToIntersect;
     }
 
     public int run() {
