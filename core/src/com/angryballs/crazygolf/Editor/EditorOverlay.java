@@ -1,6 +1,7 @@
 package com.angryballs.crazygolf.Editor;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.SplineInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TerrainModel;
 import com.badlogic.gdx.Input.Keys;
@@ -29,6 +30,10 @@ public class EditorOverlay {
     private BallModel ballModel;
 
     private Vector2 cursorPos = new Vector2();
+
+    private Vector2 cursorDragStart = new Vector2();
+
+    private SplineInfo currentSplineInfo;
 
     public EditorOverlay(LevelInfo levelInfo, Runnable updateAction) {
         this.levelInfo = levelInfo;
@@ -82,7 +87,10 @@ public class EditorOverlay {
         return new Vector2(x, y);
     }
 
+    Vector2 lastCursorPos = null;
+
     public void update(Camera cam) {
+        lastCursorPos = cursorPos;
         var pos = cursorPos = currentlyTargetedNode(cam.position, cam.direction);
 
         var height = levelInfo.heightProfile(pos.x, pos.y);
@@ -90,6 +98,28 @@ public class EditorOverlay {
         var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
 
         ballModel.transform.setTranslation(markerPos);
+
+        if (!lastCursorPos.equals(cursorPos)) {
+            var gridDelta = new Vector2(cursorPos).sub(cursorDragStart);
+
+            if (currentMode == EditorMode.terrain && isHoldingMouse) {
+                var splineCentre = new Vector2(cursorDragStart).add(cursorPos).scl(0.5f);
+
+                levelInfo.splines.remove(currentSplineInfo);
+
+                var newSpline = new SplineInfo((int) splineCentre.x, (int) splineCentre.y, (int) Math.abs(gridDelta.x),
+                        (int) Math.abs(gridDelta.y),
+                        levelInfo);
+
+                if (gridDelta.x == 0 || gridDelta.y == 0) {
+                    currentSplineInfo = null;
+                } else {
+                    levelInfo.splines.add(newSpline);
+                    currentSplineInfo = newSpline;
+                }
+                terrainModifiedEvent.run();
+            }
+        }
     }
 
     public void draw(ModelBatch modelBatch) {
@@ -145,6 +175,11 @@ public class EditorOverlay {
         if (currentMode == EditorMode.tree) {
             levelInfo.trees.add(cursorPos);
             terrainModifiedEvent.run();
+        }
+
+        if (currentMode == EditorMode.terrain) {
+            isHoldingMouse = true;
+
         }
 
         return true;

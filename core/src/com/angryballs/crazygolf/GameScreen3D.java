@@ -35,7 +35,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
-    private final TerrainModel terrainModel;
+    private TerrainModel terrainModel;
     private final BallModel ballModel;
     private final FlagpoleModel poleModel;
     private final Skybox skybox;
@@ -117,6 +117,7 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     public void loadLevel() {
+        terrainModel = new TerrainModel(levelInfo);
         generateTrees();
     }
 
