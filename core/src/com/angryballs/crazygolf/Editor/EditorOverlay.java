@@ -6,6 +6,7 @@ import com.angryballs.crazygolf.Models.TerrainModel;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -29,6 +30,9 @@ public class EditorOverlay {
     private BallModel ballModel;
 
     private Vector2 cursorPos = new Vector2();
+
+    private Vector2 cursorDragStart = new Vector2();
+    private Rectangle currentWallRect;
 
     public EditorOverlay(LevelInfo levelInfo, Runnable updateAction) {
         this.levelInfo = levelInfo;
@@ -83,6 +87,7 @@ public class EditorOverlay {
     }
 
     public void update(Camera cam) {
+        var lastCursorPos = cursorPos;
         var pos = cursorPos = currentlyTargetedNode(cam.position, cam.direction);
 
         var height = levelInfo.heightProfile(pos.x, pos.y);
@@ -90,6 +95,30 @@ public class EditorOverlay {
         var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
 
         ballModel.transform.setTranslation(markerPos);
+
+        if (!lastCursorPos.equals(cursorPos)) {
+            var gridDelta = new Vector2(cursorPos).sub(cursorDragStart);
+
+            if (currentMode == EditorMode.wall && isHoldingMouse) {
+                var tlX = Math.min(cursorPos.x, cursorDragStart.x);
+                var tlY = Math.min(cursorPos.y, cursorDragStart.y);
+
+                Vector2 tlC = new Vector2(tlX, tlY);
+
+                var newRect = new Rectangle(tlC.x, tlC.y, Math.abs(gridDelta.x),
+                        Math.abs(gridDelta.y));
+
+                levelInfo.walls.remove(currentWallRect);
+
+                if (gridDelta.x == 0 || gridDelta.y == 0) {
+                    currentWallRect = null;
+                } else {
+                    levelInfo.walls.add(newRect);
+                    currentWallRect = newRect;
+                }
+                terrainModifiedEvent.run();
+            }
+        }
     }
 
     public void draw(ModelBatch modelBatch) {
@@ -125,6 +154,17 @@ public class EditorOverlay {
                 if (levelInfo.trees.remove(cursorPos))
                     terrainModifiedEvent.run();
             }
+
+            if (currentMode == EditorMode.wall) {
+                for (int i = 0; i < levelInfo.walls.size(); i++) {
+                    var reverseIndex = levelInfo.walls.size() - 1 - i;
+                    if (levelInfo.walls.get(reverseIndex).contains(cursorPos)) {
+                        levelInfo.walls.remove(reverseIndex);
+                        terrainModifiedEvent.run();
+                        break;
+                    }
+                }
+            }
             return true;
         }
 
@@ -147,12 +187,22 @@ public class EditorOverlay {
             terrainModifiedEvent.run();
         }
 
+        if (currentMode == EditorMode.wall) {
+            cursorDragStart = cursorPos;
+            isHoldingMouse = true;
+        }
+
         return true;
     }
 
     public boolean onMouseUp() {
         if (!enabled)
             return false;
+
+        if (currentMode == EditorMode.wall) {
+            isHoldingMouse = false;
+            currentWallRect = null;
+        }
 
         return true;
     }

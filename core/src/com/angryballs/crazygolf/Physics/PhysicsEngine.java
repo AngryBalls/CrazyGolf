@@ -1,11 +1,16 @@
 package com.angryballs.crazygolf.Physics;
 
+import java.security.cert.Extension;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 
 /**
  * The base PhysicsEngine class which contains components that will be used by
@@ -109,7 +114,6 @@ public abstract class PhysicsEngine {
             return 1;
         }
 
-
         var derivative = derivative(x, y);
 
         performCalculations(derivative, h);
@@ -122,6 +126,10 @@ public abstract class PhysicsEngine {
         if (collidesWithTree()) {
             ballMoving = false;
             return 2;
+        }
+        if (collidesWithWall()) {
+            // ballMoving = false;
+            return 0;
         }
 
         // (x-targetX)^2 + (y-targetY)^2 <= radius^2
@@ -189,6 +197,7 @@ public abstract class PhysicsEngine {
         return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
 
     }
+
     public final double derivativeY(double v1, double v2) {
         return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
@@ -273,7 +282,6 @@ public abstract class PhysicsEngine {
 
         if (distanceSquared < ballRadius + model.treeRadius)
             return true;
-
         return false;
     }
 
@@ -284,4 +292,34 @@ public abstract class PhysicsEngine {
 
         return false;
     }
+
+    private boolean collidesWithWall() {
+        for (int i = 0; i < levelInfo.walls.size(); i++) {
+            if (isIntersectingWall(levelInfo.walls.get(i)))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isIntersectingWall(Rectangle rectangle) {
+        var ball = new Circle((float) x, (float) y, BallModel.ballRadius);
+
+        // Ball doesn't intersect wall
+        if (!Intersector.overlaps(ball, rectangle))
+            return false;
+
+        int roundedX = (int) Math.round(x);
+        int roundedY = (int) Math.round(y);
+
+        float xAbs = (float) Math.abs(x - roundedX);
+        float yAbs = (float) Math.abs(y - roundedY);
+
+        if (xAbs < yAbs) {
+            vx = -vx;
+        } else {
+            vy = -vy;
+        }
+        return true;
+    }
+
 }

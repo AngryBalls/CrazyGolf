@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.w3c.dom.css.Rect;
 
 public class LevelInfo {
     public static final LevelInfo exampleInput;
@@ -38,6 +39,9 @@ public class LevelInfo {
 
     public final float sandKineticFrictionCoeff;
     public final float sandStaticFrictionCoeff;
+
+    public final ArrayList<Rectangle> walls = new ArrayList<>();
+    public final ArrayList<Rectangle> originalWalls = new ArrayList<>();
 
     private final String heightProfile;
 
@@ -132,6 +136,25 @@ public class LevelInfo {
                 }
             }
 
+            var wallString = props.getProperty("walls", "");
+
+            if (!wallString.equals("")) {
+                var wallsSplit = wallString.split(";");
+
+                for (String wallRectString : wallsSplit) {
+                    var rectInfo = wallRectString.substring(1, wallRectString.length() - 1).split(",");
+
+                    float x = Float.parseFloat(rectInfo[0]);
+                    float y = Float.parseFloat(rectInfo[1]);
+                    float w = Float.parseFloat(rectInfo[2]);
+                    float h = Float.parseFloat(rectInfo[3]);
+
+                    var wallRect = new Rectangle(x, y, w, h);
+                    walls.add(wallRect);
+                    originalWalls.add(wallRect);
+                }
+            }
+
             heightProfile = props.getProperty("heightProfile", "0");
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
@@ -146,6 +169,10 @@ public class LevelInfo {
         trees.clear();
         for (var tree : originalTrees)
             trees.add(tree);
+
+        walls.clear();
+        for (var wall : originalWalls)
+            walls.add(wall);
     }
 
     public void save() {
@@ -174,7 +201,12 @@ public class LevelInfo {
         for (Vector2 tree : trees) {
             treeString = String.format("%s(%f,%f);", treeString, tree.x, tree.y);
         }
-        props.put("trees", treeString);
+
+        String wallString = "";
+        for (Rectangle wall : walls) {
+            wallString = String.format("%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width, wall.height);
+        }
+        props.put("walls", wallString);
 
         try {
             var time = new Timestamp(System.currentTimeMillis());
