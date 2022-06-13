@@ -8,6 +8,8 @@ import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
 import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.SimulatedAnnealing;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
+import com.angryballs.crazygolf.AI.Pathfinding.Pathfinder;
 import com.angryballs.crazygolf.Editor.EditorOverlay;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
@@ -78,9 +80,6 @@ public class GameScreen3D extends ScreenAdapter {
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gdBot = new GradientDescent(levelInfo, trees, null);
-        hcBot = new HillClimbing(levelInfo, trees, null);
-        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees, null);
 
         inputAdapter = new GameScreenInputAdapter();
 
@@ -129,6 +128,12 @@ public class GameScreen3D extends ScreenAdapter {
             wallModels[i].transform.setTranslation(rect.getX() + rect.width / 2, 0,
                     -(rect.getY() + rect.height / 2));
         }
+
+        Path path = Pathfinder.findPath(levelInfo);
+
+        gdBot = new GradientDescent(levelInfo, trees, path);
+        hcBot = new HillClimbing(levelInfo, trees, path);
+        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees, path);
     }
 
     @Override

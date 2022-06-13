@@ -33,6 +33,7 @@ public class Path {
     public Path(List<Vector2> path, LevelInfo levelInfo) {
         this.levelInfo = levelInfo;
         this.path = path;
+        distance = path.size();
     }
 
     public float distanceToEnd(float progress) {
@@ -40,22 +41,24 @@ public class Path {
     }
 
     public NodeInfo closestIntersectPoint(Vector2 position) {
+
         float shortestDistance = Float.MAX_VALUE;
         int intersectPointIndex = 0;
         for (int i = 0; i < path.size(); i++) {
             var pathNode = path.get(i);
+            var pathNodeCorrectedPos = new Vector2(pathNode.x + 64, pathNode.y + 64);
 
-            var distance = pathNode.dst2(position);
+            var distance = pathNodeCorrectedPos.dst2(position);
             if (distance > shortestDistance)
                 continue;
 
             // Do a line of sight check (in case the node is behind a wall)
-            var deltaVector = new Vector2(pathNode).sub(position).nor();
+            var deltaVector = new Vector2(pathNodeCorrectedPos).sub(position).scl(0.001f);
             var currentPosition = new Vector2(position);
 
             boolean intersectingWall = false;
 
-            while (!currentPosition.epsilonEquals(pathNode)) {
+            for (int j = 0; j < 1000; ++j) {
                 currentPosition.add(deltaVector);
                 var ballCirc = new Circle(currentPosition, BallModel.ballRadius);
                 for (Rectangle wall : levelInfo.walls)

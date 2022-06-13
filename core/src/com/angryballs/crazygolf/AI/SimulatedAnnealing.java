@@ -54,6 +54,7 @@ public class SimulatedAnnealing extends Bot {
 
         while (temperature > 0) {
             ++ite;
+
             Vector2 newMove = generateRandomNeighbour(x, y);
 
             applyPhysicsState((float) x, (float) y, 0, 0);

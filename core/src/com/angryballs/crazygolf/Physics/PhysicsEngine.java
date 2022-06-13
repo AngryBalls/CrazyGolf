@@ -127,11 +127,8 @@ public abstract class PhysicsEngine {
             ballMoving = false;
             return 2;
         }
-        if (collidesWithWall()) {
-            // ballMoving = false;
-            return 0;
-        }
 
+        collidesWithWall();
         // (x-targetX)^2 + (y-targetY)^2 <= radius^2
         if (isInCircle(this.x, this.xt, this.y, this.yt, this.r)) {
             ballMoving = false;
