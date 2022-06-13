@@ -2,14 +2,11 @@ package com.angryballs.crazygolf.AI.Pathfinding;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 
 import com.angryballs.crazygolf.LevelInfo;
-import com.badlogic.gdx.ai.pfa.PathFinder;
 import com.badlogic.gdx.math.Vector2;
 
 public class Pathfinder {
@@ -96,6 +93,9 @@ public class Pathfinder {
 
         while (!current.equals(start)) {
             pathNodes.add(current);
+            var next = arrivalOrigin.get(current);
+            if (next == null)
+                return null;
             current = arrivalOrigin.get(current);
         }
 
