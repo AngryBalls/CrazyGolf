@@ -159,9 +159,9 @@ public class LevelInfo {
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
 
-            //SplineInfo s = new SplineInfo(-5, 5, 5, 5, this);
-            //s.setZ(1);
-            //splines.add(s);
+            SplineInfo s = new SplineInfo(-5, -5, 20, 20, this);
+            s.setZ(10);
+            splines.add(s);
 
             return;
         } catch (Exception e) {

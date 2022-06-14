@@ -18,12 +18,13 @@ public class SplineInfo {
     Vector2[] bounds = new Vector2[2];
 
     // How much space is between 2 nodes
-    public int unit = 10;
+    public int unit =  1;
 
     //Modifiable points
     public double[][] nodes;
 
     private static final int tension = 1;
+    private static final int HEIGHT_LIMIT = 5;
 
     public SplineInfo(int x, int y, int w, int h, LevelInfo levelInfo) {
         this.levelInfo = levelInfo;
@@ -154,6 +155,42 @@ public class SplineInfo {
         else
             return value<=bounds[1].y&&value>=bounds[0].y;
 
+    }
+
+    public boolean movetUp(double x,double y){
+        if(!isInModifiableArea(x,y))
+            return false;
+        Vector2 node = new Vector2((int) (x - x % unit), (int) (y - y % unit));
+        int ix = (int) ((x - x % unit)-bounds[0].x)/unit;
+        int iy = (int) ((y - y % unit)-bounds[0].y)/unit;
+
+        double height = nodes[ix][iy];
+        if(Math.abs(height)>=HEIGHT_LIMIT)
+            return false;
+        else{
+            nodes[ix][iy] = ++height;
+            return true;
+        }
+    }
+    public boolean moveDown(double x,double y){
+        if(!isInModifiableArea(x,y)){
+            System.out.println("NOT IN THE AREA");
+            System.out.println(bounds[0]);
+            System.out.println(bounds[1]);
+            return false;
+        }
+        Vector2 node = new Vector2((int) (x - x % unit), (int) (y - y % unit));
+        int ix = (int) ((x - x % unit)-bounds[0].x)/unit;
+        int iy = (int) ((y - y % unit)-bounds[0].y)/unit;
+        System.out.println(node);
+
+        double height = nodes[ix][iy];
+        if(Math.abs(height)>=HEIGHT_LIMIT)
+            return false;
+        else{
+            nodes[ix][iy] = --height;
+            return true;
+        }
     }
 
     public void test() {
