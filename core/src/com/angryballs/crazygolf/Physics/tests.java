@@ -13,7 +13,7 @@ public class tests {
     public static void main(String[] args) {
 
         Vector2 initV = new Vector2(2,0);
-        int iteCount = 100;
+        int iteCount = 1;
         long totalMS = 0;
         double exact = 1.35915732;
 
@@ -70,6 +70,29 @@ public class tests {
 
             if (q == iteCount - 1) {
                 System.out.println("RK2-Mid:X: " + sv2.getX() + ", Y: " + sv2.getY());
+                System.out.print("Absolute error: " + Math.abs(sv2.getX() - exact));
+            }
+        }
+        avgMs = totalMS / (float) iteCount;
+        System.out.println(", Running time: " + String.format("%.6f", avgMs) + "ms ");
+
+        totalMS = 0;
+        for (int q = 0; q < iteCount; ++q) {
+            PhysicsEngine sv2 = new MultiStepEngine(LevelInfo.exampleInput, new ArrayList<>());
+            long startTime = System.currentTimeMillis();
+            sv2.performMove(initV);
+            int code2 = sv2.iterate();
+            while (code2 == 0) {
+                code2 = sv2.iterate();
+            }
+//            for(int i = 0;i<5;i++){
+//                code2 = sv2.iterate();
+//            }
+            long endTime = System.currentTimeMillis();
+            totalMS += (endTime - startTime);
+
+            if (q == iteCount - 1) {
+                System.out.println("AB:X: " + sv2.getX() + ", Y: " + sv2.getY());
                 System.out.print("Absolute error: " + Math.abs(sv2.getX() - exact));
             }
         }

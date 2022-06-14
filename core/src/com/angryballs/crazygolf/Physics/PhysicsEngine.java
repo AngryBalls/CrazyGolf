@@ -65,7 +65,7 @@ public abstract class PhysicsEngine {
         sandBoundsY = LevelInfo.exampleInput.sandPitBounds[1];
     }
 
-    private void reset() {
+    protected void reset() {
         vx = vy = 0;
         x = levelInfo.startPosition.x;
         y = levelInfo.startPosition.y;
@@ -196,32 +196,40 @@ public abstract class PhysicsEngine {
         return new Vector2((float) (x), (float) (y));
     }
 
-    public final Vector2 centerDer(double v1,double v2){
-        double x = (getHeight(v1+dh,v2)-getHeight(v1-dh,v2))/(2*dh);
-        double y = (getHeight(v1,v2+dh)-getHeight(v1,v2-dh))/(2*dh);
+    public final Vector2 centerDer(double v1, double v2) {
+        double x = (getHeight(v1 + dh, v2) - getHeight(v1 - dh, v2)) / (2 * dh);
+        double y = (getHeight(v1, v2 + dh) - getHeight(v1, v2 - dh)) / (2 * dh);
         return new Vector2((float) (x), (float) (y));
     }
 
     public final double accelerationX(double offset, Vector2 dh) {
+        return accelerationX(offset, dh.x, dh.y);
+    }
+
+    public final double accelerationX(double offset, double dx, double dy) {
         var u = isInSand() ? usk : uk;
 
-        if (isSteep(dh)) {
+        if (isSteep(dx, dy)) {
             double vx = this.vx + offset;
-            return -g * dh.x / (1 + dh.x * dh.x + dh.y * dh.y) - u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.x * vy) * (dh.x * vx + dh.y * vy));
+            return -g * dx / (1 + dx * dx + dy * dy) - u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dx * vy) * (dx * vx + dy * vy));
         } else {
             double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
-            return -g * dh.x - u * g * (vx + offset) / sqrt;
+            return -g * dx - u * g * (vx + offset) / sqrt;
         }
     }
 
     public final double accelerationY(double offset, Vector2 dh) {
+        return accelerationY(offset, dh.x, dh.y);
+    }
+
+    public final double accelerationY(double offset, double dx, double dy) {
         var u = isInSand() ? usk : uk;
-        if (isSteep(dh)) {
+        if (isSteep(dx, dy)) {
             double vy = this.vy + offset;
-            return -g * dh.y / (1 + dh.x * dh.x + dh.y * dh.y) - u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.y * vy) * (dh.x * vx + dh.y * vy));
+            return -g * dy / (1 + dx * dx + dy * dy) - u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dy * vy) * (dx * vx + dy * vy));
         } else {
             double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
-            return -g * dh.y - u * g * (vy + offset) / sqrt;
+            return -g * dy - u * g * (vy + offset) / sqrt;
         }
     }
 
@@ -234,7 +242,7 @@ public abstract class PhysicsEngine {
     public final Vector2 acceleration(Vector2 dh) {
         var u = isInSand() ? usk : uk;
 
-        if (isSteep(dh)) {
+        if (isSteep(dh.x, dh.y)) {
             var x = -g * dh.x / (1 + dh.x * dh.x + dh.y * dh.y) -
                     u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.x * vy) * (dh.x * vx + dh.y * vy));
             var y = -g * dh.y / (1 + dh.x * dh.x + dh.y * dh.y) -
@@ -248,10 +256,11 @@ public abstract class PhysicsEngine {
         }
     }
 
-    private final boolean isSteep(Vector2 dh) {
+    private final boolean isSteep(double dx, double dy) {
         //TODO: Test with map which has very steep hills.
         // New motion equations cause larger errors in normal case.
-        return (Math.abs(1 - dh.x * dh.x) < this.dh || Math.abs(1 - dh.y * dh.y) < this.dh);
+        return false;
+        // return (Math.abs(1 - dx * dx) < this.dh || Math.abs(1 - dy * dy) < this.dh);
     }
 
     public final double getX() {
