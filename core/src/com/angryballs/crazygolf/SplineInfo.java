@@ -7,23 +7,24 @@ import java.text.DecimalFormat;
 public class SplineInfo {
     public final LevelInfo levelInfo;
 
-    // main point properties
+    //Top left corner point
     public int x;
     public int y;
 
+    //Spline width/height
     public int w;
     public int h;
 
     Vector2[] bounds = new Vector2[2];
 
-    public int unit = 1;
+    // How much space is between 2 nodes
+    public int unit = 10;
 
+    //Modifiable points
     public double[][] nodes;
 
     private static final int tension = 1;
 
-    // TODO: Now splines might produce unexpected behaviour for negative/combined
-    // areas
     public SplineInfo(int x, int y, int w, int h, LevelInfo levelInfo) {
         this.levelInfo = levelInfo;
 
@@ -32,10 +33,9 @@ public class SplineInfo {
         this.y = y;
         this.w = w;
         this.h = h;
-        nodes[w / 2][h / 2] = levelInfo.heightProfile(x, y);
 
-        bounds[0] = new Vector2(this.x - w / 2 * unit, this.y - h / 2 * unit);
-        bounds[1] = new Vector2(this.x + w / 2 * unit, this.y + h / 2 * unit);
+        bounds[0] = new Vector2(this.x, this.y);
+        bounds[1] = new Vector2(this.x + (w-1) * unit, this.y + (h-1) * unit);
 
         fill();
     }
@@ -49,18 +49,20 @@ public class SplineInfo {
         this.h = h;
         this.unit = unit;
 
-        bounds[0] = new Vector2(this.x - w / 2 * unit, this.y - h / 2 * unit);
-        bounds[1] = new Vector2(this.x + w / 2 * unit, this.y + h / 2 * unit);
+        bounds[0] = new Vector2(this.x, this.y);
+        bounds[1] = new Vector2(this.x + (w-1) * unit, this.y + (h-1) * unit);
         fill();
     }
 
     public double heightAt(double x, double y) {
         double result;
-        float ty, tx, shift;
+        float ty, tx;
+        Vector2 shift = new Vector2();
         int ix, iy;
         double[] point = new double[4];
+        double[] prepDots = new double[4];
+        boolean external = false;
 
-        double prev, next, start, end;
 
         ty = (float) (y - y % unit == 0 ? y * 1f / unit : y % (y - y % unit));
         tx = (float) (x - x % unit == 0 ? x * 1f / unit : x % (x - x % unit));
@@ -69,34 +71,25 @@ public class SplineInfo {
         Vector2 startNode = new Vector2((int) (x - x % unit), (int) (y - y % unit));
         Vector2 endNode = new Vector2((int) (x - x % unit + unit), (int) (y - y % unit + unit));
 
-        if (!isInSpline(endNode.x, endNode.y)) {
-            return nodes[(int) ((x - x % unit) - bounds[0].x) / unit][(int) ((y - y % unit) - bounds[0].y) / unit];
+        // use splines to get 4 points along Y axis, then calculate spline in X axis
+        for (int xx = 0; xx < 4; xx++) {
+            shift.x =  unit * (xx - 1);
+            if(!isInBounds(startNode.x+shift.x,true))
+                external = true;
+            for (int yy = 0; yy < 4; yy++){
+                shift.y = unit * (yy-1);
+                if( external || !isInBounds(startNode.y+shift.y,false))
+                    prepDots[yy] = height(startNode.x+shift.x,startNode.y+shift.y);
+                else{
+                    ix = (int) ((startNode.x - bounds[0].x + shift.x) / unit);
+                    iy = (int) ((startNode.y - bounds[0].y + shift.y) / unit);
+                    prepDots[yy] = nodes[ix][iy];
+                }
+            }
+            point[xx] = splineAt(prepDots[0],prepDots[1],prepDots[2],prepDots[3],ty);
+            external = false;
         }
 
-        // calculate 4 horizontal points using 4 points for each
-        // work out middle points along Y axis, combine along X axis
-        for (int i = 0; i < 4; i++) {
-            shift = unit * (i - 1);
-
-            if (startNode.x - bounds[0].x + shift < 0)
-                ix = (int) ((startNode.x - bounds[0].x) / unit);
-            else if (startNode.x + shift > bounds[1].x)
-                ix = (int) ((endNode.x - bounds[0].x) / unit);
-            else
-                ix = (int) ((startNode.x - bounds[0].x + shift) / unit);
-
-            iy = (startNode.y - unit - bounds[0].y) / unit >= 0 ? (int) (startNode.y - unit - bounds[0].y) / unit
-                    : (int) (startNode.y - bounds[0].y) / unit;
-            prev = nodes[ix][iy];
-            iy = (int) (startNode.y - bounds[0].y) / unit;
-            start = nodes[ix][iy];
-            iy = (int) (endNode.y - bounds[0].y) / unit;
-            end = nodes[ix][iy];
-            iy = (endNode.y + unit) <= bounds[1].y ? (int) (endNode.y + unit - bounds[0].y) / unit
-                    : (int) (endNode.y - bounds[0].y) / unit;
-            next = nodes[ix][iy];
-            point[i] = splineAt(prev, start, end, next, ty);
-        }
         result = splineAt(point[0], point[1], point[2], point[3], tx);
         return result;
     }
@@ -115,12 +108,10 @@ public class SplineInfo {
         float tSquared = t * t;
         float tCubed = tSquared * t;
 
-        double result = (-.5f * tension * tCubed + tension * tSquared - .5f * tension * t) * prev +
+        return  (-.5f * tension * tCubed + tension * tSquared - .5f * tension * t) * prev +
                 (1 + .5f * tSquared * (tension - 6) + .5f * tCubed * (4 - tension)) * start +
                 (.5f * tCubed * (tension - 4) + .5f * tension * t - (tension - 3) * tSquared) * end +
                 (-.5f * tension * tSquared + .5f * tension * tCubed) * next;
-
-        return result;
     }
 
     private void fill() {
@@ -146,12 +137,23 @@ public class SplineInfo {
         return levelInfo.heightProfile(x, y);
     }
 
-    public boolean isInSpline(double x, double y) {
+    public boolean isInModifiableArea(double x, double y) {
         return bounds[0].x <= x && bounds[1].x >= x && bounds[0].y <= y && bounds[1].y >= y;
+    }
+    public boolean isInSpline(double x, double y){
+        return bounds[0].x - 2*unit <= x && bounds[1].x +2*unit>= x && bounds[0].y -2*unit<= y && bounds[1].y+2*unit >= y;
     }
 
     public void setZ(double height) {
         nodes[w / 2][h / 2] = height;
+    }
+
+    private boolean isInBounds(double value, boolean isX){
+        if(isX)
+            return value<=bounds[1].x&&value>=bounds[0].x;
+        else
+            return value<=bounds[1].y&&value>=bounds[0].y;
+
     }
 
     public void test() {
@@ -170,18 +172,19 @@ public class SplineInfo {
                 map[xx][yy] = heightAt(bounds[0].x + xx * unit * step, bounds[0].y + yy * unit * step);
 
                 DecimalFormat df = new DecimalFormat("#.####");
-                System.out.print(df.format(map[xx][yy]) + " ");
+                System.out.print(map[xx][yy] + " ");
             }
             System.out.println();
         }
     }
 
     public static void main(String[] args) {
-        SplineInfo s = new SplineInfo(0, 0, 5, 5, LevelInfo.exampleInput);
+        SplineInfo s = new SplineInfo(-2, -2, 5, 5, LevelInfo.exampleInput);
         s.setZ(10);
         System.out.println("Matrix:");
         s.print();
-        s.test();
+
+        System.out.println(s.heightAt(10.8,-2.2));
 
     }
 }
