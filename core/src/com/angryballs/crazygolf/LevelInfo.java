@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.script.Bindings;
@@ -178,33 +179,34 @@ public class LevelInfo {
     public void save() {
         Properties props = new Properties();
 
-        props.put("x0", Float.toString(startPosition.x));
-        props.put("y0", Float.toString(startPosition.y));
+        props.put("x0", String.format(Locale.US, "%f", startPosition.x));
+        props.put("y0", String.format(Locale.US, "%f", startPosition.y));
 
-        props.put("xt", Float.toString(endPosition.x));
-        props.put("yt", Float.toString(endPosition.y));
+        props.put("xt", String.format(Locale.US, "%f", endPosition.x));
+        props.put("yt", String.format(Locale.US, "%f", endPosition.y));
 
-        props.put("r", Float.toString(holeRadius));
+        props.put("r", String.format(Locale.US, "%f", holeRadius));
 
-        props.put("muk", Float.toString(grassKineticFrictionCoeff));
-        props.put("mus", Float.toString(grassStaticFrictionCoeff));
+        props.put("muk", String.format(Locale.US, "%f", grassKineticFrictionCoeff));
+        props.put("mus", String.format(Locale.US, "%f", grassStaticFrictionCoeff));
 
-        props.put("muks", Float.toString(sandKineticFrictionCoeff));
-        props.put("muss", Float.toString(sandStaticFrictionCoeff));
+        props.put("muks", String.format(Locale.US, "%f", sandKineticFrictionCoeff));
+        props.put("muss", String.format(Locale.US, "%f", sandStaticFrictionCoeff));
 
-        props.put("sandPitX", String.format("%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
-        props.put("sandPitY", String.format("%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
+        props.put("sandPitX", String.format(Locale.US, "%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
+        props.put("sandPitY", String.format(Locale.US, "%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
 
         props.put("heightProfile", heightProfile);
 
         String treeString = "";
         for (Vector2 tree : trees) {
-            treeString = String.format("%s(%f,%f);", treeString, tree.x, tree.y);
+            treeString = String.format(Locale.US, "%s(%f,%f);", treeString, tree.x, tree.y);
         }
 
         String wallString = "";
         for (Rectangle wall : walls) {
-            wallString = String.format("%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width, wall.height);
+            wallString = String.format(Locale.US, "%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width,
+                    wall.height);
         }
         props.put("walls", wallString);
 
