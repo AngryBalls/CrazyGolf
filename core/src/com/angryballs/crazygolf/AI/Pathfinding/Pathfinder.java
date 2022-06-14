@@ -3,7 +3,6 @@ package com.angryballs.crazygolf.AI.Pathfinding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import com.angryballs.crazygolf.LevelInfo;
@@ -59,17 +58,19 @@ public class Pathfinder {
         var arrivalOrigin = new HashMap<Vector2, Vector2>();
         arrivalOrigin.put(start, null);
 
-        var reached = new HashSet<Vector2>();
-        reached.add(start);
-
         // Do a full traversal first
         while (!frontier.isEmpty()) {
             var current = frontier.poll();
+            var flooredCurrent = new Vector2((int) current.x, (int) current.y);
+
+            if (flooredCurrent.epsilonEquals(goal))
+                break;
+
             var neighbours = new Vector2[] {
-                    new Vector2(current).add(1, 0),
-                    new Vector2(current).add(0, 1),
-                    new Vector2(current).add(-1, 0),
-                    new Vector2(current).add(0, -1),
+                    new Vector2(flooredCurrent).add(1, 0),
+                    new Vector2(flooredCurrent).add(0, 1),
+                    new Vector2(flooredCurrent).add(-1, 0),
+                    new Vector2(flooredCurrent).add(0, -1),
             };
 
             for (Vector2 neighbour : neighbours) {
