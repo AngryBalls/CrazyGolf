@@ -1,6 +1,7 @@
 package com.angryballs.crazygolf.AI;
 
 import java.util.List;
+import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.TreeModel;
@@ -31,7 +32,23 @@ public abstract class Bot {
         this.yt = ps.getYt();
     }
 
-    public abstract Vector2 computeOptimalMove(double x, double y);
+    public static final float noiseMagnitude = 0;
+
+    public static final Random noiseRNG = new Random();
+
+    public Vector2 computeMove(double x, double y) {
+
+        var move = computeOptimalMove(x, y);
+
+        var noiseX = -5 + noiseRNG.nextFloat() * noiseMagnitude * 10;
+        var noiseY = -5 + noiseRNG.nextFloat() * noiseMagnitude * 10;
+
+        var noiseVector = new Vector2(noiseX, noiseY);
+
+        return move.add(noiseVector);
+    }
+
+    protected abstract Vector2 computeOptimalMove(double x, double y);
 
     /**
      * Estimates the distance between point ( x,y ) and target point
