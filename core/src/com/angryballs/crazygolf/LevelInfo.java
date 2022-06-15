@@ -63,7 +63,7 @@ public class LevelInfo {
 
     public boolean isInSpline(Vector2 point) {
         for (var spline : splines)
-            if (spline.isInSpline(point.x, point.y))
+            if (spline.isInModifiableArea(point.x, point.y))
                 return true;
 
         return false;
@@ -83,10 +83,13 @@ public class LevelInfo {
 
     public Double heightProfile(double x, double y) {
         for (var spline : splines) {
-            if (spline.isInModifiableArea(x, y))
-                return spline.heightAt(x, y);
+            if (spline.isInSpline(x, y)){
+                return spline.heightAt(x, y);}
         }
 
+        return evaluateHeight(x,y);
+    }
+    public Double evaluateHeight(double x, double y){
         if (lastX == null || lastX != x) {
             bindings.put("x", x);
             lastX = x;
@@ -159,8 +162,14 @@ public class LevelInfo {
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
 
-            SplineInfo s = new SplineInfo(-5, -5, 20, 20, this);
-            s.setZ(10);
+            SplineInfo s = new SplineInfo(-5, -5, 11, 11, this);
+
+            s.moveDown(5,5);
+            s.moveDown(5,5);
+            s.moveDown(5,5);
+
+            s.moveUp(-5,-5);
+
             splines.add(s);
 
             return;
