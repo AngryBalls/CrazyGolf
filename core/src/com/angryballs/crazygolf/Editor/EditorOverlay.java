@@ -1,6 +1,9 @@
 package com.angryballs.crazygolf.Editor;
 
+import java.util.Stack;
+
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.AI.Pathfinding.Pathfinder;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TerrainModel;
 import com.badlogic.gdx.Input.Keys;
@@ -34,6 +37,10 @@ public class EditorOverlay {
     private Vector2 cursorDragStart = new Vector2();
     private Rectangle currentWallRect;
 
+    private BallModel[] pathFindIndicator = new BallModel[0];
+
+    private Stack<BallModel> ballModelPool = new Stack<BallModel>();
+
     public EditorOverlay(LevelInfo levelInfo, Runnable updateAction) {
         this.levelInfo = levelInfo;
         gridModel = new TerrainModel(levelInfo, true);
@@ -42,6 +49,11 @@ public class EditorOverlay {
         ballModel = new BallModel();
         ballModel.transform.scl(5);
         terrainModifiedEvent = updateAction;
+
+        for (int i = 0; i < 100; ++i)
+            createPathBall();
+
+        updatePathIndicators();
     }
 
     public boolean isEnabled() {
@@ -116,7 +128,7 @@ public class EditorOverlay {
                     levelInfo.walls.add(newRect);
                     currentWallRect = newRect;
                 }
-                terrainModifiedEvent.run();
+                refreshLevel();
             }
         }
     }
@@ -127,6 +139,10 @@ public class EditorOverlay {
 
         modelBatch.render(gridModel);
         modelBatch.render(ballModel);
+
+        for (BallModel ballModel : pathFindIndicator) {
+            modelBatch.render(ballModel);
+        }
     }
 
     public boolean handleKeyPress(int keycode) {
@@ -152,7 +168,7 @@ public class EditorOverlay {
         if (keycode == Keys.FORWARD_DEL) {
             if (currentMode == EditorMode.tree) {
                 if (levelInfo.trees.remove(cursorPos))
-                    terrainModifiedEvent.run();
+                    refreshLevel();
             }
 
             if (currentMode == EditorMode.wall) {
@@ -160,7 +176,7 @@ public class EditorOverlay {
                     var reverseIndex = levelInfo.walls.size() - 1 - i;
                     if (levelInfo.walls.get(reverseIndex).contains(cursorPos)) {
                         levelInfo.walls.remove(reverseIndex);
-                        terrainModifiedEvent.run();
+                        refreshLevel();
                         break;
                     }
                 }
@@ -184,7 +200,7 @@ public class EditorOverlay {
 
         if (currentMode == EditorMode.tree) {
             levelInfo.trees.add(cursorPos);
-            terrainModifiedEvent.run();
+            refreshLevel();
         }
 
         if (currentMode == EditorMode.wall) {
@@ -221,4 +237,47 @@ public class EditorOverlay {
         }
     }
 
+    private void refreshLevel() {
+        terrainModifiedEvent.run();
+        updatePathIndicators();
+
+    }
+
+    private void updatePathIndicators() {
+        for (BallModel ballModel : pathFindIndicator) {
+            ballModelPool.add(ballModel);
+        }
+
+        var thing = levelInfo.optimalPath;
+        if (thing == null) {
+            pathFindIndicator = new BallModel[0];
+            return;
+        }
+
+        pathFindIndicator = new BallModel[thing.path.size()];
+
+        try {
+            for (int i = 0; i < thing.path.size(); ++i) {
+                var pos = thing.path.get(i);
+
+                if (ballModelPool.empty())
+                    createPathBall();
+
+                var ballModel = ballModelPool.pop();
+                ballModel.transform.setTranslation(pos.x - 64 + 0.5f,
+                        levelInfo.heightProfile(pos.x - 64 + 0.5f, pos.y - 64 + 0.5f).floatValue(),
+                        -(pos.y - 64 + 0.5f));
+
+                pathFindIndicator[i] = ballModel;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createPathBall() {
+        var ball = new BallModel();
+        ball.transform.scl(2, 2, 5);
+        ballModelPool.add(ball);
+    }
 }
