@@ -39,12 +39,22 @@ public abstract class Bot {
     public Vector2 computeMove(double x, double y) {
         var move = computeOptimalMove(x, y);
 
+        // First we decompose the two components of the movement vector
+        // Direction and magnitude
         var shotMagnitude = move.len();
         var shotDirection = new Vector2(move).nor();
 
+        // We introduce noise to the direction
+        // The direction can deviate by up to 20 degrees in either direction
+        // This angle limit is required as humans don't "accidentally" shoot backwards
         var directionNoise = (-20 + noiseRNG.nextFloat() * 40) * noiseMagnitude;
+
+        // Then we introduce noise to the magnitude
+        // This is always based on the intended magnitude as humans error in their swing
+        // is not comically large
         var magnitudeNoise = (-shotMagnitude + shotMagnitude * 2 * noiseRNG.nextFloat()) * noiseMagnitude;
 
+        // Apply the noise
         var noisyShot = shotDirection.rotateDeg(directionNoise).scl(shotMagnitude + magnitudeNoise);
 
         return noisyShot;
