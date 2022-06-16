@@ -3,7 +3,9 @@ package com.angryballs.crazygolf.Editor;
 import java.util.Stack;
 
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.AI.Pathfinding.Pathfinder;
+import com.angryballs.crazygolf.Editor.CompositionTools.CompositionTool;
+import com.angryballs.crazygolf.Editor.CompositionTools.TreeCompositionTool;
+import com.angryballs.crazygolf.Editor.CompositionTools.WallCompositionTool;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TerrainModel;
 import com.badlogic.gdx.Input.Keys;
@@ -14,14 +16,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class EditorOverlay {
+    private CompositionTool[] compositionTools;
 
-    private enum EditorMode {
-        tree,
-        wall,
-        terrain
-    };
+    private int compositionToolIndex = 0;
 
-    private EditorMode currentMode = EditorMode.tree;
+    private CompositionTool currentCompositionTool = null;
 
     private boolean enabled = false;
 
@@ -30,12 +29,14 @@ public class EditorOverlay {
     private LevelInfo levelInfo;
 
     private TerrainModel gridModel;
+
     private BallModel ballModel;
 
     private Vector2 cursorPos = new Vector2();
 
     private Vector2 cursorDragStart = new Vector2();
-    private Rectangle currentWallRect;
+
+    private boolean dragInitiated = false;
 
     private BallModel[] pathFindIndicator = new BallModel[0];
 
@@ -54,6 +55,16 @@ public class EditorOverlay {
             createPathBall();
 
         updatePathIndicators();
+
+        createCompositionTools();
+        currentCompositionTool = compositionTools[compositionToolIndex];
+    }
+
+    private void createCompositionTools() {
+        compositionTools = new CompositionTool[] {
+                new TreeCompositionTool(levelInfo),
+                new WallCompositionTool(levelInfo)
+        };
     }
 
     public boolean isEnabled() {
@@ -61,7 +72,7 @@ public class EditorOverlay {
     }
 
     public String getCurrentMode() {
-        return currentMode.toString();
+        return currentCompositionTool.name;
     }
 
     private Vector2 currentlyTargetedNode(Vector3 origin, Vector3 direction) {
@@ -81,54 +92,42 @@ public class EditorOverlay {
                 break;
             }
         }
+
         if (!found)
             return new Vector2();
 
-        float x = 0;
-        float y = 0;
-
-        if (currentMode == EditorMode.terrain) {
-            x = Math.round(currentPosition.x / 2) * 2;
-            y = -Math.round(currentPosition.z / 2) * 2;
-        } else {
-            x = Math.round(currentPosition.x);
-            y = -Math.round(currentPosition.z);
-        }
-
-        return new Vector2(x, y);
+        return currentCompositionTool
+                .applyCursorOffset(new Vector2(Math.round(currentPosition.x), -Math.round(currentPosition.z)));
     }
 
     public void update(Camera cam) {
         var lastCursorPos = cursorPos;
         var pos = cursorPos = currentlyTargetedNode(cam.position, cam.direction);
 
-        var height = levelInfo.heightProfile(pos.x, pos.y);
-
-        var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
-
-        ballModel.transform.setTranslation(markerPos);
-
         if (!lastCursorPos.equals(cursorPos)) {
+            var height = levelInfo.heightProfile(pos.x, pos.y);
+
+            var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
+
+            ballModel.transform.setTranslation(markerPos);
+
             var gridDelta = new Vector2(cursorPos).sub(cursorDragStart);
 
-            if (currentMode == EditorMode.wall && isHoldingMouse) {
+            if (isHoldingMouse) {
+                if (!cursorDragStart.equals(cursorPos)) {
+                    dragInitiated = true;
+                }
+
                 var tlX = Math.min(cursorPos.x, cursorDragStart.x);
                 var tlY = Math.min(cursorPos.y, cursorDragStart.y);
 
                 Vector2 tlC = new Vector2(tlX, tlY);
 
-                var newRect = new Rectangle(tlC.x, tlC.y, Math.abs(gridDelta.x),
+                var normalizedRectangle = new Rectangle(tlC.x, tlC.y, Math.abs(gridDelta.x),
                         Math.abs(gridDelta.y));
 
-                levelInfo.walls.remove(currentWallRect);
-
-                if (gridDelta.x == 0 || gridDelta.y == 0) {
-                    currentWallRect = null;
-                } else {
-                    levelInfo.walls.add(newRect);
-                    currentWallRect = newRect;
-                }
-                refreshLevel();
+                if (currentCompositionTool.handleDrag(normalizedRectangle))
+                    refreshLevel();
             }
         }
     }
@@ -166,21 +165,8 @@ public class EditorOverlay {
             return true;
         }
         if (keycode == Keys.FORWARD_DEL) {
-            if (currentMode == EditorMode.tree) {
-                if (levelInfo.trees.remove(cursorPos))
-                    refreshLevel();
-            }
-
-            if (currentMode == EditorMode.wall) {
-                for (int i = 0; i < levelInfo.walls.size(); i++) {
-                    var reverseIndex = levelInfo.walls.size() - 1 - i;
-                    if (levelInfo.walls.get(reverseIndex).contains(cursorPos)) {
-                        levelInfo.walls.remove(reverseIndex);
-                        refreshLevel();
-                        break;
-                    }
-                }
-            }
+            if (currentCompositionTool.handleDelete(cursorPos))
+                refreshLevel();
             return true;
         }
 
@@ -198,49 +184,36 @@ public class EditorOverlay {
         if (!enabled)
             return false;
 
-        if (currentMode == EditorMode.tree) {
-            levelInfo.trees.add(cursorPos);
-            refreshLevel();
-        }
-
-        if (currentMode == EditorMode.wall) {
-            cursorDragStart = cursorPos;
-            isHoldingMouse = true;
-        }
-
+        isHoldingMouse = true;
+        cursorDragStart = cursorPos;
         return true;
     }
 
     public boolean onMouseUp() {
+        boolean clicked = !dragInitiated;
+
+        dragInitiated = false;
+        isHoldingMouse = false;
+
         if (!enabled)
             return false;
 
-        if (currentMode == EditorMode.wall) {
-            isHoldingMouse = false;
-            currentWallRect = null;
-        }
+        if (!clicked)
+            return false;
+
+        if (currentCompositionTool.handleClick(cursorPos))
+            refreshLevel();
 
         return true;
     }
 
     private void switchMode() {
-        switch (currentMode) {
-            case tree:
-                currentMode = EditorMode.wall;
-                break;
-            case wall:
-                currentMode = EditorMode.terrain;
-                break;
-            case terrain:
-                currentMode = EditorMode.tree;
-                break;
-        }
+        currentCompositionTool = compositionTools[(++compositionToolIndex) % compositionTools.length];
     }
 
     private void refreshLevel() {
         terrainModifiedEvent.run();
         updatePathIndicators();
-
     }
 
     private void updatePathIndicators() {
