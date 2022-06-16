@@ -41,7 +41,14 @@ public abstract class Bot {
     public static final Random noiseRNG = new Random();
 
     public Vector2 computeMove(double x, double y) {
+        return computeMove(x, y, false);
+    }
+
+    public Vector2 computeMove(double x, double y, boolean addNoise) {
         var move = computeOptimalMove(x, y);
+
+        if (!addNoise)
+            return move;
 
         // First we decompose the two components of the movement vector
         // Direction and magnitude
