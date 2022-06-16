@@ -8,6 +8,8 @@ import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
 import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.SimulatedAnnealing;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
+import com.angryballs.crazygolf.AI.Pathfinding.Pathfinder;
 import com.angryballs.crazygolf.Editor.EditorOverlay;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
@@ -66,21 +68,19 @@ public class GameScreen3D extends ScreenAdapter {
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         levelInfo.reload();
-        editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
-        spacePressed = false;
 
         this.levelInfo = levelInfo;
 
         loadLevel();
+
+        editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
+        spacePressed = false;
 
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         terrainModel = new TerrainModel(levelInfo);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gdBot = new GradientDescent(levelInfo, trees);
-        hcBot = new HillClimbing(levelInfo, trees);
-        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees);
 
         inputAdapter = new GameScreenInputAdapter();
 
@@ -129,6 +129,14 @@ public class GameScreen3D extends ScreenAdapter {
             wallModels[i].transform.setTranslation(rect.getX() + rect.width / 2, 0,
                     -(rect.getY() + rect.height / 2));
         }
+
+        Path path = Pathfinder.findPath(levelInfo);
+
+        levelInfo.optimalPath = path;
+
+        gdBot = new GradientDescent(levelInfo, trees, path);
+        hcBot = new HillClimbing(levelInfo, trees, path);
+        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees, path);
     }
 
     @Override

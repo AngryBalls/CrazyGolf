@@ -7,6 +7,7 @@ import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Models.WallModel;
 import com.angryballs.crazygolf.VelocityReader;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -44,8 +45,8 @@ public class GradientDescent extends Bot {
     private int lastupd = 0;
     private int iterator = 0;
 
-    public GradientDescent(LevelInfo info, List<TreeModel> trees) {
-        super(info, trees);
+    public GradientDescent(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
+        super(info, trees, optimalPath);
         RADIUS = ps.getRadius();
     }
 
@@ -157,6 +158,6 @@ public class GradientDescent extends Bot {
         int result = performMove(speed);
         if (result == 3)
             return 0;
-        return distance(ps.x, ps.y);
+        return distanceSquared(ps.x, ps.y);
     }
 }
