@@ -56,7 +56,7 @@ public abstract class Bot {
         // Then we introduce noise to the magnitude
         // This is always based on the intended magnitude as humans error in their swing
         // is not comically large
-        var magnitudeNoise = (-shotMagnitude + shotMagnitude * 2 * noiseRNG.nextFloat()) * noiseMagnitude;
+        var magnitudeNoise = (-shotMagnitude + shotMagnitude * 2 * noiseRNG.nextFloat()) * 0.25f * noiseMagnitude;
 
         // Apply the noise
         var noisyShot = shotDirection.rotateDeg(directionNoise).scl(shotMagnitude + magnitudeNoise);
