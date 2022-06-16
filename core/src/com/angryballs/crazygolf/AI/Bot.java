@@ -32,7 +32,7 @@ public abstract class Bot {
         this.yt = ps.getYt();
     }
 
-    public static final float noiseMagnitude = 0;
+    public static final float noiseMagnitude = 0.1f;
 
     public static final Random noiseRNG = new Random();
 
@@ -40,12 +40,15 @@ public abstract class Bot {
 
         var move = computeOptimalMove(x, y);
 
-        var noiseX = -5 + noiseRNG.nextFloat() * noiseMagnitude * 10;
-        var noiseY = -5 + noiseRNG.nextFloat() * noiseMagnitude * 10;
+        var shotMagnitude = move.len();
+        var shotDirection = new Vector2(move).nor();
 
-        var noiseVector = new Vector2(noiseX, noiseY);
+        var directionNoise = (-20 + noiseRNG.nextFloat() * 40) * noiseMagnitude;
+        var magnitudeNoise = (-shotMagnitude + shotMagnitude * 2 * noiseRNG.nextFloat()) * noiseMagnitude;
 
-        return move.add(noiseVector);
+        var noisyShot = shotDirection.rotateDeg(directionNoise).scl(shotMagnitude + magnitudeNoise);
+
+        return noisyShot;
     }
 
     protected abstract Vector2 computeOptimalMove(double x, double y);
