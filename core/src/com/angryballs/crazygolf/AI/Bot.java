@@ -1,12 +1,13 @@
 package com.angryballs.crazygolf.AI;
 
 import java.util.List;
+import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
-import com.angryballs.crazygolf.Physics.*;
+import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
+import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class Bot {
@@ -35,7 +36,42 @@ public abstract class Bot {
         this.optimalPath = optimalPath;
     }
 
-    public abstract Vector2 computeOptimalMove(double x, double y);
+    public static final float noiseMagnitude = 0.1f;
+
+    public static final Random noiseRNG = new Random();
+
+    public Vector2 computeMove(double x, double y) {
+        return computeMove(x, y, false);
+    }
+
+    public Vector2 computeMove(double x, double y, boolean addNoise) {
+        var move = computeOptimalMove(x, y);
+
+        if (!addNoise)
+            return move;
+
+        // First we decompose the two components of the movement vector
+        // Direction and magnitude
+        var shotMagnitude = move.len();
+        var shotDirection = new Vector2(move).nor();
+
+        // We introduce noise to the direction
+        // The direction can deviate by up to 20 degrees in either direction
+        // This angle limit is required as humans don't "accidentally" shoot backwards
+        var directionNoise = (-20 + noiseRNG.nextFloat() * 40) * noiseMagnitude;
+
+        // Then we introduce noise to the magnitude
+        // This is always based on the intended magnitude as humans error in their swing
+        // is not comically large
+        var magnitudeNoise = (-shotMagnitude + shotMagnitude * 2 * noiseRNG.nextFloat()) * 0.25f * noiseMagnitude;
+
+        // Apply the noise
+        var noisyShot = shotDirection.rotateDeg(directionNoise).scl(shotMagnitude + magnitudeNoise);
+
+        return noisyShot;
+    }
+
+    protected abstract Vector2 computeOptimalMove(double x, double y);
 
     /**
      * Estimates the distance between point ( x,y ) and target point

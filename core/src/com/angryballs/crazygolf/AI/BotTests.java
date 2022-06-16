@@ -12,16 +12,16 @@ public class BotTests {
         // rbb.run(rbb);
         System.out.println("\nGradient Descent");
         Bot gd = new GradientDescent(INFO, new ArrayList<>(), null);
-        // gd.run();
+        gd.run();
 
         System.out.println("\nNewton Raphson");
-        // Bot nr = new NewtonRaphson(INFO, new ArrayList<>(), null);
+        Bot nr = new NewtonRaphson(INFO, new ArrayList<>(), null);
         // nr.run();
 
         System.out.println("\nHill Climbing");
 
         Bot hc = new HillClimbing(INFO, new ArrayList<>(), null);
-        // hc.run();
+        hc.run();
 
         System.out.println("\nSimulated Annealing");
         int total = 0;

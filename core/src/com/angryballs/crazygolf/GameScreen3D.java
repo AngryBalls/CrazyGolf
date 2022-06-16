@@ -207,7 +207,7 @@ public class GameScreen3D extends ScreenAdapter {
         else if (currentBot == saBot)
             currBotText = "Simulated Annealing";
 
-        font.draw(spriteBatch, "Active Bot = " + currBotText, 10,
+        font.draw(spriteBatch, "Active Bot = " + currBotText + (addNoise ? " (noise enabled)" : ""), 10,
                 Gdx.graphics.getHeight() - 90);
 
         spriteBatch.end();
@@ -275,10 +275,11 @@ public class GameScreen3D extends ScreenAdapter {
     private Bot hcBot;
     private Bot saBot;
     private Bot currentBot;
+    private boolean addNoise;
 
     private void botPerformSwing() {
         currentBot.applyPhysicsState(physicsSystem);
-        var optimalMove = currentBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
+        var optimalMove = currentBot.computeMove(physicsSystem.x, physicsSystem.y);
 
         physicsSystem.performMove(optimalMove);
     }
@@ -374,6 +375,8 @@ public class GameScreen3D extends ScreenAdapter {
                 currentBot = saBot;
             else if (keycode == Input.Keys.R)
                 resetGame();
+            else if (keycode == Input.Keys.E)
+                addNoise = !addNoise;
 
             return true;
         }
