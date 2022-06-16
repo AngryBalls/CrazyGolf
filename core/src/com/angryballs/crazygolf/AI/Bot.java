@@ -5,8 +5,8 @@ import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
-import com.angryballs.crazygolf.Physics.*;
+import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
+import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class Bot {
@@ -37,7 +37,6 @@ public abstract class Bot {
     public static final Random noiseRNG = new Random();
 
     public Vector2 computeMove(double x, double y) {
-
         var move = computeOptimalMove(x, y);
 
         var shotMagnitude = move.len();
