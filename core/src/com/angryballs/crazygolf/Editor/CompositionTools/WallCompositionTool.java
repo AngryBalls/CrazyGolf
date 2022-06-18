@@ -33,6 +33,13 @@ public class WallCompositionTool extends CompositionTool {
             return modified;
 
         levelInfo.walls.add(dragRect);
+        currentWallRect = dragRect;
+        return true;
+    }
+
+    @Override
+    public boolean handleClick(Vector2 cursorPos) {
+        currentWallRect = null;
         return true;
     }
 

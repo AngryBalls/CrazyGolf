@@ -36,8 +36,6 @@ public class EditorOverlay {
 
     private Vector2 cursorDragStart = new Vector2();
 
-    private boolean dragInitiated = false;
-
     private BallModel[] pathFindIndicator = new BallModel[0];
 
     private Stack<BallModel> ballModelPool = new Stack<BallModel>();
@@ -114,10 +112,6 @@ public class EditorOverlay {
             var gridDelta = new Vector2(cursorPos).sub(cursorDragStart);
 
             if (isHoldingMouse) {
-                if (!cursorDragStart.equals(cursorPos)) {
-                    dragInitiated = true;
-                }
-
                 var tlX = Math.min(cursorPos.x, cursorDragStart.x);
                 var tlY = Math.min(cursorPos.y, cursorDragStart.y);
 
@@ -190,15 +184,9 @@ public class EditorOverlay {
     }
 
     public boolean onMouseUp() {
-        boolean clicked = !dragInitiated;
-
-        dragInitiated = false;
         isHoldingMouse = false;
 
         if (!enabled)
-            return false;
-
-        if (!clicked)
             return false;
 
         if (currentCompositionTool.handleClick(cursorPos))
