@@ -51,6 +51,7 @@ public class LevelInfo {
     public final ArrayList<Vector2> originalTrees = new ArrayList<>();
 
     public final ArrayList<SplineInfo> splines = new ArrayList<>();
+    public final ArrayList<SplineInfo> originalSplines = new ArrayList<>();
     public Path optimalPath = null;
 
     // Older usage of the script engine, which always interpreted the heightProfile
@@ -190,15 +191,17 @@ public class LevelInfo {
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
 
-            SplineInfo s = new SplineInfo(-5, -5, 11, 11, this);
+            var splineString = props.getProperty("splines", "");
 
-            s.moveDown(5, 5);
-            s.moveDown(5, 5);
-            s.moveDown(5, 5);
+            if (!splineString.equals("")) {
+                var splineSplit = splineString.split(";");
 
-            s.moveUp(-5, -5);
-
-            splines.add(s);
+                for (String splineInfoString : splineSplit) {
+                    var spline = SplineInfo.deserializeFromString(splineInfoString, this);
+                    splines.add(spline);
+                    originalSplines.add(spline);
+                }
+            }
 
             return;
         } catch (Exception e) {
@@ -215,43 +218,56 @@ public class LevelInfo {
         walls.clear();
         for (var wall : originalWalls)
             walls.add(wall);
+
+        splines.clear();
+        for (var spline : originalSplines)
+            splines.add(spline);
     }
 
     public void save() {
-        Properties props = new Properties();
-
-        props.put("x0", String.format(Locale.US, "%f", startPosition.x));
-        props.put("y0", String.format(Locale.US, "%f", startPosition.y));
-
-        props.put("xt", String.format(Locale.US, "%f", endPosition.x));
-        props.put("yt", String.format(Locale.US, "%f", endPosition.y));
-
-        props.put("r", String.format(Locale.US, "%f", holeRadius));
-
-        props.put("muk", String.format(Locale.US, "%f", grassKineticFrictionCoeff));
-        props.put("mus", String.format(Locale.US, "%f", grassStaticFrictionCoeff));
-
-        props.put("muks", String.format(Locale.US, "%f", sandKineticFrictionCoeff));
-        props.put("muss", String.format(Locale.US, "%f", sandStaticFrictionCoeff));
-
-        props.put("sandPitX", String.format(Locale.US, "%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
-        props.put("sandPitY", String.format(Locale.US, "%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
-
-        props.put("heightProfile", heightProfile);
-
-        String treeString = "";
-        for (Vector2 tree : trees) {
-            treeString = String.format(Locale.US, "%s(%f,%f);", treeString, tree.x, tree.y);
-        }
-
-        String wallString = "";
-        for (Rectangle wall : walls) {
-            wallString = String.format(Locale.US, "%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width,
-                    wall.height);
-        }
-        props.put("walls", wallString);
-
         try {
+            Properties props = new Properties();
+
+            props.put("x0", String.format(Locale.US, "%f", startPosition.x));
+            props.put("y0", String.format(Locale.US, "%f", startPosition.y));
+
+            props.put("xt", String.format(Locale.US, "%f", endPosition.x));
+            props.put("yt", String.format(Locale.US, "%f", endPosition.y));
+
+            props.put("r", String.format(Locale.US, "%f", holeRadius));
+
+            props.put("muk", String.format(Locale.US, "%f", grassKineticFrictionCoeff));
+            props.put("mus", String.format(Locale.US, "%f", grassStaticFrictionCoeff));
+
+            props.put("muks", String.format(Locale.US, "%f", sandKineticFrictionCoeff));
+            props.put("muss", String.format(Locale.US, "%f", sandStaticFrictionCoeff));
+
+            props.put("sandPitX", String.format(Locale.US, "%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
+            props.put("sandPitY", String.format(Locale.US, "%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
+
+            props.put("heightProfile", heightProfile);
+
+            String treeString = "";
+            for (Vector2 tree : trees) {
+                treeString = String.format(Locale.US, "%s(%f,%f);", treeString, tree.x, tree.y);
+            }
+
+            props.put("trees", treeString);
+
+            String wallString = "";
+            for (Rectangle wall : walls) {
+                wallString = String.format(Locale.US, "%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width,
+                        wall.height);
+            }
+            props.put("walls", wallString);
+
+            String splineString = "";
+            for (SplineInfo spline : splines) {
+                splineString = String.format(Locale.US, "%s(%s);", splineString, spline.serialize());
+            }
+            props.put("splines", splineString);
+
+            // try {
             var time = new Timestamp(System.currentTimeMillis());
             var writer = new FileWriter(
                     new File(String.format("LevelInfoSave %s.txt",
