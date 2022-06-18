@@ -285,7 +285,7 @@ public class SplineInfo {
         String output = String.format(Locale.US, "%d,%d,%d,%d", x, y, w, h);
 
         for (var modifiedNode : modifiedNodes) {
-            output += String.format(",%f,%f,%f", modifiedNode.x, modifiedNode.y,
+            output += String.format(Locale.US, ",%f,%f,%f", modifiedNode.x, modifiedNode.y,
                     nodes[(int) modifiedNode.x][(int) modifiedNode.y]);
         }
 
