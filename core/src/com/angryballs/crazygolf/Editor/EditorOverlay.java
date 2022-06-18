@@ -23,7 +23,7 @@ public class EditorOverlay {
 
     private final LevelInfo levelInfo;
 
-    private final TerrainModel gridModel;
+    private TerrainModel gridModel;
 
     private final BallModel ballModel;
 
@@ -56,7 +56,8 @@ public class EditorOverlay {
     private CompositionTool[] createCompositionTools() {
         return new CompositionTool[] {
                 new TreeCompositionTool(levelInfo),
-                new WallCompositionTool(levelInfo)
+                new WallCompositionTool(levelInfo),
+                new SplineCompositionTool(levelInfo)
         };
     }
 
@@ -194,6 +195,9 @@ public class EditorOverlay {
     private void refreshLevel() {
         terrainModifiedEvent.run();
         updatePathIndicators();
+
+        gridModel = new TerrainModel(levelInfo, true);
+        gridModel.transform.trn(0, 0.5f, 0);
     }
 
     private void updatePathIndicators() {
