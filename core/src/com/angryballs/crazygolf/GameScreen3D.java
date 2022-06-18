@@ -287,6 +287,7 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+        swingSound.play(0.1f);
     }
 
     private Bot gdBot;
