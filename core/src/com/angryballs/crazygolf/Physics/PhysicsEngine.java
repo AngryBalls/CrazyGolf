@@ -1,17 +1,27 @@
 package com.angryballs.crazygolf.Physics;
 
+import java.security.cert.Extension;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 
 /**
  * The base PhysicsEngine class which contains components that will be used by
  * all deriving engines.
  */
 public abstract class PhysicsEngine {
+
+    // 0 -> Off
+    // 1 -> Always on
+    // 2 -> Adaptive
+    private static int useNewPhysics = 2;
 
     // Current State
     public double x; // x coordinate
@@ -92,10 +102,10 @@ public abstract class PhysicsEngine {
      * Method to update the state vector
      *
      * @return the reason why the ball should stop or not
-     * 0: no stop
-     * 1: the ball has no speed and acceleration
-     * 2: the ball is in the water (or tree)
-     * 3: the ball is in the hole
+     *         0: no stop
+     *         1: the ball has no speed and acceleration
+     *         2: the ball is in the water (or tree)
+     *         3: the ball is in the hole
      */
 
     public final int iterate() {
@@ -108,7 +118,6 @@ public abstract class PhysicsEngine {
             // early.");
             return 1;
         }
-
 
         var derivative = derivative(x, y);
 
@@ -124,6 +133,7 @@ public abstract class PhysicsEngine {
             return 2;
         }
 
+        collidesWithWall();
         // (x-targetX)^2 + (y-targetY)^2 <= radius^2
         if (isInCircle(this.x, this.xt, this.y, this.yt, this.r)) {
             ballMoving = false;
@@ -185,9 +195,12 @@ public abstract class PhysicsEngine {
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
     }
 
-
     public final double accelerationX(double offset, Vector2 dh) {
         return accelerationX(offset, dh.x, dh.y);
+    }
+
+    public final double derivativeY(double v1, double v2) {
+        return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
 
     public final double accelerationX(double offset, double dx, double dy) {
@@ -195,7 +208,8 @@ public abstract class PhysicsEngine {
 
         if (isSteep(dx, dy)) {
             double vx = this.vx + offset;
-            return -g * dx / (1 + dx * dx + dy * dy) - u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dx * vy) * (dx * vx + dy * vy));
+            return -g * dx / (1 + dx * dx + dy * dy)
+                    - u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dx * vy) * (dx * vx + dy * vy));
         } else {
             double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
             return -g * dx - u * g * (vx + offset) / sqrt;
@@ -210,7 +224,8 @@ public abstract class PhysicsEngine {
         var u = isInSand() ? usk : uk;
         if (isSteep(dx, dy)) {
             double vy = this.vy + offset;
-            return -g * dy / (1 + dx * dx + dy * dy) - u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dy * vy) * (dx * vx + dy * vy));
+            return -g * dy / (1 + dx * dx + dy * dy)
+                    - u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dy * vy) * (dx * vx + dy * vy));
         } else {
             double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
             return -g * dy - u * g * (vy + offset) / sqrt;
@@ -241,7 +256,12 @@ public abstract class PhysicsEngine {
     }
 
     private final boolean isSteep(double dx, double dy) {
-        return (Math.abs(1 - dx * dx) < this.dh || Math.abs(1 - dy * dy) < this.dh);
+        if (PhysicsEngine.useNewPhysics == 0)
+            return false;
+        else if (PhysicsEngine.useNewPhysics == 1)
+            return true;
+
+        return (Math.abs(1 - dx * dx) < PhysicsEngine.dh || Math.abs(1 - dy * dy) < PhysicsEngine.dh);
     }
 
     public final double getX() {
@@ -291,7 +311,6 @@ public abstract class PhysicsEngine {
 
         if (distanceSquared < ballRadius + model.treeRadius)
             return true;
-
         return false;
     }
 
@@ -302,4 +321,34 @@ public abstract class PhysicsEngine {
 
         return false;
     }
+
+    private boolean collidesWithWall() {
+        for (int i = 0; i < levelInfo.walls.size(); i++) {
+            if (isIntersectingWall(levelInfo.walls.get(i)))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isIntersectingWall(Rectangle rectangle) {
+        var ball = new Circle((float) x, (float) y, BallModel.ballRadius);
+
+        // Ball doesn't intersect wall
+        if (!Intersector.overlaps(ball, rectangle))
+            return false;
+
+        int roundedX = (int) Math.round(x);
+        int roundedY = (int) Math.round(y);
+
+        float xAbs = (float) Math.abs(x - roundedX);
+        float yAbs = (float) Math.abs(y - roundedY);
+
+        if (xAbs < yAbs) {
+            vx = -vx;
+        } else {
+            vy = -vy;
+        }
+        return true;
+    }
+
 }

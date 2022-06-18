@@ -3,7 +3,9 @@ package com.angryballs.crazygolf.AI;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -11,8 +13,8 @@ import com.badlogic.gdx.math.Vector2;
  * Update formula:
  * Vnew = Vcurrent - A * F(Vcurrent)/F'(Vcurrent)
  *
- * A            - learning rate
- * F(Vcurrent)  - fitness function
+ * A - learning rate
+ * F(Vcurrent) - fitness function
  * F'(Vcurrent) - derivative of the fitness function
  *
  * Fintess Function - distance from end position to target point
@@ -40,8 +42,8 @@ public class NewtonRaphson extends Bot {
     private int lastupd = 0;
     private int iterator = 0;
 
-    public NewtonRaphson(LevelInfo info, List<TreeModel> trees) {
-        super(info, trees);
+    public NewtonRaphson(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
+        super(info, trees, optimalPath);
         RADIUS = ps.getRadius();
     }
 
@@ -64,7 +66,7 @@ public class NewtonRaphson extends Bot {
                 sign = -1;
             } else
                 newSpeed = new Vector2((float) (speed.x + dv), speed.y);
-        }else {
+        } else {
             if (speed.y > 0) {
                 newSpeed = new Vector2(speed.x, (float) (speed.y - dv));
                 sign = -1;
@@ -74,7 +76,7 @@ public class NewtonRaphson extends Bot {
         distVnew = fitnessFun(coords, newSpeed);
 
         // Calculate the derivative
-        return sign*(distVnew - distV) / dv;
+        return sign * (distVnew - distV) / dv;
     }
 
     public double fitnessFun(Vector2 coords, Vector2 speed) {
@@ -83,7 +85,7 @@ public class NewtonRaphson extends Bot {
         // Calculate the f(V) = dist(point, target)
         ps.setStateVector(coords.x, coords.y, 0, 0);
         performMove(speed);
-        distV = distance(ps.x, ps.y);
+        distV = distanceSquared(ps.x, ps.y);
 
         return distV;
     }
@@ -105,43 +107,43 @@ public class NewtonRaphson extends Bot {
         bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
         double curScore;
 
-        while(true){
+        while (true) {
             curSpeed.x = curSpeed.x
-                    - A*(float) (fitnessFun(coords, curSpeed) / derivative(coords, curSpeed, true));
+                    - A * (float) (fitnessFun(coords, curSpeed) / derivative(coords, curSpeed, true));
             curSpeed.y = curSpeed.y
-                    - A*(float) (fitnessFun(coords, curSpeed) / derivative(coords, curSpeed, false));
+                    - A * (float) (fitnessFun(coords, curSpeed) / derivative(coords, curSpeed, false));
             curSpeed.x = Math.max(Math.min(curSpeed.x, 5), -5);
             curSpeed.y = Math.max(Math.min(curSpeed.y, 5), -5);
 
-            //System.out.println(curSpeed);
+            // System.out.println(curSpeed);
             curScore = fitnessFun(coords, curSpeed);
 
             double difference = bestScore - curScore;
-            if (difference > DELTA_DISTANCE){
+            if (difference > DELTA_DISTANCE) {
                 lastupd = iterator;
                 bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
             }
-            if(curScore < bestScore){
+            if (curScore < bestScore) {
                 bestScore = curScore;
                 bestSpeed = new Vector2(curSpeed.x, curSpeed.y);
             }
-            if(iterator-lastupd>UPDATE_LIMIT)
+            if (iterator - lastupd > UPDATE_LIMIT)
                 stop = true;
             iterator++;
 
-            //System.out.println("Best Score: "+bestScore);
+            // System.out.println("Best Score: "+bestScore);
 
             if (bestScore <= RADIUS || iterator > ITERATION_LIMIT || stop) {
 
-                System.out.println("Iterations: "+iterator);
-                System.out.println("Distance: "+bestScore);
-                System.out.println("Speed: "+bestSpeed);
+                System.out.println("Iterations: " + iterator);
+                System.out.println("Distance: " + bestScore);
+                System.out.println("Speed: " + bestSpeed);
 
-                if(iterator > ITERATION_LIMIT){
+                if (iterator > ITERATION_LIMIT) {
                     System.out.println("ITERATION_LIMIT");
-                }else if(bestScore <= RADIUS){
+                } else if (bestScore <= RADIUS) {
                     System.out.println("CurScore <= R*R");
-                }else{
+                } else {
                     System.out.println("UPDATE_LIMIT");
                 }
 

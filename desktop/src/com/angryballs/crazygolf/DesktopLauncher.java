@@ -9,9 +9,9 @@ public class DesktopLauncher {
 	public static void main(String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
-        config.setHdpiMode(HdpiMode.Pixels);
-		config.setWindowedMode(GrazyGolf.MENU_SCREEN_WIDTH, GrazyGolf.MENU_SCREEN_HEIGHT);
-		config.setResizable(false);
+		config.setHdpiMode(HdpiMode.Pixels);
+		config.setWindowedMode(1280, 720);
+		config.setResizable(true);
 		new Lwjgl3Application(new GrazyGolf(), config);
 	}
 }
