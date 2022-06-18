@@ -188,6 +188,16 @@ public class EditorOverlay {
         return true;
     }
 
+    public boolean onScroll(float amount) {
+        if (!enabled)
+            return false;
+
+        if (currentCompositionTool.handleScroll(cursorPos, amount))
+            refreshLevel();
+
+        return true;
+    }
+
     private void switchMode() {
         currentCompositionTool = compositionTools[(++compositionToolIndex) % compositionTools.length];
     }

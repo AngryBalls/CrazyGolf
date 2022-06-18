@@ -30,4 +30,8 @@ public abstract class CompositionTool {
     public Vector2 applyCursorOffset(Vector2 cursorPos) {
         return cursorPos;
     }
+
+    public boolean handleScroll(Vector2 cursorPos, float amount) {
+        return false;
+    }
 }

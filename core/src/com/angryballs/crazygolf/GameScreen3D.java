@@ -425,5 +425,17 @@ public class GameScreen3D extends ScreenAdapter {
                 camControls.touchDragged(screenX, screenY, 0);
             return true;
         }
+
+        @Override
+        public boolean scrolled(float amountX, float amountY) {
+            if (amountY == 0)
+                return false;
+            else if (amountY > 0)
+                return editorOverlay.onScroll(1);
+            else if (amountY < 0)
+                return editorOverlay.onScroll(-1);
+
+            return false;
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.angryballs.crazygolf.Editor.CompositionTools;
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.SplineInfo;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 
 public class SplineCompositionTool extends CompositionTool {
@@ -44,5 +45,28 @@ public class SplineCompositionTool extends CompositionTool {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean handleScroll(Vector2 cursorPos, float amount) {
+        SplineInfo targetSpline = null;
+        for (int i = 0; i < levelInfo.splines.size(); i++) {
+            var reverseIndex = levelInfo.splines.size() - 1 - i;
+            var target = levelInfo.splines.get(reverseIndex);
+            if (target.isInModifiableArea(cursorPos.x, cursorPos.y)) {
+                targetSpline = target;
+                break;
+            }
+        }
+
+        if (targetSpline == null)
+            return false;
+
+        if (amount < 0)
+            targetSpline.moveUp(cursorPos.x, cursorPos.y);
+        else if (amount > 0)
+            targetSpline.moveDown(cursorPos.x, cursorPos.y);
+
+        return true;
     }
 }
