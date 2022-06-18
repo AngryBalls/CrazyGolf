@@ -184,6 +184,9 @@ public class GameScreen3D extends ScreenAdapter {
                     winMusic.play();
                     win = true;
                 }
+
+                if (result != 0)
+                    break;
             }
 
             camControls.update(delta);
