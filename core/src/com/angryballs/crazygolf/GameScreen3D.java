@@ -23,6 +23,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -54,6 +56,8 @@ public class GameScreen3D extends ScreenAdapter {
     private final BitmapFont font;
 
     private MenuOverlay menuOverlay;
+    private final Sound swingSound;
+    private final Music winMusic;
 
     // USERINPUT:
     private float pressedTime;
@@ -66,12 +70,18 @@ public class GameScreen3D extends ScreenAdapter {
     private WallModel[] wallModels;
     private EditorOverlay editorOverlay;
 
+    private boolean win = false;
+
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         levelInfo.reload();
 
         this.levelInfo = levelInfo;
 
         loadLevel();
+        swingSound = Gdx.audio.newSound(Gdx.files.internal("whoosh.wav"));
+        winMusic = Gdx.audio.newMusic(Gdx.files.internal("win.ogg"));
+
+        winMusic.setVolume(0.1f);
 
         editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
         spacePressed = false;
@@ -167,8 +177,18 @@ public class GameScreen3D extends ScreenAdapter {
             menuOverlay.act();
             menuOverlay.draw();
         } else if (state == State.RUN) {
-            for (int i = 0; i < 50; ++i)
-                physicsSystem.iterate();
+            for (int i = 0; i < 50; ++i) {
+                int result = physicsSystem.iterate();
+
+                if (result == 3 && !win) {
+                    winMusic.play();
+                    win = true;
+                }
+
+                if (result != 0)
+                    break;
+            }
+
             camControls.update(delta);
             skybox.transform.setTranslation(new Vector3(cam.position).add(new Vector3(0, 20, 0)));
             skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
@@ -269,6 +289,7 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+        swingSound.play(0.1f);
     }
 
     private Bot gdBot;
@@ -282,11 +303,13 @@ public class GameScreen3D extends ScreenAdapter {
         var optimalMove = currentBot.computeMove(physicsSystem.x, physicsSystem.y);
 
         physicsSystem.performMove(optimalMove);
+        swingSound.play(0.1f);
     }
 
     private void shootBall() {
         var power = updatePower(0);
         physicsSystem.performMove(new Vector2(power * cam.direction.x, power * -cam.direction.z));
+        swingSound.play(0.1f);
     }
 
     private float updatePower(float delta) {
@@ -298,6 +321,7 @@ public class GameScreen3D extends ScreenAdapter {
     private void resetGame() {
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         initialVelocitiesInd = 0;
+        win = false;
     }
 
     private List<TreeModel> trees = new ArrayList<TreeModel>();
