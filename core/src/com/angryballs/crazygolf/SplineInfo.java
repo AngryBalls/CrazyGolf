@@ -226,7 +226,7 @@ public class SplineInfo {
         return move(x, y, -DELTA);
     }
 
-    public boolean move(double x, double y, double amount) {
+    private boolean move(double x, double y, double amount) {
         if (!isInModifiableArea(x, y))
             return false;
 
@@ -241,7 +241,6 @@ public class SplineInfo {
             return false;
         else {
             nodes[ix][iy] = height + amount;
-            System.out.println("Height: "+nodes[ix][iy]);
             return true;
         }
     }
