@@ -62,10 +62,7 @@ public class SplineCompositionTool extends CompositionTool {
         if (targetSpline == null)
             return false;
 
-        if (amount < 0)
-            targetSpline.moveUp(cursorPos.x, cursorPos.y);
-        else if (amount > 0)
-            targetSpline.moveDown(cursorPos.x, cursorPos.y);
+        targetSpline.move(cursorPos.x, cursorPos.y, amount / 5);
 
         return true;
     }

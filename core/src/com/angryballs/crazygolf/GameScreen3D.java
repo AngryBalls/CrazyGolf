@@ -430,12 +430,8 @@ public class GameScreen3D extends ScreenAdapter {
         public boolean scrolled(float amountX, float amountY) {
             if (amountY == 0)
                 return false;
-            else if (amountY > 0)
-                return editorOverlay.onScroll(1);
-            else if (amountY < 0)
-                return editorOverlay.onScroll(-1);
 
-            return false;
+            return editorOverlay.onScroll(amountY);
         }
     }
 }
