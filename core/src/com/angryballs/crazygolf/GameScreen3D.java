@@ -177,14 +177,15 @@ public class GameScreen3D extends ScreenAdapter {
             menuOverlay.act();
             menuOverlay.draw();
         } else if (state == State.RUN) {
-            for (int i = 0; i < 500; ++i)
+            for (int i = 0; i < 50; ++i)
                 physicsSystem.iterate();
 
-            if(physicsSystem.isInCircle(physicsSystem.x,physicsSystem.getXt(), physicsSystem.y,physicsSystem.getYt(),physicsSystem.getRadius())){
-                if(!win){
+            if (physicsSystem.isInCircle(physicsSystem.x, physicsSystem.getXt(), physicsSystem.y, physicsSystem.getYt(),
+                    physicsSystem.getRadius())) {
+                if (!win) {
                     winMusic.play();
                 }
-                win=true;
+                win = true;
             }
 
             camControls.update(delta);
