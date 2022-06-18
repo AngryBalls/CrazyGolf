@@ -213,6 +213,8 @@ public class GameScreen3D extends ScreenAdapter {
     public void resize(int width, int height) {
         cam.viewportWidth = width;
         cam.viewportHeight = height;
+        menuOverlay.resize(width, height);
+        super.resize(width, height);
     }
 
     private int initialVelocitiesInd = 0;
