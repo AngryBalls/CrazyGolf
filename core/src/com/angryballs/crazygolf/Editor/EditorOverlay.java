@@ -3,20 +3,15 @@ package com.angryballs.crazygolf.Editor;
 import java.util.Stack;
 
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.Editor.CompositionTools.CompositionTool;
-import com.angryballs.crazygolf.Editor.CompositionTools.TreeCompositionTool;
-import com.angryballs.crazygolf.Editor.CompositionTools.WallCompositionTool;
-import com.angryballs.crazygolf.Models.BallModel;
-import com.angryballs.crazygolf.Models.TerrainModel;
+import com.angryballs.crazygolf.Editor.CompositionTools.*;
+import com.angryballs.crazygolf.Models.*;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 
 public class EditorOverlay {
-    private CompositionTool[] compositionTools;
+    private final CompositionTool[] compositionTools;
 
     private int compositionToolIndex = 0;
 
@@ -24,13 +19,13 @@ public class EditorOverlay {
 
     private boolean enabled = false;
 
-    private Runnable terrainModifiedEvent;
+    private final Runnable terrainModifiedEvent;
 
-    private LevelInfo levelInfo;
+    private final LevelInfo levelInfo;
 
-    private TerrainModel gridModel;
+    private final TerrainModel gridModel;
 
-    private BallModel ballModel;
+    private final BallModel ballModel;
 
     private Vector2 cursorPos = new Vector2();
 
@@ -38,7 +33,7 @@ public class EditorOverlay {
 
     private BallModel[] pathFindIndicator = new BallModel[0];
 
-    private Stack<BallModel> ballModelPool = new Stack<BallModel>();
+    private final Stack<BallModel> ballModelPool = new Stack<BallModel>();
 
     public EditorOverlay(LevelInfo levelInfo, Runnable updateAction) {
         this.levelInfo = levelInfo;
@@ -54,12 +49,12 @@ public class EditorOverlay {
 
         updatePathIndicators();
 
-        createCompositionTools();
+        compositionTools = createCompositionTools();
         currentCompositionTool = compositionTools[compositionToolIndex];
     }
 
-    private void createCompositionTools() {
-        compositionTools = new CompositionTool[] {
+    private CompositionTool[] createCompositionTools() {
+        return new CompositionTool[] {
                 new TreeCompositionTool(levelInfo),
                 new WallCompositionTool(levelInfo)
         };
@@ -76,8 +71,6 @@ public class EditorOverlay {
     private Vector2 currentlyTargetedNode(Vector3 origin, Vector3 direction) {
         Vector3 sclDirection = new Vector3(direction).scl(0.5f);
         Vector3 currentPosition = new Vector3(origin);
-
-        // double lastHeight = currentPosition.y;
 
         boolean found = false;
         // Find intersect point
@@ -133,9 +126,8 @@ public class EditorOverlay {
         modelBatch.render(gridModel);
         modelBatch.render(ballModel);
 
-        for (BallModel ballModel : pathFindIndicator) {
+        for (BallModel ballModel : pathFindIndicator)
             modelBatch.render(ballModel);
-        }
     }
 
     public boolean handleKeyPress(int keycode) {
@@ -155,7 +147,7 @@ public class EditorOverlay {
 
         if (keycode == Keys.R) {
             levelInfo.reload();
-            terrainModifiedEvent.run();
+            refreshLevel();
             return true;
         }
         if (keycode == Keys.FORWARD_DEL) {
@@ -217,22 +209,18 @@ public class EditorOverlay {
 
         pathFindIndicator = new BallModel[thing.path.size()];
 
-        try {
-            for (int i = 0; i < thing.path.size(); ++i) {
-                var pos = thing.path.get(i);
+        for (int i = 0; i < thing.path.size(); ++i) {
+            var pos = thing.path.get(i);
 
-                if (ballModelPool.empty())
-                    createPathBall();
+            if (ballModelPool.empty())
+                createPathBall();
 
-                var ballModel = ballModelPool.pop();
-                ballModel.transform.setTranslation(pos.x - 64 + 0.5f,
-                        levelInfo.heightProfile(pos.x - 64 + 0.5f, pos.y - 64 + 0.5f).floatValue(),
-                        -(pos.y - 64 + 0.5f));
+            var ballModel = ballModelPool.pop();
+            ballModel.transform.setTranslation(pos.x - 64 + 0.5f,
+                    levelInfo.heightProfile(pos.x - 64 + 0.5f, pos.y - 64 + 0.5f).floatValue(),
+                    -(pos.y - 64 + 0.5f));
 
-                pathFindIndicator[i] = ballModel;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            pathFindIndicator[i] = ballModel;
         }
     }
 
