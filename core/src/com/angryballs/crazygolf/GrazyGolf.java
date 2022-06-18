@@ -9,8 +9,6 @@ public class GrazyGolf extends Game {
 	public static final int SCREEN_WIDTH = 32;
 	public static final int SCREEN_HEIGHT = 32;
 
-    public static final boolean sound = false;
-
 	private Screen currentScreen;
 
 	public void Switch_Menu() {
@@ -27,7 +25,6 @@ public class GrazyGolf extends Game {
 		if (oldScreen != null) {
 			oldScreen.dispose();
 		}
-
 	}
 
 	@Override
