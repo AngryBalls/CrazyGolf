@@ -255,6 +255,32 @@ public abstract class PhysicsEngine {
         }
     }
 
+    /**
+     * Acceleration calculations based on the provided state vector
+     * !!! OVERRIDE THE CURRENT STATE VECTOR !!!
+     *
+     * @return acceleration w.r.t. X AND Y
+     */
+    public final Vector2 acceleration(double[] vector) {
+        Vector2 dh = derivative(vector[0],vector[1]);
+        this.vx = vector[2];
+        this.vy = vector[3];
+        var u = isInSand() ? usk : uk;
+
+        if (isSteep(dh.x, dh.y)) {
+            var x = -g * dh.x / (1 + dh.x * dh.x + dh.y * dh.y) -
+                    u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.x * vy) * (dh.x * vx + dh.y * vy));
+            var y = -g * dh.y / (1 + dh.x * dh.x + dh.y * dh.y) -
+                    u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.y * vy) * (dh.x * vx + dh.y * vy));
+            return new Vector2((float) x, (float) y);
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+            var x = -g * dh.x - u * g * (vx) / sqrt;
+            var y = -g * dh.y - u * g * (vy) / sqrt;
+            return new Vector2((float) x, (float) y);
+        }
+    }
+
     private final boolean isSteep(double dx, double dy) {
         if (PhysicsEngine.useNewPhysics == 0)
             return false;
