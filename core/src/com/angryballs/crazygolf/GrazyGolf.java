@@ -21,7 +21,6 @@ public class GrazyGolf extends Game {
 		if (oldScreen != null) {
 			oldScreen.dispose();
 		}
-
 	}
 
 	@Override

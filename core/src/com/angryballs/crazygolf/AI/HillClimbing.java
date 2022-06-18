@@ -3,15 +3,17 @@ package com.angryballs.crazygolf.AI;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class HillClimbing extends Bot {
 
     private static double EPSILON = Double.MIN_VALUE;
 
-    public HillClimbing(LevelInfo info, List<TreeModel> trees) {
-        super(info, trees);
+    public HillClimbing(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
+        super(info, trees, optimalPath);
     }
 
     @Override
