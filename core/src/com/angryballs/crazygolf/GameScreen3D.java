@@ -8,19 +8,23 @@ import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
 import com.angryballs.crazygolf.AI.HillClimbing;
 import com.angryballs.crazygolf.AI.SimulatedAnnealing;
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
+import com.angryballs.crazygolf.AI.Pathfinding.Pathfinder;
 import com.angryballs.crazygolf.Editor.EditorOverlay;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.FlagpoleModel;
 import com.angryballs.crazygolf.Models.Skybox;
 import com.angryballs.crazygolf.Models.TerrainModel;
 import com.angryballs.crazygolf.Models.TreeModel;
+import com.angryballs.crazygolf.Models.WallModel;
 import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
 import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -31,7 +35,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
@@ -53,6 +56,8 @@ public class GameScreen3D extends ScreenAdapter {
     private final BitmapFont font;
 
     private MenuOverlay menuOverlay;
+    private final Sound swingSound;
+    private final Music winMusic;
 
     // USERINPUT:
     private float pressedTime;
@@ -62,23 +67,30 @@ public class GameScreen3D extends ScreenAdapter {
 
     private boolean spacePressed;
 
+    private WallModel[] wallModels;
     private EditorOverlay editorOverlay;
+
+    private boolean win = false;
 
     public GameScreen3D(LevelInfo levelInfo, final GrazyGolf game) {
         levelInfo.reload();
+
+        this.levelInfo = levelInfo;
+
+        loadLevel();
+        swingSound = Gdx.audio.newSound(Gdx.files.internal("whoosh.wav"));
+        winMusic = Gdx.audio.newMusic(Gdx.files.internal("win.ogg"));
+
+        winMusic.setVolume(0.1f);
+
         editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
         spacePressed = false;
 
-        this.levelInfo = levelInfo;
-        loadLevel();
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         terrainModel = new TerrainModel(levelInfo);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
         skybox = new Skybox();
-        gdBot = new GradientDescent(levelInfo, trees);
-        hcBot = new HillClimbing(levelInfo, trees);
-        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees);
 
         inputAdapter = new GameScreenInputAdapter();
 
@@ -119,6 +131,23 @@ public class GameScreen3D extends ScreenAdapter {
     public void loadLevel() {
         terrainModel = new TerrainModel(levelInfo);
         generateTrees();
+
+        // Generate walls
+        wallModels = new WallModel[levelInfo.walls.size()];
+        for (int i = 0; i < levelInfo.walls.size(); ++i) {
+            var rect = levelInfo.walls.get(i);
+            wallModels[i] = new WallModel(rect);
+            wallModels[i].transform.setTranslation(rect.getX() + rect.width / 2, 0,
+                    -(rect.getY() + rect.height / 2));
+        }
+
+        Path path = Pathfinder.findPath(levelInfo);
+
+        levelInfo.optimalPath = path;
+
+        gdBot = new GradientDescent(levelInfo, trees, path);
+        hcBot = new HillClimbing(levelInfo, trees, path);
+        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees, path);
     }
 
     @Override
@@ -139,14 +168,28 @@ public class GameScreen3D extends ScreenAdapter {
         editorOverlay.draw(modelBatch);
         for (var tree : trees)
             tree.Render(modelBatch, environment);
+
+        for (var wall : wallModels)
+            modelBatch.render(wall, environment);
+
         modelBatch.end();
 
         if (state == State.PAUSE) {
             menuOverlay.act();
             menuOverlay.draw();
         } else if (state == State.RUN) {
-            for (int i = 0; i < 50; ++i)
-                physicsSystem.iterate();
+            for (int i = 0; i < 50; ++i) {
+                int result = physicsSystem.iterate();
+
+                if (result == 3 && !win) {
+                    winMusic.play();
+                    win = true;
+                }
+
+                if (result != 0)
+                    break;
+            }
+
             camControls.update(delta);
             skybox.transform.setTranslation(new Vector3(cam.position).add(new Vector3(0, 20, 0)));
             skybox.transform.rotate(new Vector3(0, 1, 0), 0.04f);
@@ -185,7 +228,7 @@ public class GameScreen3D extends ScreenAdapter {
         else if (currentBot == saBot)
             currBotText = "Simulated Annealing";
 
-        font.draw(spriteBatch, "Active Bot = " + currBotText, 10,
+        font.draw(spriteBatch, "Active Bot = " + currBotText + (addNoise ? " (noise enabled)" : ""), 10,
                 Gdx.graphics.getHeight() - 90);
 
         spriteBatch.end();
@@ -247,23 +290,27 @@ public class GameScreen3D extends ScreenAdapter {
             return;
 
         physicsSystem.performMove(VelocityReader.initialVelocities.get(initialVelocitiesInd++));
+        swingSound.play(0.1f);
     }
 
     private Bot gdBot;
     private Bot hcBot;
     private Bot saBot;
     private Bot currentBot;
+    private boolean addNoise;
 
     private void botPerformSwing() {
         currentBot.applyPhysicsState(physicsSystem);
-        var optimalMove = currentBot.computeOptimalMove(physicsSystem.x, physicsSystem.y);
+        var optimalMove = currentBot.computeMove(physicsSystem.x, physicsSystem.y);
 
         physicsSystem.performMove(optimalMove);
+        swingSound.play(0.1f);
     }
 
     private void shootBall() {
         var power = updatePower(0);
         physicsSystem.performMove(new Vector2(power * cam.direction.x, power * -cam.direction.z));
+        swingSound.play(0.1f);
     }
 
     private float updatePower(float delta) {
@@ -275,6 +322,7 @@ public class GameScreen3D extends ScreenAdapter {
     private void resetGame() {
         physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
         initialVelocitiesInd = 0;
+        win = false;
     }
 
     private List<TreeModel> trees = new ArrayList<TreeModel>();
@@ -301,9 +349,9 @@ public class GameScreen3D extends ScreenAdapter {
 
         var reverseAngle = new Vector3(camDir).scl(-4);
 
-        cam.direction.set(camDir);
+        cam.direction.set(camDir.add(reverseAngle));
 
-        cam.position.add(reverseAngle);
+        // cam.position.add(reverseAngle);
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
@@ -352,6 +400,8 @@ public class GameScreen3D extends ScreenAdapter {
                 currentBot = saBot;
             else if (keycode == Input.Keys.R)
                 resetGame();
+            else if (keycode == Input.Keys.E)
+                addNoise = !addNoise;
 
             return true;
         }
@@ -364,6 +414,13 @@ public class GameScreen3D extends ScreenAdapter {
 
         @Override
         public boolean mouseMoved(int screenX, int screenY) {
+            if (state == State.RUN)
+                camControls.touchDragged(screenX, screenY, 0);
+            return true;
+        }
+
+        @Override
+        public boolean touchDragged(int screenX, int screenY, int pointer) {
             if (state == State.RUN)
                 camControls.touchDragged(screenX, screenY, 0);
             return true;

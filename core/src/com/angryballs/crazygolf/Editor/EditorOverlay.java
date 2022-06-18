@@ -1,39 +1,39 @@
 package com.angryballs.crazygolf.Editor;
 
+import java.util.Stack;
+
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.SplineInfo;
-import com.angryballs.crazygolf.Models.BallModel;
-import com.angryballs.crazygolf.Models.TerrainModel;
+import com.angryballs.crazygolf.Editor.CompositionTools.*;
+import com.angryballs.crazygolf.Models.*;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 
 public class EditorOverlay {
+    private final CompositionTool[] compositionTools;
 
-    private enum EditorMode {
-        tree,
-        wall,
-        terrain
-    };
+    private int compositionToolIndex = 0;
 
-    private EditorMode currentMode = EditorMode.tree;
+    private CompositionTool currentCompositionTool = null;
 
     private boolean enabled = false;
 
-    private Runnable terrainModifiedEvent;
+    private final Runnable terrainModifiedEvent;
 
-    private LevelInfo levelInfo;
+    private final LevelInfo levelInfo;
 
-    private TerrainModel gridModel;
-    private BallModel ballModel;
+    private final TerrainModel gridModel;
+
+    private final BallModel ballModel;
 
     private Vector2 cursorPos = new Vector2();
 
     private Vector2 cursorDragStart = new Vector2();
 
-    private SplineInfo currentSplineInfo;
+    private BallModel[] pathFindIndicator = new BallModel[0];
+
+    private final Stack<BallModel> ballModelPool = new Stack<BallModel>();
 
     public EditorOverlay(LevelInfo levelInfo, Runnable updateAction) {
         this.levelInfo = levelInfo;
@@ -43,6 +43,21 @@ public class EditorOverlay {
         ballModel = new BallModel();
         ballModel.transform.scl(5);
         terrainModifiedEvent = updateAction;
+
+        for (int i = 0; i < 100; ++i)
+            createPathBall();
+
+        updatePathIndicators();
+
+        compositionTools = createCompositionTools();
+        currentCompositionTool = compositionTools[compositionToolIndex];
+    }
+
+    private CompositionTool[] createCompositionTools() {
+        return new CompositionTool[] {
+                new TreeCompositionTool(levelInfo),
+                new WallCompositionTool(levelInfo)
+        };
     }
 
     public boolean isEnabled() {
@@ -50,14 +65,12 @@ public class EditorOverlay {
     }
 
     public String getCurrentMode() {
-        return currentMode.toString();
+        return currentCompositionTool.name;
     }
 
     private Vector2 currentlyTargetedNode(Vector3 origin, Vector3 direction) {
         Vector3 sclDirection = new Vector3(direction).scl(0.5f);
         Vector3 currentPosition = new Vector3(origin);
-
-        // double lastHeight = currentPosition.y;
 
         boolean found = false;
         // Find intersect point
@@ -70,54 +83,38 @@ public class EditorOverlay {
                 break;
             }
         }
+
         if (!found)
             return new Vector2();
 
-        if (currentMode == EditorMode.terrain) {
-            var spline = levelInfo.getContainingSpline(new Vector2(currentPosition.x, -currentPosition.z));
-            if (spline != null) {
-                float x = Math.round((currentPosition.x - spline.x) / 2) * 2 + spline.x;
-                float y = Math.round((-currentPosition.z - spline.y) / 2) * 2 + spline.y;
-                return new Vector2(x, y);
-            }
-        }
-        float x = Math.round(currentPosition.x);
-        float y = -Math.round(currentPosition.z);
-
-        return new Vector2(x, y);
+        return currentCompositionTool
+                .applyCursorOffset(new Vector2(Math.round(currentPosition.x), -Math.round(currentPosition.z)));
     }
 
-    Vector2 lastCursorPos = null;
-
     public void update(Camera cam) {
-        lastCursorPos = cursorPos;
+        var lastCursorPos = cursorPos;
         var pos = cursorPos = currentlyTargetedNode(cam.position, cam.direction);
 
-        var height = levelInfo.heightProfile(pos.x, pos.y);
-
-        var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
-
-        ballModel.transform.setTranslation(markerPos);
-
         if (!lastCursorPos.equals(cursorPos)) {
+            var height = levelInfo.heightProfile(pos.x, pos.y);
+
+            var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
+
+            ballModel.transform.setTranslation(markerPos);
+
             var gridDelta = new Vector2(cursorPos).sub(cursorDragStart);
 
-            if (currentMode == EditorMode.terrain && isHoldingMouse) {
-                var splineCentre = new Vector2(cursorDragStart).add(cursorPos).scl(0.5f);
+            if (isHoldingMouse) {
+                var tlX = Math.min(cursorPos.x, cursorDragStart.x);
+                var tlY = Math.min(cursorPos.y, cursorDragStart.y);
 
-                levelInfo.splines.remove(currentSplineInfo);
+                Vector2 tlC = new Vector2(tlX, tlY);
 
-                var newSpline = new SplineInfo((int) splineCentre.x, (int) splineCentre.y, (int) Math.abs(gridDelta.x),
-                        (int) Math.abs(gridDelta.y),
-                        levelInfo);
+                var normalizedRectangle = new Rectangle(tlC.x, tlC.y, Math.abs(gridDelta.x),
+                        Math.abs(gridDelta.y));
 
-                if (gridDelta.x == 0 || gridDelta.y == 0) {
-                    currentSplineInfo = null;
-                } else {
-                    levelInfo.splines.add(newSpline);
-                    currentSplineInfo = newSpline;
-                }
-                terrainModifiedEvent.run();
+                if (currentCompositionTool.handleDrag(normalizedRectangle))
+                    refreshLevel();
             }
         }
     }
@@ -128,6 +125,9 @@ public class EditorOverlay {
 
         modelBatch.render(gridModel);
         modelBatch.render(ballModel);
+
+        for (BallModel ballModel : pathFindIndicator)
+            modelBatch.render(ballModel);
     }
 
     public boolean handleKeyPress(int keycode) {
@@ -147,14 +147,12 @@ public class EditorOverlay {
 
         if (keycode == Keys.R) {
             levelInfo.reload();
-            terrainModifiedEvent.run();
+            refreshLevel();
             return true;
         }
         if (keycode == Keys.FORWARD_DEL) {
-            if (currentMode == EditorMode.tree) {
-                if (levelInfo.trees.remove(cursorPos))
-                    terrainModifiedEvent.run();
-            }
+            if (currentCompositionTool.handleDelete(cursorPos))
+                refreshLevel();
             return true;
         }
 
@@ -172,38 +170,63 @@ public class EditorOverlay {
         if (!enabled)
             return false;
 
-        if (currentMode == EditorMode.tree) {
-            levelInfo.trees.add(cursorPos);
-            terrainModifiedEvent.run();
-        }
-
-        if (currentMode == EditorMode.terrain) {
-            isHoldingMouse = true;
-
-        }
-
+        isHoldingMouse = true;
+        cursorDragStart = cursorPos;
         return true;
     }
 
     public boolean onMouseUp() {
+        isHoldingMouse = false;
+
         if (!enabled)
             return false;
+
+        if (currentCompositionTool.handleClick(cursorPos))
+            refreshLevel();
 
         return true;
     }
 
     private void switchMode() {
-        switch (currentMode) {
-            case tree:
-                currentMode = EditorMode.wall;
-                break;
-            case wall:
-                currentMode = EditorMode.terrain;
-                break;
-            case terrain:
-                currentMode = EditorMode.tree;
-                break;
+        currentCompositionTool = compositionTools[(++compositionToolIndex) % compositionTools.length];
+    }
+
+    private void refreshLevel() {
+        terrainModifiedEvent.run();
+        updatePathIndicators();
+    }
+
+    private void updatePathIndicators() {
+        for (BallModel ballModel : pathFindIndicator) {
+            ballModelPool.add(ballModel);
+        }
+
+        var thing = levelInfo.optimalPath;
+        if (thing == null) {
+            pathFindIndicator = new BallModel[0];
+            return;
+        }
+
+        pathFindIndicator = new BallModel[thing.path.size()];
+
+        for (int i = 0; i < thing.path.size(); ++i) {
+            var pos = thing.path.get(i);
+
+            if (ballModelPool.empty())
+                createPathBall();
+
+            var ballModel = ballModelPool.pop();
+            ballModel.transform.setTranslation(pos.x - 64 + 0.5f,
+                    levelInfo.heightProfile(pos.x - 64 + 0.5f, pos.y - 64 + 0.5f).floatValue(),
+                    -(pos.y - 64 + 0.5f));
+
+            pathFindIndicator[i] = ballModel;
         }
     }
 
+    private void createPathBall() {
+        var ball = new BallModel();
+        ball.transform.scl(2, 2, 5);
+        ballModelPool.add(ball);
+    }
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.script.Bindings;
@@ -17,10 +18,12 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 
+import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.w3c.dom.css.Rect;
 
 public class LevelInfo {
     public static final LevelInfo exampleInput;
@@ -39,12 +42,16 @@ public class LevelInfo {
     public final float sandKineticFrictionCoeff;
     public final float sandStaticFrictionCoeff;
 
+    public final ArrayList<Rectangle> walls = new ArrayList<>();
+    public final ArrayList<Rectangle> originalWalls = new ArrayList<>();
+
     private final String heightProfile;
 
     public final ArrayList<Vector2> trees = new ArrayList<>();
     public final ArrayList<Vector2> originalTrees = new ArrayList<>();
 
     public final ArrayList<SplineInfo> splines = new ArrayList<>();
+    public Path optimalPath = null;
 
     // Older usage of the script engine, which always interpreted the heightProfile
     // Discontinued in favor of the new method, which uses a precompiled profile
@@ -83,13 +90,15 @@ public class LevelInfo {
 
     public Double heightProfile(double x, double y) {
         for (var spline : splines) {
-            if (spline.isInSpline(x, y)){
-                return spline.heightAt(x, y);}
+            if (spline.isInSpline(x, y)) {
+                return spline.heightAt(x, y);
+            }
         }
 
-        return evaluateHeight(x,y);
+        return evaluateHeight(x, y);
     }
-    public Double evaluateHeight(double x, double y){
+
+    public Double evaluateHeight(double x, double y) {
         if (lastX == null || lastX != x) {
             bindings.put("x", x);
             lastX = x;
@@ -158,17 +167,36 @@ public class LevelInfo {
                 }
             }
 
+            var wallString = props.getProperty("walls", "");
+
+            if (!wallString.equals("")) {
+                var wallsSplit = wallString.split(";");
+
+                for (String wallRectString : wallsSplit) {
+                    var rectInfo = wallRectString.substring(1, wallRectString.length() - 1).split(",");
+
+                    float x = Float.parseFloat(rectInfo[0]);
+                    float y = Float.parseFloat(rectInfo[1]);
+                    float w = Float.parseFloat(rectInfo[2]);
+                    float h = Float.parseFloat(rectInfo[3]);
+
+                    var wallRect = new Rectangle(x, y, w, h);
+                    walls.add(wallRect);
+                    originalWalls.add(wallRect);
+                }
+            }
+
             heightProfile = props.getProperty("heightProfile", "0");
             expression = ((Compilable) engine).compile(heightProfile);
             bindings = engine.createBindings();
 
             SplineInfo s = new SplineInfo(-5, -5, 11, 11, this);
 
-            s.moveDown(5,5);
-            s.moveDown(5,5);
-            s.moveDown(5,5);
+            s.moveDown(5, 5);
+            s.moveDown(5, 5);
+            s.moveDown(5, 5);
 
-            s.moveUp(-5,-5);
+            s.moveUp(-5, -5);
 
             splines.add(s);
 
@@ -183,35 +211,45 @@ public class LevelInfo {
         trees.clear();
         for (var tree : originalTrees)
             trees.add(tree);
+
+        walls.clear();
+        for (var wall : originalWalls)
+            walls.add(wall);
     }
 
     public void save() {
         Properties props = new Properties();
 
-        props.put("x0", Float.toString(startPosition.x));
-        props.put("y0", Float.toString(startPosition.y));
+        props.put("x0", String.format(Locale.US, "%f", startPosition.x));
+        props.put("y0", String.format(Locale.US, "%f", startPosition.y));
 
-        props.put("xt", Float.toString(endPosition.x));
-        props.put("yt", Float.toString(endPosition.y));
+        props.put("xt", String.format(Locale.US, "%f", endPosition.x));
+        props.put("yt", String.format(Locale.US, "%f", endPosition.y));
 
-        props.put("r", Float.toString(holeRadius));
+        props.put("r", String.format(Locale.US, "%f", holeRadius));
 
-        props.put("muk", Float.toString(grassKineticFrictionCoeff));
-        props.put("mus", Float.toString(grassStaticFrictionCoeff));
+        props.put("muk", String.format(Locale.US, "%f", grassKineticFrictionCoeff));
+        props.put("mus", String.format(Locale.US, "%f", grassStaticFrictionCoeff));
 
-        props.put("muks", Float.toString(sandKineticFrictionCoeff));
-        props.put("muss", Float.toString(sandStaticFrictionCoeff));
+        props.put("muks", String.format(Locale.US, "%f", sandKineticFrictionCoeff));
+        props.put("muss", String.format(Locale.US, "%f", sandStaticFrictionCoeff));
 
-        props.put("sandPitX", String.format("%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
-        props.put("sandPitY", String.format("%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
+        props.put("sandPitX", String.format(Locale.US, "%f<x<%f", sandPitBounds[0].x, sandPitBounds[1].x));
+        props.put("sandPitY", String.format(Locale.US, "%f<y<%f", sandPitBounds[0].y, sandPitBounds[1].y));
 
         props.put("heightProfile", heightProfile);
 
         String treeString = "";
         for (Vector2 tree : trees) {
-            treeString = String.format("%s(%f,%f);", treeString, tree.x, tree.y);
+            treeString = String.format(Locale.US, "%s(%f,%f);", treeString, tree.x, tree.y);
         }
-        props.put("trees", treeString);
+
+        String wallString = "";
+        for (Rectangle wall : walls) {
+            wallString = String.format(Locale.US, "%s(%f,%f,%f,%f);", wallString, wall.x, wall.y, wall.width,
+                    wall.height);
+        }
+        props.put("walls", wallString);
 
         try {
             var time = new Timestamp(System.currentTimeMillis());

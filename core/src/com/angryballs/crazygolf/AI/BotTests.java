@@ -11,23 +11,23 @@ public class BotTests {
         // Bot rbb = new RuleBasedBot(INFO);
         // rbb.run(rbb);
         System.out.println("\nGradient Descent");
-        Bot gd = new GradientDescent(INFO, new ArrayList<>());
+        Bot gd = new GradientDescent(INFO, new ArrayList<>(), null);
         gd.run();
 
         System.out.println("\nNewton Raphson");
-        Bot nr = new NewtonRaphson(INFO, new ArrayList<>());
+        Bot nr = new NewtonRaphson(INFO, new ArrayList<>(), null);
         // nr.run();
 
         System.out.println("\nHill Climbing");
 
-        Bot hc = new HillClimbing(INFO, new ArrayList<>());
+        Bot hc = new HillClimbing(INFO, new ArrayList<>(), null);
         hc.run();
 
         System.out.println("\nSimulated Annealing");
         int total = 0;
         int holeInOnes = 0;
         for (int i = 0; i < 1; ++i) {
-            Bot sa = new SimulatedAnnealing(INFO, new ArrayList<>());
+            Bot sa = new SimulatedAnnealing(INFO, new ArrayList<>(), null);
             int count = sa.run();
 
             if (count == 1)

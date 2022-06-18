@@ -1,5 +1,10 @@
 package com.angryballs.crazygolf;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.loaders.MusicLoader;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -36,6 +41,8 @@ public class MenuOverlay extends Stage {
     private final ImageButton playButton;
     private final ImageButton exitButton;
 
+    private final Sound tapSound;
+
     public MenuOverlay(boolean showLogo, Runnable playAction, Runnable exitAction) {
 
         this.showLogo = showLogo;
@@ -48,6 +55,8 @@ public class MenuOverlay extends Stage {
         var exitButtonActive = new TextureRegionDrawable(new Texture("exit_button_active.png"));
         var exitButtonInactive = new TextureRegionDrawable(new Texture("exit_button_inactive.png"));
 
+        tapSound = Gdx.audio.newSound(Gdx.files.internal("tap.wav"));
+
         int x = GrazyGolf.MENU_SCREEN_WIDTH / 2 - EXIT_BUTTON_WIDTH / 2;
 
         playButton = new ImageButton(createButtonStyleWith(playButtonInactive, playButtonActive, playButtonActive));
@@ -55,6 +64,7 @@ public class MenuOverlay extends Stage {
         playButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                tapSound.play();
                 playCallback.run();
             }
         });
@@ -65,6 +75,7 @@ public class MenuOverlay extends Stage {
         exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                tapSound.play();
                 exitCallback.run();
             }
         });
