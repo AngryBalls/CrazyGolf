@@ -185,22 +185,6 @@ public abstract class PhysicsEngine {
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
     }
 
-    /**
-     * Second order for derivative calculation. But not necessary. No obvious improvement.
-     */
-    public final Vector2 fivePointDer(double v1, double v2) {
-        double x = (getHeight(v1 - 2 * dh, v2) - 8 * getHeight(v1 - dh, v2)
-                + 8 * getHeight(v1 + dh, v2) - getHeight(v1 + 2 * dh, v2)) / (12 * dh);
-        double y = (getHeight(v1, v2 - 2 * dh) - 8 * getHeight(v1, v2 - dh)
-                + 8 * getHeight(v1, v2 + dh) - getHeight(v1, v2 + 2 * dh)) / (12 * dh);
-        return new Vector2((float) (x), (float) (y));
-    }
-
-    public final Vector2 centerDer(double v1, double v2) {
-        double x = (getHeight(v1 + dh, v2) - getHeight(v1 - dh, v2)) / (2 * dh);
-        double y = (getHeight(v1, v2 + dh) - getHeight(v1, v2 - dh)) / (2 * dh);
-        return new Vector2((float) (x), (float) (y));
-    }
 
     public final double accelerationX(double offset, Vector2 dh) {
         return accelerationX(offset, dh.x, dh.y);
@@ -257,10 +241,7 @@ public abstract class PhysicsEngine {
     }
 
     private final boolean isSteep(double dx, double dy) {
-        //TODO: Test with map which has very steep hills.
-        // New motion equations cause larger errors in normal case.
-        return false;
-        // return (Math.abs(1 - dx * dx) < this.dh || Math.abs(1 - dy * dy) < this.dh);
+        return (Math.abs(1 - dx * dx) < this.dh || Math.abs(1 - dy * dy) < this.dh);
     }
 
     public final double getX() {
