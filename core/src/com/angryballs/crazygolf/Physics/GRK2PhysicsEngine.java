@@ -46,8 +46,8 @@ public class GRK2PhysicsEngine extends PhysicsEngine {
         var w = acceleration(derivative);
 
         // This needs cleaning
-        var accelerationX = accelerationX(alpha * h * w.x, derivative.x);
-        var accelerationY = accelerationY(alpha * h * w.y, derivative.y);
+        var accelerationX = accelerationX(alpha * h * w.x, derivative);
+        var accelerationY = accelerationY(alpha * h * w.y, derivative);
 
         double x = (1 - 1 / (2 * alpha)) * w.x + 1 / (2 * alpha) * accelerationX;
         double y = (1 - 1 / (2 * alpha)) * w.y + 1 / (2 * alpha) * accelerationY;

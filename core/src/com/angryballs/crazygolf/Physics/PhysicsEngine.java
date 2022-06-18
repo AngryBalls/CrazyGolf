@@ -18,6 +18,11 @@ import com.badlogic.gdx.math.Rectangle;
  */
 public abstract class PhysicsEngine {
 
+    // 0 -> Off
+    // 1 -> Always on
+    // 2 -> Adaptive
+    private static int useNewPhysics = 2;
+
     // Current State
     public double x; // x coordinate
     public double y; // y coordinate
@@ -70,7 +75,7 @@ public abstract class PhysicsEngine {
         sandBoundsY = LevelInfo.exampleInput.sandPitBounds[1];
     }
 
-    private void reset() {
+    protected void reset() {
         vx = vy = 0;
         x = levelInfo.startPosition.x;
         y = levelInfo.startPosition.y;
@@ -190,46 +195,73 @@ public abstract class PhysicsEngine {
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
     }
 
-    public final double derivativeX(double v1, double v2) {
-        return (getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh;
-
+    public final double accelerationX(double offset, Vector2 dh) {
+        return accelerationX(offset, dh.x, dh.y);
     }
 
     public final double derivativeY(double v1, double v2) {
         return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
     }
 
-    public final double accelerationX(double offset, double dx) {
+    public final double accelerationX(double offset, double dx, double dy) {
         var u = isInSand() ? usk : uk;
 
-        double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
-
-        return -g * dx - u * g * (vx + offset) / sqrt;
+        if (isSteep(dx, dy)) {
+            double vx = this.vx + offset;
+            return -g * dx / (1 + dx * dx + dy * dy)
+                    - u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dx * vy) * (dx * vx + dy * vy));
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx + offset, 2) + Math.pow(vy, 2));
+            return -g * dx - u * g * (vx + offset) / sqrt;
+        }
     }
 
-    public final double accelerationY(double offset, double dy) {
+    public final double accelerationY(double offset, Vector2 dh) {
+        return accelerationY(offset, dh.x, dh.y);
+    }
+
+    public final double accelerationY(double offset, double dx, double dy) {
         var u = isInSand() ? usk : uk;
-
-        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
-
-        return -g * dy - u * g * (vy + offset) / sqrt;
+        if (isSteep(dx, dy)) {
+            double vy = this.vy + offset;
+            return -g * dy / (1 + dx * dx + dy * dy)
+                    - u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dx * vx + dy * vy) * (dx * vx + dy * vy));
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy + offset, 2));
+            return -g * dy - u * g * (vy + offset) / sqrt;
+        }
     }
 
     /**
      * Method to calculate the acceleration for a specific state vector in X or Y
      * axis
      *
-     * @param u friction coefficient
      * @return acceleration w.r.t. X AND Y
      */
     public final Vector2 acceleration(Vector2 dh) {
         var u = isInSand() ? usk : uk;
-        double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
 
-        var x = -g * dh.x - u * g * (vx) / sqrt;
-        var y = -g * dh.y - u * g * (vy) / sqrt;
+        if (isSteep(dh.x, dh.y)) {
+            var x = -g * dh.x / (1 + dh.x * dh.x + dh.y * dh.y) -
+                    u * g * (vx) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.x * vy) * (dh.x * vx + dh.y * vy));
+            var y = -g * dh.y / (1 + dh.x * dh.x + dh.y * dh.y) -
+                    u * g * (vy) / Math.sqrt(vx * vx + vy * vy + (dh.x * vx + dh.y * vy) * (dh.x * vx + dh.y * vy));
+            return new Vector2((float) x, (float) y);
+        } else {
+            double sqrt = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2));
+            var x = -g * dh.x - u * g * (vx) / sqrt;
+            var y = -g * dh.y - u * g * (vy) / sqrt;
+            return new Vector2((float) x, (float) y);
+        }
+    }
 
-        return new Vector2((float) x, (float) y);
+    private final boolean isSteep(double dx, double dy) {
+        if (PhysicsEngine.useNewPhysics == 0)
+            return false;
+        else if (PhysicsEngine.useNewPhysics == 1)
+            return true;
+
+        return (Math.abs(1 - dx * dx) < PhysicsEngine.dh || Math.abs(1 - dy * dy) < PhysicsEngine.dh);
     }
 
     public final double getX() {
