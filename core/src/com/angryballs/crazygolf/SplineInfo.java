@@ -237,10 +237,11 @@ public class SplineInfo {
         if (!modifiedNodes.contains(new Vector2(ix, iy)))
             modifiedNodes.add(new Vector2(ix, iy));
 
-        if (Math.abs(height) >= HEIGHT_LIMIT)
+        if (Math.abs(height+amount) > HEIGHT_LIMIT)
             return false;
         else {
             nodes[ix][iy] = height + amount;
+            System.out.println("Height: "+nodes[ix][iy]);
             return true;
         }
     }

@@ -212,6 +212,8 @@ public class EditorOverlay {
         var height = levelInfo.heightProfile(cursorPos.x, cursorPos.y);
 
         var markerPos = new Vector3(cursorPos.x, (float) (height + 0.5), -cursorPos.y);
+        if(height<0)
+            markerPos.y = 0.5f;
 
         ballModel.transform.setTranslation(markerPos);
     }
