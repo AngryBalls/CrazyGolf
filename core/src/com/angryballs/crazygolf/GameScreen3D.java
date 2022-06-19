@@ -344,16 +344,14 @@ public class GameScreen3D extends ScreenAdapter {
     private void findBall() {
         var pPos = levelInfo.endPosition;
 
-        cam.position.set(new Vector3((float) physicsSystem.x,
-                levelInfo.heightProfile(physicsSystem.x, physicsSystem.y).floatValue() + 1.7f,
-                -(float) physicsSystem.y));
+        cam.position.set(new Vector3((float) physicsSystem.x, 0, -(float) physicsSystem.y));
         var camDir = new Vector3((float) (pPos.x - physicsSystem.x), 0, (float) -(pPos.y - physicsSystem.y)).nor();
 
         var reverseAngle = new Vector3(camDir).scl(-4);
 
-        cam.direction.set(camDir.add(reverseAngle));
+        cam.direction.set(camDir);
 
-        // cam.position.add(reverseAngle);
+        cam.position.add(reverseAngle);
     }
 
     private class GameScreenInputAdapter extends InputAdapter {
