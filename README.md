@@ -1,4 +1,4 @@
-# GrazyGolf (2022 Group 20 Golf game - Phase 2)
+# GrazyGolf (2022 Group 03 Golf game)
 
 This program is a game that mimics minigolf
 
