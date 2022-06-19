@@ -1,10 +1,7 @@
 package com.angryballs.crazygolf;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.loaders.MusicLoader;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

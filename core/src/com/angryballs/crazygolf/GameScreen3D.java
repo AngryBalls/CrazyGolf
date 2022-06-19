@@ -2,7 +2,6 @@ package com.angryballs.crazygolf;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import com.angryballs.crazygolf.AI.Bot;
 import com.angryballs.crazygolf.AI.GradientDescent;
@@ -86,7 +85,7 @@ public class GameScreen3D extends ScreenAdapter {
         editorOverlay = new EditorOverlay(levelInfo, () -> loadLevel());
         spacePressed = false;
 
-        physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
+        physicsSystem = new GRK2PhysicsEngine(levelInfo);
         terrainModel = new TerrainModel(levelInfo);
         ballModel = new BallModel();
         poleModel = new FlagpoleModel();
@@ -145,9 +144,9 @@ public class GameScreen3D extends ScreenAdapter {
 
         levelInfo.optimalPath = path;
 
-        gdBot = new GradientDescent(levelInfo, trees, path);
-        hcBot = new HillClimbing(levelInfo, trees, path);
-        saBot = currentBot = new SimulatedAnnealing(levelInfo, trees, path);
+        gdBot = new GradientDescent(levelInfo, path);
+        hcBot = new HillClimbing(levelInfo, path);
+        saBot = currentBot = new SimulatedAnnealing(levelInfo, path);
     }
 
     @Override
@@ -322,7 +321,7 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     private void resetGame() {
-        physicsSystem = new GRK2PhysicsEngine(levelInfo, trees);
+        physicsSystem = new GRK2PhysicsEngine(levelInfo);
         initialVelocitiesInd = 0;
         win = false;
     }
@@ -330,9 +329,6 @@ public class GameScreen3D extends ScreenAdapter {
     private List<TreeModel> trees = new ArrayList<TreeModel>();
 
     private void generateTrees() {
-        int n = 0;
-
-        Random rng = new Random();
         trees.clear();
         for (var tree : levelInfo.trees) {
             var treeModel = new TreeModel();

@@ -12,7 +12,7 @@ public class TreeModel {
     private final LogModel logModel;
     private final LeafModel leafModel;
 
-    public final float treeRadius = 0.25f;
+    public static final float treeRadius = 0.25f;
 
     public TreeModel() {
         this(false);

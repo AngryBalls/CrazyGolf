@@ -1,16 +1,12 @@
 package com.angryballs.crazygolf.AI;
 
-import java.util.List;
-
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class RuleBasedBot extends Bot {
-    public RuleBasedBot(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
-        super(info, trees, optimalPath);
+    public RuleBasedBot(LevelInfo info, Path optimalPath) {
+        super(info, optimalPath);
     }
 
     /**
@@ -22,7 +18,7 @@ public class RuleBasedBot extends Bot {
      * @param y starting Y coordinate
      * @return vector( vx, vy )
      */
-    public Vector2 shoot(double x, double y) {
+    private Vector2 shoot(double x, double y) {
         double distance = distanceSquared(x, y);
 
         double xs = x;
@@ -62,7 +58,7 @@ public class RuleBasedBot extends Bot {
      * @param y starting Y coordinate
      * @return vector( vx, vy )
      */
-    public Vector2 swing(double x, double y) {
+    private Vector2 swing(double x, double y) {
         double distance = distanceSquared(ps.x, ps.y);
         Vector2 startCoords = new Vector2((float) x, (float) y);
 
@@ -108,7 +104,7 @@ public class RuleBasedBot extends Bot {
     }
 
     @Override
-    public Vector2 computeOptimalMove(double x, double y) {
+    protected Vector2 computeOptimalMove(double x, double y) {
         // Try every possible shot
         // return shoot(x,y);
         // Swing towards the target

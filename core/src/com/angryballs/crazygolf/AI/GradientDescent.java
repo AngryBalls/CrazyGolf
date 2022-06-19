@@ -1,16 +1,10 @@
 package com.angryballs.crazygolf.AI;
 
-import java.lang.ref.SoftReference;
-import java.util.List;
+import java.util.ArrayList;
 
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
-import com.angryballs.crazygolf.VelocityReader;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.badlogic.gdx.math.Vector2;
-
-import java.util.ArrayList;
 
 /**
  * Gradient Descent based bot
@@ -45,17 +39,17 @@ public class GradientDescent extends Bot {
     private int lastupd = 0;
     private int iterator = 0;
 
-    public GradientDescent(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
-        super(info, trees, optimalPath);
+    public GradientDescent(LevelInfo info, Path optimalPath) {
+        super(info, optimalPath);
         RADIUS = ps.getRadius();
     }
 
     @Override
-    public Vector2 computeOptimalMove(double x, double y) {
+    protected Vector2 computeOptimalMove(double x, double y) {
         return predict(x, y);
     }
 
-    public double derivative(Vector2 coords, Vector2 speed, boolean isX, double curScore) {
+    private double derivative(Vector2 coords, Vector2 speed, boolean isX, double curScore) {
         double distV;
         double distVnew;
         int sign = 1;
@@ -92,7 +86,7 @@ public class GradientDescent extends Bot {
      * @param y starting Y coordinate
      * @return vector( vx, vy )
      */
-    public Vector2 predict(double x, double y) {
+    private Vector2 predict(double x, double y) {
         Vector2 coords = new Vector2((float) x, (float) y);
 
         // Starting Speeds

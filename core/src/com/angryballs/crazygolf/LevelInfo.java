@@ -1,15 +1,12 @@
 package com.angryballs.crazygolf;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -18,12 +15,11 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
-import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import org.w3c.dom.css.Rect;
 
 public class LevelInfo {
     public static final LevelInfo exampleInput;

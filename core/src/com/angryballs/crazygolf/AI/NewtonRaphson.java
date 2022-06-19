@@ -1,11 +1,7 @@
 package com.angryballs.crazygolf.AI;
 
-import java.util.List;
-
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -42,17 +38,17 @@ public class NewtonRaphson extends Bot {
     private int lastupd = 0;
     private int iterator = 0;
 
-    public NewtonRaphson(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
-        super(info, trees, optimalPath);
+    public NewtonRaphson(LevelInfo info, Path optimalPath) {
+        super(info, optimalPath);
         RADIUS = ps.getRadius();
     }
 
     @Override
-    public Vector2 computeOptimalMove(double x, double y) {
+    protected Vector2 computeOptimalMove(double x, double y) {
         return predict(x, y);
     }
 
-    public double derivative(Vector2 coords, Vector2 speed, boolean isX) {
+    private double derivative(Vector2 coords, Vector2 speed, boolean isX) {
         // Calculate f(V) = dist(point, target)
         double distV = fitnessFun(coords, speed);
 
@@ -79,7 +75,7 @@ public class NewtonRaphson extends Bot {
         return sign * (distVnew - distV) / dv;
     }
 
-    public double fitnessFun(Vector2 coords, Vector2 speed) {
+    private double fitnessFun(Vector2 coords, Vector2 speed) {
         double distV;
 
         // Calculate the f(V) = dist(point, target)
@@ -97,7 +93,7 @@ public class NewtonRaphson extends Bot {
      * @param y starting Y coordinate
      * @return vector( vx, vy )
      */
-    public Vector2 predict(double x, double y) {
+    private Vector2 predict(double x, double y) {
         Vector2 coords = new Vector2((float) x, (float) y);
 
         // take target coords as direction + approximate values

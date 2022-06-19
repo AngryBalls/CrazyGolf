@@ -1,10 +1,6 @@
 package com.angryballs.crazygolf.Physics;
 
-import java.util.List;
-
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -15,8 +11,8 @@ public class GRK2PhysicsEngine extends PhysicsEngine {
 
     private static float alpha = 0.5f;
 
-    public GRK2PhysicsEngine(LevelInfo levelInfo, List<TreeModel> trees) {
-        super(levelInfo, trees);
+    public GRK2PhysicsEngine(LevelInfo levelInfo) {
+        super(levelInfo);
     }
 
     @Override

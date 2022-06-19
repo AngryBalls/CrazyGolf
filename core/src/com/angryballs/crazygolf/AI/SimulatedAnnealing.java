@@ -1,17 +1,14 @@
 package com.angryballs.crazygolf.AI;
 
-import java.util.List;
 import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class SimulatedAnnealing extends Bot {
-    public SimulatedAnnealing(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
-        super(info, trees, optimalPath);
+    public SimulatedAnnealing(LevelInfo info, Path optimalPath) {
+        super(info, optimalPath);
     }
 
     private Random rng = new Random();
@@ -46,7 +43,7 @@ public class SimulatedAnnealing extends Bot {
     }
 
     @Override
-    public Vector2 computeOptimalMove(double x, double y) {
+    protected Vector2 computeOptimalMove(double x, double y) {
         temperature = maxTemp;
         bestDistance = Double.MAX_VALUE;
         bestMove = new Vector2();
@@ -93,25 +90,6 @@ public class SimulatedAnnealing extends Bot {
         return bestMove;
     }
 
-    // MaxT 10 => 6, // MaxT = 20 => 10
-    // Viable on higher MaxT
-    private float easeOutPow2(float t) {
-        return t * t;
-    }
-
-    // MaxT 10 => 12, // MaxT = 20 => 44
-    // Viable on higher MaxT
-    private float easeOutCubic(float t) {
-        return (float) (1 - Math.pow(1 - t, 3));
-    }
-
-    // MaxT 10 => 8, // MaxT = 20 => 42
-    // Viable on higher MaxT, not good at all
-    // with lower T's
-    private float easeOutCirc(float t) {
-        return (float) Math.sqrt(1 - Math.pow(t - 1, 2));
-    }
-
     // MaxT 10 => 20, // MaxT = 20 => 57
     // Best of the bunch
     private float easeOutBounce(float t) {
@@ -127,29 +105,5 @@ public class SimulatedAnnealing extends Bot {
         } else {
             return n1 * (t -= 2.625f / d1) * t + 0.984375f;
         }
-    }
-
-    // MaxT 10 => 6, // MaxT = 20 => 23
-    // Crap
-    private float stepToEaseOutCirc(float t) {
-        if (t < 0.5f)
-            return 0;
-
-        return easeOutCirc((t - 0.5f) * 2);
-    }
-
-    // MaxT 10 => 6, // MaxT = 20 => 26
-    // Pretty good with higher maxT, crap at low maxT
-    private float stepToStep(float t) {
-        if (t < 0.25f)
-            return 0;
-
-        if (t < 0.5f)
-            return 0.5f;
-
-        if (t < 0.75f)
-            return 0.75f;
-
-        return 0.95f;
     }
 }

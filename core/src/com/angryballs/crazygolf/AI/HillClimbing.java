@@ -1,23 +1,19 @@
 package com.angryballs.crazygolf.AI;
 
-import java.util.List;
-
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 public class HillClimbing extends Bot {
 
     private static double EPSILON = Double.MIN_VALUE;
 
-    public HillClimbing(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
-        super(info, trees, optimalPath);
+    public HillClimbing(LevelInfo info, Path optimalPath) {
+        super(info, optimalPath);
     }
 
     @Override
-    public Vector2 computeOptimalMove(double x, double y) {
+    protected Vector2 computeOptimalMove(double x, double y) {
         var current = new double[] { Math.min(Math.max(xt - x, -5), 5), Math.min(Math.max(yt - y, -5), 5) };
         var stepSize = new double[] { 1.0, 1.0 };
         var acc = 0.1;

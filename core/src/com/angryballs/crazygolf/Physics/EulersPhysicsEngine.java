@@ -1,19 +1,14 @@
 package com.angryballs.crazygolf.Physics;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.angryballs.crazygolf.LevelInfo;
-import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 
 /**
  * A physics system using Euler's method to approximate the results
  */
 public class EulersPhysicsEngine extends PhysicsEngine {
-    public EulersPhysicsEngine(LevelInfo levelInfo, List<TreeModel> trees) {
-        super(levelInfo, trees);
+    public EulersPhysicsEngine(LevelInfo levelInfo) {
+        super(levelInfo);
     }
 
     @Override

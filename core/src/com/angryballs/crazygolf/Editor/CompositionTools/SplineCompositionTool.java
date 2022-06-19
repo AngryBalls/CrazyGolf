@@ -3,7 +3,6 @@ package com.angryballs.crazygolf.Editor.CompositionTools;
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.SplineInfo;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 
 public class SplineCompositionTool extends CompositionTool {
@@ -62,7 +61,7 @@ public class SplineCompositionTool extends CompositionTool {
         if (targetSpline == null)
             return false;
 
-        if(amount>0)
+        if (amount > 0)
             targetSpline.moveUp(cursorPos.x, cursorPos.y);
         else
             targetSpline.moveDown(cursorPos.x, cursorPos.y);

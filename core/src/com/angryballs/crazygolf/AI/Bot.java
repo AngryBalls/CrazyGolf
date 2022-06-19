@@ -1,11 +1,9 @@
 package com.angryballs.crazygolf.AI;
 
-import java.util.List;
 import java.util.Random;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.AI.Pathfinding.Path;
-import com.angryballs.crazygolf.Models.TreeModel;
 import com.angryballs.crazygolf.Physics.GRK2PhysicsEngine;
 import com.angryballs.crazygolf.Physics.PhysicsEngine;
 import com.badlogic.gdx.math.Vector2;
@@ -28,17 +26,17 @@ public abstract class Bot {
 
     private final Path optimalPath;
 
-    public Bot(LevelInfo info, List<TreeModel> trees, Path optimalPath) {
-        this.ps = new GRK2PhysicsEngine(info, trees);
+    public Bot(LevelInfo info, Path optimalPath) {
+        this.ps = new GRK2PhysicsEngine(info);
         this.EPSILON = ps.getRadius();
         this.xt = ps.getXt();
         this.yt = ps.getYt();
         this.optimalPath = optimalPath;
     }
 
-    public static final float noiseMagnitude = 0.1f;
+    private static final float noiseMagnitude = 0.1f;
 
-    public static final Random noiseRNG = new Random();
+    private static final Random noiseRNG = new Random();
 
     public Vector2 computeMove(double x, double y) {
         return computeMove(x, y, false);
@@ -81,7 +79,7 @@ public abstract class Bot {
      * @param y y coordinate of the point ( x,y )
      * @return estimated distance
      */
-    public double distanceSquared(double x, double y) {
+    protected double distanceSquared(double x, double y) {
         // We don't have a precomputed path, use direct path
         if (optimalPath == null)
             return (x - xt) * (x - xt) + (y - yt) * (y - yt);
@@ -129,17 +127,6 @@ public abstract class Bot {
 
     // Used for higher precision simulations
     protected final int performMove(Vector2 speed) {
-        ps.performMove(speed);
-
-        int result = 0;
-        while (result == 0)
-            result = ps.iterate();
-
-        return result;
-    }
-
-    // Used for lower precision simulations
-    protected final int performMoveFast(Vector2 speed) {
         ps.performMove(speed);
 
         int result = 0;

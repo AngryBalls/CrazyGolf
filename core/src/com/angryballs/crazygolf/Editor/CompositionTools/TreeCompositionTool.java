@@ -1,7 +1,6 @@
 package com.angryballs.crazygolf.Editor.CompositionTools;
 
 import com.angryballs.crazygolf.LevelInfo;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class TreeCompositionTool extends CompositionTool {

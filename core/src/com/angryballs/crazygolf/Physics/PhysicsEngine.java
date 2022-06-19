@@ -1,12 +1,10 @@
 package com.angryballs.crazygolf.Physics;
 
-import java.security.cert.Extension;
 import java.util.List;
 
 import com.angryballs.crazygolf.LevelInfo;
 import com.angryballs.crazygolf.Models.BallModel;
 import com.angryballs.crazygolf.Models.TreeModel;
-import com.angryballs.crazygolf.Models.WallModel;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
@@ -50,11 +48,11 @@ public abstract class PhysicsEngine {
 
     protected final LevelInfo levelInfo;
 
-    private final List<TreeModel> trees;
+    private final List<Vector2> trees;
 
-    public PhysicsEngine(LevelInfo info, List<TreeModel> trees) {
+    public PhysicsEngine(LevelInfo info) {
         levelInfo = info;
-        this.trees = trees;
+        this.trees = info.trees;
 
         applyPhysicsProperties();
         reset();
@@ -169,15 +167,15 @@ public abstract class PhysicsEngine {
      * @param r       the radius around the hole
      * @return Is the ball inside the target's radius?
      */
-    public final boolean isInCircle(double x, double centerX, double y, double centerY, double r) {
+    private final boolean isInCircle(double x, double centerX, double y, double centerY, double r) {
         return Math.pow((x - centerX), 2) + Math.pow((y - centerY), 2) <= r * r;
     }
 
-    public final double getHeight(double x, double y) {
+    private final double getHeight(double x, double y) {
         return levelInfo.heightProfile(x, y);
     }
 
-    protected final boolean isInSand() {
+    private final boolean isInSand() {
         return (x >= sandBoundsX.x && x <= sandBoundsY.x) && (y >= sandBoundsX.y && y <= sandBoundsY.y);
     }
 
@@ -189,21 +187,17 @@ public abstract class PhysicsEngine {
      * @param v2 current Y coordinate
      * @return dh/dx AND dh/dy
      */
-    public final Vector2 derivative(double v1, double v2) {
+    protected final Vector2 derivative(double v1, double v2) {
         return new Vector2(
                 (float) ((getHeight(v1 + dh, v2) - getHeight(v1, v2)) / dh),
                 (float) ((getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh));
     }
 
-    public final double accelerationX(double offset, Vector2 dh) {
+    protected final double accelerationX(double offset, Vector2 dh) {
         return accelerationX(offset, dh.x, dh.y);
     }
 
-    public final double derivativeY(double v1, double v2) {
-        return (getHeight(v1, v2 + dh) - getHeight(v1, v2)) / dh;
-    }
-
-    public final double accelerationX(double offset, double dx, double dy) {
+    protected final double accelerationX(double offset, double dx, double dy) {
         var u = isInSand() ? usk : uk;
 
         if (isSteep(dx, dy)) {
@@ -216,11 +210,11 @@ public abstract class PhysicsEngine {
         }
     }
 
-    public final double accelerationY(double offset, Vector2 dh) {
+    protected final double accelerationY(double offset, Vector2 dh) {
         return accelerationY(offset, dh.x, dh.y);
     }
 
-    public final double accelerationY(double offset, double dx, double dy) {
+    protected final double accelerationY(double offset, double dx, double dy) {
         var u = isInSand() ? usk : uk;
         if (isSteep(dx, dy)) {
             double vy = this.vy + offset;
@@ -238,7 +232,7 @@ public abstract class PhysicsEngine {
      *
      * @return acceleration w.r.t. X AND Y
      */
-    public final Vector2 acceleration(Vector2 dh) {
+    protected final Vector2 acceleration(Vector2 dh) {
         var u = isInSand() ? usk : uk;
 
         if (isSteep(dh.x, dh.y)) {
@@ -304,19 +298,19 @@ public abstract class PhysicsEngine {
         return (double) r;
     }
 
-    private boolean isIntersectingTree(TreeModel model) {
+    private boolean isIntersectingTree(Vector2 position) {
         var ballRadius = BallModel.ballRadius;
 
-        var distanceSquared = Vector2.dst((float) x, (float) -y, model.getPosition().x, model.getPosition().z);
+        var distanceSquared = Vector2.dst((float) x, (float) y, position.x, position.y);
 
-        if (distanceSquared < ballRadius + model.treeRadius)
+        if (distanceSquared < ballRadius + TreeModel.treeRadius)
             return true;
         return false;
     }
 
     private boolean collidesWithTree() {
-        for (TreeModel treeModel : trees)
-            if (isIntersectingTree(treeModel))
+        for (Vector2 tree : trees)
+            if (isIntersectingTree(tree))
                 return true;
 
         return false;
