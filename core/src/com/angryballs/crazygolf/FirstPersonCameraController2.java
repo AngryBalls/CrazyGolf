@@ -104,6 +104,7 @@ public class FirstPersonCameraController2 extends InputAdapter {
     }
 
     public void update(float deltaTime) {
+        var velocity = noclip ? 50 : this.velocity;
         if (keys.containsKey(FORWARD)) {
             tmp.set(camera.direction).nor().scl(deltaTime * velocity);
             camera.position.add(tmp);

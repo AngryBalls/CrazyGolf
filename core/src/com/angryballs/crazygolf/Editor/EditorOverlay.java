@@ -23,7 +23,7 @@ public class EditorOverlay {
 
     private final LevelInfo levelInfo;
 
-    private final TerrainModel gridModel;
+    private TerrainModel gridModel;
 
     private final BallModel ballModel;
 
@@ -56,7 +56,8 @@ public class EditorOverlay {
     private CompositionTool[] createCompositionTools() {
         return new CompositionTool[] {
                 new TreeCompositionTool(levelInfo),
-                new WallCompositionTool(levelInfo)
+                new WallCompositionTool(levelInfo),
+                new SplineCompositionTool(levelInfo)
         };
     }
 
@@ -93,14 +94,10 @@ public class EditorOverlay {
 
     public void update(Camera cam) {
         var lastCursorPos = cursorPos;
-        var pos = cursorPos = currentlyTargetedNode(cam.position, cam.direction);
+        cursorPos = currentlyTargetedNode(cam.position, cam.direction);
 
         if (!lastCursorPos.equals(cursorPos)) {
-            var height = levelInfo.heightProfile(pos.x, pos.y);
-
-            var markerPos = new Vector3(pos.x, (float) (height + 0.5), -pos.y);
-
-            ballModel.transform.setTranslation(markerPos);
+            updateCursor();
 
             var gridDelta = new Vector2(cursorPos).sub(cursorDragStart);
 
@@ -187,6 +184,16 @@ public class EditorOverlay {
         return true;
     }
 
+    public boolean onScroll(float amount) {
+        if (!enabled)
+            return false;
+
+        if (currentCompositionTool.handleScroll(cursorPos, amount))
+            refreshLevel();
+
+        return true;
+    }
+
     private void switchMode() {
         currentCompositionTool = compositionTools[(++compositionToolIndex) % compositionTools.length];
     }
@@ -194,6 +201,21 @@ public class EditorOverlay {
     private void refreshLevel() {
         terrainModifiedEvent.run();
         updatePathIndicators();
+
+        gridModel = new TerrainModel(levelInfo, true);
+        gridModel.transform.trn(0, 0.5f, 0);
+
+        updateCursor();
+    }
+
+    private void updateCursor() {
+        var height = levelInfo.heightProfile(cursorPos.x, cursorPos.y);
+
+        var markerPos = new Vector3(cursorPos.x, (float) (height + 0.5), -cursorPos.y);
+        if(height<0)
+            markerPos.y = 0.5f;
+
+        ballModel.transform.setTranslation(markerPos);
     }
 
     private void updatePathIndicators() {

@@ -38,7 +38,7 @@ import com.badlogic.gdx.math.Vector3;
 
 public class GameScreen3D extends ScreenAdapter {
     private final ModelBatch modelBatch = new ModelBatch();
-    private final TerrainModel terrainModel;
+    private TerrainModel terrainModel;
     private final BallModel ballModel;
     private final FlagpoleModel poleModel;
     private final Skybox skybox;
@@ -129,6 +129,7 @@ public class GameScreen3D extends ScreenAdapter {
     }
 
     public void loadLevel() {
+        terrainModel = new TerrainModel(levelInfo);
         generateTrees();
 
         // Generate walls
@@ -425,6 +426,14 @@ public class GameScreen3D extends ScreenAdapter {
             if (state == State.RUN)
                 camControls.touchDragged(screenX, screenY, 0);
             return true;
+        }
+
+        @Override
+        public boolean scrolled(float amountX, float amountY) {
+            if (amountY == 0)
+                return false;
+
+            return editorOverlay.onScroll(amountY);
         }
     }
 }
