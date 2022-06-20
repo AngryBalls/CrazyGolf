@@ -19,7 +19,8 @@ public abstract class PhysicsEngine {
     // 0 -> Off
     // 1 -> Always on
     // 2 -> Adaptive
-    private static int useNewPhysics = 2;
+    public static int useNewPhysics = 2;
+    public static double tan;
 
     // Current State
     public double x; // x coordinate
@@ -100,10 +101,10 @@ public abstract class PhysicsEngine {
      * Method to update the state vector
      *
      * @return the reason why the ball should stop or not
-     *         0: no stop
-     *         1: the ball has no speed and acceleration
-     *         2: the ball is in the water (or tree)
-     *         3: the ball is in the hole
+     * 0: no stop
+     * 1: the ball has no speed and acceleration
+     * 2: the ball is in the water (or tree)
+     * 3: the ball is in the hole
      */
 
     public final int iterate() {
@@ -131,7 +132,7 @@ public abstract class PhysicsEngine {
             return 2;
         }
 
-        collidesWithWall();
+//        collidesWithWall();
         // (x-targetX)^2 + (y-targetY)^2 <= radius^2
         if (isInCircle(this.x, this.xt, this.y, this.yt, this.r)) {
             ballMoving = false;
@@ -172,7 +173,8 @@ public abstract class PhysicsEngine {
     }
 
     private final double getHeight(double x, double y) {
-        return levelInfo.heightProfile(x, y);
+        return tan * x;
+//        return levelInfo.heightProfile(x, y);
     }
 
     private final boolean isInSand() {
