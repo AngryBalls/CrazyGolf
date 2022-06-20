@@ -100,10 +100,10 @@ public abstract class PhysicsEngine {
      * Method to update the state vector
      *
      * @return the reason why the ball should stop or not
-     *         0: no stop
-     *         1: the ball has no speed and acceleration
-     *         2: the ball is in the water (or tree)
-     *         3: the ball is in the hole
+     * 0: no stop
+     * 1: the ball has no speed and acceleration
+     * 2: the ball is in the water (or tree)
+     * 3: the ball is in the hole
      */
 
     public final int iterate() {
@@ -255,7 +255,7 @@ public abstract class PhysicsEngine {
         else if (PhysicsEngine.useNewPhysics == 1)
             return true;
 
-        return (Math.abs(1 - dx * dx) < PhysicsEngine.dh || Math.abs(1 - dy * dy) < PhysicsEngine.dh);
+        return (dx * dx > 1 || dy * dy > 1);
     }
 
     public final double getX() {
